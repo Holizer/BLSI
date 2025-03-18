@@ -7,8 +7,11 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+try:
+    engine = create_engine(DATABASE_URL, echo=True)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+except Exception as e:
+    print(f"Ошибка при подключении к базе данных: {e}")
 
 def get_db():
     db = SessionLocal()
