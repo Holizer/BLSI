@@ -1,0 +1,17 @@
+@import './vars.scss';
+
+* {
+      margin: 0;
+      padding: 0;
+}
+
+.Application {
+      font-size: 16px;
+      font-family: $font-family;
+      color: $primary-color;
+      
+      .grid__container {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+      }
+}

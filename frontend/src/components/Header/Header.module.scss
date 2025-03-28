@@ -1,0 +1,14 @@
+@import './../../styles/vars.scss';
+
+.header {
+      display: flex;
+      width: 100%;
+      border-bottom: 1px solid $color-light-gray;
+
+      h1 {
+            width: 100%;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 0.4rem;
+      }
+}

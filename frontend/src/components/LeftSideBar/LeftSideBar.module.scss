@@ -1,0 +1,43 @@
+@import './../../styles/vars.scss';
+
+.sidebar__quicklinks {
+      display: flex;
+      flex-direction: column;
+      padding: 6rem 0;
+      background-color: $baground-menu;
+      width: 220px;
+      height: 100vh;
+      border-right: 1px solid $color-light-gray;
+
+      nav {
+            ul {
+                  list-style: none;
+                  padding: 0;
+        
+                  .menuSection {
+                        margin-left: 3rem;
+
+                        .menuItem {
+                              display: flex;
+                              width: 100%;
+                              color: $primary-color;
+                              text-decoration: none;
+                              font-size: 0.8rem;
+                              padding: 0.4rem 0.8rem;
+                              border-radius: 4px 0 0 4px;
+                              transition: background-color $transition-duration ease;
+
+                              &:hover {
+                                    background-color: $nav-item-bg-color-hover; 
+                              }
+
+                              &.active {
+                                    background-color: $nav-item-bg-color-hover;
+                                    // color: $active-color;
+                                    font-weight: 700;
+                              }
+                        }
+                  }
+            }
+      }
+}
