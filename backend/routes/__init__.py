@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .users import users
+from .players import players
 
 api_router = APIRouter(prefix="/api")
-api_router.include_router(users, prefix="/users")
+api_router.include_router(players, prefix="/players")

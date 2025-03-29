@@ -1,8 +1,8 @@
-import Search from '../../UI/Search/Search';
-import classes from './../../styles/layout.module.scss'
-import EditButton from '../../UI/Edit/EditButton';
+import Search from '../UI/Search/Search';
+import classes from './../styles/layout.module.scss'
+import EditButton from '../UI/Edit/EditButton';
 import { useState } from 'react';
-import Table from '../../UI/Table/Table';
+import Table from '../UI/Table/Table';
 import { IPlayerTeamView } from '@/view/IPlayerTeamView';
 import { TableColumn, TableConfig } from '@/types/table';
 
@@ -20,7 +20,7 @@ const playerTeamViewConfig: TableConfig<IPlayerTeamView> = {
 	] as TableColumn<IPlayerTeamView>[],
 };
 
-const PlayerManagement: React.FC = () => {
+const PlayersManager: React.FC = () => {
 	const [players, setPlayers] = useState(initialData);
 	const [isEditing, setIsEditing] = useState(false); 
 
@@ -53,4 +53,4 @@ const PlayerManagement: React.FC = () => {
 	);
 };
 
-export default PlayerManagement;
+export default PlayersManager;

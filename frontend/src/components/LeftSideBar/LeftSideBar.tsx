@@ -1,7 +1,7 @@
 import classes from './LeftSideBar.module.scss';
-import { MATCHES_MANAGMENT_ROUTE, PLAYER_MANAGMENT_ROUTE, TEAMS_MANAGMENT_ROUTE } from '../../const';
 import Link from '../../UI/Link';
 import { useLocation } from 'react-router-dom';
+import { MATCHES_ROUTE, PLAYERS_ROUTE, TEAMS_ROUTE } from '../../const';
 
 const LeftSideBar = () => {
 	const location = useLocation();
@@ -12,24 +12,24 @@ const LeftSideBar = () => {
 				<ul>
 					<li className={classes.menuSection}>
 						<Link 
-							to={PLAYER_MANAGMENT_ROUTE} 
-							className={`${classes.menuItem} ${location.pathname === PLAYER_MANAGMENT_ROUTE ? classes.active : ''}`}
+							to={PLAYERS_ROUTE} 
+							className={`${classes.menuItem} ${location.pathname === PLAYERS_ROUTE ? classes.active : ''}`}
 						>
 							Игроки
 						</Link>
 					</li>
 					<li className={classes.menuSection}>
 						<Link 
-							to={PLAYER_MANAGMENT_ROUTE} 
-							className={`${classes.menuItem} ${location.pathname === TEAMS_MANAGMENT_ROUTE ? classes.active : ''}`}
+							to={TEAMS_ROUTE} 
+							className={`${classes.menuItem} ${location.pathname === TEAMS_ROUTE ? classes.active : ''}`}
 						>
 							Команды
 						</Link>
 					</li>
 					<li className={classes.menuSection}>
 						<Link 
-							to={PLAYER_MANAGMENT_ROUTE} 
-							className={`${classes.menuItem} ${location.pathname === MATCHES_MANAGMENT_ROUTE ? classes.active : ''}`}
+							to={MATCHES_ROUTE} 
+							className={`${classes.menuItem} ${location.pathname === MATCHES_ROUTE ? classes.active : ''}`}
 						>
 							Матчи
 						</Link>

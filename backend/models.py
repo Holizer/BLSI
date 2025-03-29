@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from sqlalchemy import CheckConstraint, Column, Date, Double, ForeignKeyConstraint, Integer, PrimaryKeyConstraint, String, Table, Time, UniqueConstraint, text
+from sqlalchemy import CheckConstraint, Column, Date, Double, ForeignKeyConstraint, Integer, PrimaryKeyConstraint, Sequence, String, Table, Time, UniqueConstraint, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 import datetime
 
@@ -20,16 +20,26 @@ class CancellationReason(Base):
     match_status: Mapped[List['MatchStatus']] = relationship('MatchStatus', back_populates='cancellation_reason')
 
 
-class Captain(Base):
-    __tablename__ = 'captain'
+class Capitan(Base):
+    __tablename__ = 'capitan'
     __table_args__ = (
-        PrimaryKeyConstraint('captain_id', name='captain_pkey'),
+        PrimaryKeyConstraint('capitan_id', name='capitan_pkey'),
     )
 
-    captain_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    capitan_id: Mapped[int] = mapped_column(Integer, Sequence('captain_captain_id_seq'), primary_key=True)
     player_id: Mapped[int] = mapped_column(Integer)
 
-    team: Mapped[List['Team']] = relationship('Team', back_populates='captain')
+    team: Mapped[List['Team']] = relationship('Team', back_populates='capitan')
+
+
+t_captains_view = Table(
+    'captains_view', Base.metadata,
+    Column('player_id', Integer),
+    Column('first_name', String(50)),
+    Column('last_name', String(50)),
+    Column('team_id', Integer),
+    Column('team_name', String(100))
+)
 
 
 class City(Base):
@@ -95,6 +105,16 @@ class PlayerStats(Base):
     handicap: Mapped[float] = mapped_column(Double(53), server_default=text('0'))
 
     player_player_stats: Mapped[List['PlayerPlayerStats']] = relationship('PlayerPlayerStats', back_populates='player_stats')
+
+
+t_player_team_view = Table(
+    'player_team_view', Base.metadata,
+    Column('player_id', Integer),
+    Column('first_name', String(50)),
+    Column('last_name', String(50)),
+    Column('team_id', Integer),
+    Column('team_name', String(100))
+)
 
 
 class Playground(Base):
@@ -199,7 +219,7 @@ t_playground_playground_type = Table(
 class Team(Base):
     __tablename__ = 'team'
     __table_args__ = (
-        ForeignKeyConstraint(['captain_id'], ['captain.captain_id'], name='team_captain_id_fkey'),
+        ForeignKeyConstraint(['capitan_id'], ['capitan.capitan_id'], name='team_captain_id_fkey'),
         ForeignKeyConstraint(['coach_id'], ['coach.coach_id'], name='team_coach_id_fkey'),
         PrimaryKeyConstraint('team_id', name='team_pkey'),
         UniqueConstraint('team_name', name='team_team_name_key')
@@ -207,10 +227,10 @@ class Team(Base):
 
     team_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     team_name: Mapped[str] = mapped_column(String(100))
-    captain_id: Mapped[Optional[int]] = mapped_column(Integer)
+    capitan_id: Mapped[Optional[int]] = mapped_column(Integer)
     coach_id: Mapped[Optional[int]] = mapped_column(Integer)
 
-    captain: Mapped[Optional['Captain']] = relationship('Captain', back_populates='team')
+    capitan: Mapped[Optional['Capitan']] = relationship('Capitan', back_populates='team')
     coach: Mapped[Optional['Coach']] = relationship('Coach', back_populates='team')
     team_match_stats: Mapped[List['TeamMatchStats']] = relationship('TeamMatchStats', secondary='team_team_match_stats', back_populates='team')
     player: Mapped[List['Player']] = relationship('Player', back_populates='team')
@@ -226,10 +246,12 @@ class Week(Base):
 
     week_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     season_id: Mapped[int] = mapped_column(Integer)
+    season_name: Mapped[str] = mapped_column(String(100))
     start_date: Mapped[datetime.date] = mapped_column(Date)
     end_date: Mapped[datetime.date] = mapped_column(Date)
 
     season: Mapped['Season'] = relationship('Season', back_populates='week')
+    match: Mapped[List['Match']] = relationship('Match', back_populates='week')
 
 
 class MatchInfo(Base):
@@ -301,6 +323,7 @@ class Match(Base):
     __table_args__ = (
         ForeignKeyConstraint(['match_info_id'], ['match_info.match_info_id'], name='match_match_info_id_fkey'),
         ForeignKeyConstraint(['playground_id'], ['playground.playground_id'], name='match_playground_id_fkey'),
+        ForeignKeyConstraint(['week_id'], ['week.week_id'], name='match_week_id_fkey'),
         PrimaryKeyConstraint('match_id', name='match_pkey')
     )
 
@@ -311,6 +334,7 @@ class Match(Base):
 
     match_info: Mapped['MatchInfo'] = relationship('MatchInfo', back_populates='match')
     playground: Mapped['Playground'] = relationship('Playground', back_populates='match')
+    week: Mapped['Week'] = relationship('Week', back_populates='match')
     team_match_stats: Mapped[List['TeamMatchStats']] = relationship('TeamMatchStats', back_populates='match')
 
 
