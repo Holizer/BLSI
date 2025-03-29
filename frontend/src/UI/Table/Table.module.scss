@@ -1,0 +1,50 @@
+@import './../../styles/vars.scss';
+
+.tableWrapper {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    
+      .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            
+            th, td {
+                  padding: 0.6rem 1.2rem;
+                  text-align: left;
+                  border-bottom: 1px solid #e0e0e0;
+            }
+      
+            th {
+                  background-color: #d9e8ff;
+                  font-weight: 600;
+                  color: #4a5568;
+                  position: sticky;
+                  top: 0;
+            }
+      
+            .clickableRow {
+                  cursor: pointer;
+                  transition: background-color 0.2s;
+                  
+                  &:hover {
+                        background-color: #f8fafc;
+                  }
+            }
+      
+            button {
+                  background: none;
+                  border: 1px solid #ddd;
+                  padding: 4px 8px;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  transition: all 0.2s;
+            
+                  &:hover {
+                        background-color: #f0f0f0;
+                  }
+            }
+      }
+}

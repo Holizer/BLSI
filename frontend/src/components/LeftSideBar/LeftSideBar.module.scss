@@ -7,7 +7,7 @@
       background-color: $baground-menu;
       width: 220px;
       height: 100vh;
-      border-right: 1px solid $color-light-gray;
+      border-right: 1px solid $light-gray-color;
 
       nav {
             ul {
@@ -33,7 +33,6 @@
 
                               &.active {
                                     background-color: $nav-item-bg-color-hover;
-                                    // color: $active-color;
                                     font-weight: 700;
                               }
                         }
