@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from models import Player 
-from database import get_db  
-from sqlalchemy import text 
+from services.player_service import PlayerService
+from database import get_db
 
-players = APIRouter()
+player_router = APIRouter(prefix="/players")
 
-@players.get("/captains")
+@player_router.get("/player_team")
 async def get_captains(db: Session = Depends(get_db)):
-    result = db.execute(text("SELECT * FROM get_player_team()"))
-    captains = [dict(row) for row in result.mappings()]
-    return captains
+    return PlayerService(db).get_player_team()
+
+# @player_router.get("/captains")
+# async def get_captains(db: Session = Depends(get_db)):
+#     return PlayerService(db).get_captains()

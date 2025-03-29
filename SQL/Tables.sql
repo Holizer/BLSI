@@ -152,11 +152,11 @@ CREATE TABLE match_status (
 );
 
 -- Информация о матче
-CREATE TABLE match_info (
+ALTER TABLE match_info (
     match_info_id SERIAL PRIMARY KEY,
     match_status_id INT NOT NULL,
-    team1_id INT NOT NULL,
-    team2_id INT NOT NULL,
+    team1_id INT NULL,
+    team2_id INT NULL,
     winning_team_id INT NULL,
     team1_points INT DEFAULT 0 NOT NULL,
     team2_points INT DEFAULT 0 NOT NULL,

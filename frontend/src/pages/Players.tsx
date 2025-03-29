@@ -1,15 +1,11 @@
 import Search from '../UI/Search/Search';
 import classes from './../styles/layout.module.scss'
 import EditButton from '../UI/Edit/EditButton';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Table from '../UI/Table/Table';
-import { IPlayerTeamView } from '@/view/IPlayerTeamView';
+import { IPlayerTeamView } from '@/views/IPlayerTeamView';
 import { TableColumn, TableConfig } from '@/types/table';
-
-const initialData: IPlayerTeamView[] = [
-	{ player_id: 1, team_id: 1, first_name: 'Иван', last_name: 'Иванов', team_name: 'Снайперы' },
-	{ player_id: 2, team_id: 2, first_name: 'Петр', last_name: 'Петров', team_name: 'Буллиты' },
-];
+import { AppContext } from '..';
 
 const playerTeamViewConfig: TableConfig<IPlayerTeamView> = {
 	model: 'IPlayerTeamView',
@@ -21,12 +17,21 @@ const playerTeamViewConfig: TableConfig<IPlayerTeamView> = {
 };
 
 const PlayersManager: React.FC = () => {
-	const [players, setPlayers] = useState(initialData);
+	const { playerStore } = useContext(AppContext)
+	const [playerTeamView, setPlayerTeamView] = useState<IPlayerTeamView[] | undefined>();
+
+	useEffect(() => {
+		const fetchPlayerViewTeam = async () => {
+			await playerStore.fetchPlayerTeamView();		
+			setPlayerTeamView(playerStore.playerTeamView)
+		}
+		fetchPlayerViewTeam();
+	}, [])
+
 	const [isEditing, setIsEditing] = useState(false); 
 
 	const handleSave = (updatedData: IPlayerTeamView[]) => {
 		console.log('Updated players:', updatedData);
-		setPlayers(updatedData);
 	};
 
 	const toggleEditMode = () => {
@@ -39,11 +44,11 @@ const PlayersManager: React.FC = () => {
 				<div className={classes.block__header}>
 					<h2>Список игроков</h2>
 					<Search />
-					<EditButton onClick={toggleEditMode} /> 
+					{/* <EditButton onClick={toggleEditMode} />  */}
 				</div>
 				<Table 
 					config={playerTeamViewConfig} 
-					data={players} 
+					data={playerTeamView || []}
 					onSave={handleSave} 
 					isEditing={isEditing}
 					onToggleEdit={toggleEditMode}

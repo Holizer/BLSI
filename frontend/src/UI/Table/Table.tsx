@@ -4,9 +4,15 @@ import { TableProps } from '@/types/table';
 const Table = <T extends Record<string, any>>({ config, data, onSave, isEditing, onToggleEdit }: TableProps<T>) => {
 	const handleChange = (rowIndex: number, columnKey: keyof T, value: any) => {
 	};
-
+	  
 	const handleSave = () => {
 		onSave(data);
+	};
+	  
+	const handleDelete = (rowIndex: number) => {
+		const updatedData = [...data];
+		updatedData.splice(rowIndex, 1);
+		onSave(updatedData);
 	};
 
 	return (
@@ -15,25 +21,25 @@ const Table = <T extends Record<string, any>>({ config, data, onSave, isEditing,
 				<thead>
 					<tr>
 						{config.columns.map((column) => (
-						<th key={column.key.toString()}>{column.title}</th>
+							<th key={column.key.toString()}>{column.title}</th>
 						))}
 					</tr>
 				</thead>
 				<tbody>
 					{data.map((row, rowIndex) => (
 						<tr key={rowIndex}>
-							{config.columns.map((column) => (
+						{config.columns.map((column) => (
 							<td key={column.key.toString()}>
-								{isEditing && column.editable ? (
+							{isEditing && column.editable ? (
 								column.type === 'select' && column.options ? (
 								<select
 									value={row[column.key]}
 									onChange={(e) => handleChange(rowIndex, column.key, e.target.value)}
 								>
 									{column.options.map((option) => (
-									<option key={option} value={option}>
-									{option}
-									</option>
+										<option key={option} value={option}>
+											{option}
+										</option>
 									))}
 								</select>
 								) : column.type === 'number' ? (
@@ -52,6 +58,10 @@ const Table = <T extends Record<string, any>>({ config, data, onSave, isEditing,
 										onChange={(e) => handleChange(rowIndex, column.key, e.target.value)}
 									/>
 								)
+								) : column.key === 'delete' ? (
+									<button onClick={() => handleDelete(rowIndex)} className={classes.deleteButton}>
+										Удалить
+									</button>
 								) : (
 									row[column.key]
 								)}

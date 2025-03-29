@@ -19,10 +19,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.get("/")
-def read_root():
-    return {"message": "API работает!"}
-
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run("main:app", port=5000, reload=True)

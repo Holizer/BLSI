@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from sqlalchemy import CheckConstraint, Column, Date, Double, ForeignKeyConstraint, Integer, PrimaryKeyConstraint, Sequence, String, Table, Time, UniqueConstraint, text
+from sqlalchemy import CheckConstraint, Column, Date, Double, ForeignKeyConstraint, Integer, PrimaryKeyConstraint, String, Table, Time, UniqueConstraint, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 import datetime
 
@@ -20,16 +20,16 @@ class CancellationReason(Base):
     match_status: Mapped[List['MatchStatus']] = relationship('MatchStatus', back_populates='cancellation_reason')
 
 
-class Capitan(Base):
-    __tablename__ = 'capitan'
+class Captain(Base):
+    __tablename__ = 'captain'
     __table_args__ = (
-        PrimaryKeyConstraint('capitan_id', name='capitan_pkey'),
+        PrimaryKeyConstraint('captain_id', name='captain_pkey'),
     )
 
-    capitan_id: Mapped[int] = mapped_column(Integer, Sequence('captain_captain_id_seq'), primary_key=True)
+    captain_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     player_id: Mapped[int] = mapped_column(Integer)
 
-    team: Mapped[List['Team']] = relationship('Team', back_populates='capitan')
+    team: Mapped[List['Team']] = relationship('Team', back_populates='captain')
 
 
 t_captains_view = Table(
@@ -219,7 +219,7 @@ t_playground_playground_type = Table(
 class Team(Base):
     __tablename__ = 'team'
     __table_args__ = (
-        ForeignKeyConstraint(['capitan_id'], ['capitan.capitan_id'], name='team_captain_id_fkey'),
+        ForeignKeyConstraint(['captain_id'], ['captain.captain_id'], name='team_captain_id_fkey'),
         ForeignKeyConstraint(['coach_id'], ['coach.coach_id'], name='team_coach_id_fkey'),
         PrimaryKeyConstraint('team_id', name='team_pkey'),
         UniqueConstraint('team_name', name='team_team_name_key')
@@ -227,10 +227,10 @@ class Team(Base):
 
     team_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     team_name: Mapped[str] = mapped_column(String(100))
-    capitan_id: Mapped[Optional[int]] = mapped_column(Integer)
+    captain_id: Mapped[Optional[int]] = mapped_column(Integer)
     coach_id: Mapped[Optional[int]] = mapped_column(Integer)
 
-    capitan: Mapped[Optional['Capitan']] = relationship('Capitan', back_populates='team')
+    captain: Mapped[Optional['Captain']] = relationship('Captain', back_populates='team')
     coach: Mapped[Optional['Coach']] = relationship('Coach', back_populates='team')
     team_match_stats: Mapped[List['TeamMatchStats']] = relationship('TeamMatchStats', secondary='team_team_match_stats', back_populates='team')
     player: Mapped[List['Player']] = relationship('Player', back_populates='team')

@@ -1,11 +1,22 @@
-// import React, { createContext } from 'react';
+import React, { createContext } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
+import PlayerStore from './store/PlayerStore';
+import TeamsStore from './store/TeamsStore';
 
-// interface State {}
+interface State {
+     playerStore: PlayerStore,
+     teamStore: TeamsStore,
+}
 
-// export const AppContext = createContext<State>({});
+const playerStore = new PlayerStore();
+const teamStore = new TeamsStore();
+
+export const AppContext = createContext<State>({
+     playerStore,
+     teamStore,
+});
 
 const root = ReactDOM.createRoot(
      document.getElementById('root') as HTMLElement
@@ -13,6 +24,10 @@ const root = ReactDOM.createRoot(
 
 root.render(
      <BrowserRouter>
-          <App />
+          <AppContext value={{
+               playerStore, teamStore
+          }}>
+               <App />
+          </AppContext>
      </BrowserRouter>
 );
