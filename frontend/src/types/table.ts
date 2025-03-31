@@ -9,6 +9,7 @@ export interface TableColumn<T> {
             label: string;
       }>;
       displayValue?: (rowData: T) => React.ReactNode;
+      emptyValueText?: string;
 }
 
 export interface TableConfig<T> {
@@ -19,10 +20,12 @@ export interface TableConfig<T> {
 export type TableProps<T extends Record<string, any>> = {
       config: TableConfig<T>;
       data: T[];
+      tableId: string;
       isEditing: boolean;
       onEditChange: (rowIndex: number, updatedData: T) => void;
-      tableId: string;
       onToggleEdit?: () => void;
+      onRowClick?: (rowData: T) => void;
       onSave?: () => void;
-      onRowClick?: (rowData: T) => void; 
+      onDeleteToggle?: (tableId: string, rowIndex: number, rowData: Partial<T>) => void;
+      rowsToDelete?: Record<number, Partial<T>>;
 };

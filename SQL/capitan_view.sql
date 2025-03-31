@@ -1,4 +1,19 @@
 
+CREATE OR REPLACE VIEW captains_view AS
+SELECT 
+    p.player_id,
+    p.first_name,
+    p.last_name,
+    t.team_id,
+    t.team_name
+FROM 
+    captain cap
+JOIN player p ON cap.player_id = p.player_id
+JOIN team t ON cap.captain_id = t.captain_id
+
+SELECT * FROM captains_view
+
+
 -- Процедура для удаления
 CREATE OR REPLACE PROCEDURE delete_captain(
     p_player_id INT
@@ -66,17 +81,3 @@ BEGIN
     END;
 END;
 $$;
-
-CREATE OR REPLACE VIEW captains_view AS
-SELECT 
-    p.player_id,
-    p.first_name,
-    p.last_name,
-    t.team_id,
-    t.team_name
-FROM 
-    captain cap
-JOIN player p ON cap.player_id = p.player_id
-JOIN team t ON cap.captain_id = t.captain_id
-
-SELECT * FROM captains_view

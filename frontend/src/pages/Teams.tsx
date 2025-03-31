@@ -9,6 +9,8 @@ import Table from '../UI/Table/Table';
 import CreateTeamForm from '../components/CreateTeamForm/CreateTeamForm';
 import { ITeam } from '@/models/ITeam';
 import useTableManager from '../hooks/useTableManager';
+import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 
 //#region TablesConfig
 const teamCoachCaptainViewConfig: TableConfig<ITeamCoachCaptainView> = {
@@ -23,50 +25,51 @@ const teamCoachCaptainViewConfig: TableConfig<ITeamCoachCaptainView> = {
 
 const Teams = () => {
 	const { teamStore } = useContext(AppContext)
-	const [teamsView, setTeamsView] = useState<ITeamCoachCaptainView[] | undefined>();
-	
+	const { teamsView } = teamStore;
 	const {
 		editedRows,
-		rowsToDelete,
 		isEditing,
+		rowsToDelete,
 		handleTableChange,
+		toggleDeleteRow,
 		toggleEditMode,
-		handleDeleteRow,
-		resetTableState
+		resetTableState,
+		getRowsToDelete,
+		getRowsToEdit
 	} = useTableManager<ITeamCoachCaptainView>();
 
 	//#region FETCH DATA
 	const fetchTeamsWithCatainAndCoach = async () => {
 		await teamStore.fetchTeamsWithCatainAndCoach();	
-		setTeamsView(teamStore.teamsView)
 	}
 
 	useEffect(() => {
 		fetchTeamsWithCatainAndCoach();
-	}, [])
+	}, [teamStore])
 	//#endregion
-
 
 	const handleSave = async (tableId: string) => {
 		try {
-			const tableEditedData = editedRows[tableId] || {};
-			
-			if (Object.keys(tableEditedData).length > 0) {
-				await Promise.all(
-					Object.entries(tableEditedData).map(([_, changes]) => 
-						teamStore.updateTeamName(changes as ITeam)
-					)
-				);
-		  	}
-	 
-			// if (rowsToDelete.length > 0) {
-			// 	await Promise.all(
-			// 		rowsToDelete.map(rowIndex => 
-			// 		   teamStore.deleteTeam(teamsView[rowIndex].team_id)
-			// 		)
-			// 	);
-			// }
-	 
+			const rowsToEdit = getRowsToEdit(tableId);
+			const rowsToDelete = getRowsToDelete(tableId);
+
+			if (Object.keys(rowsToEdit).length === 0 && Object.keys(rowsToDelete).length === 0) {
+				resetTableState(tableId);
+				return;
+			}
+
+			await Promise.all(
+				Object.values(rowsToEdit).map(changes => 
+					teamStore.updateTeamName(changes as ITeam)
+				)
+			);
+
+			await Promise.all(
+				Object.values(rowsToDelete).map((teamForDelete) =>
+				    teamForDelete.team_id ? teamStore.deleteTeam(teamForDelete.team_id) : Promise.resolve()
+				)
+			);
+			 
 			await fetchTeamsWithCatainAndCoach();
 			resetTableState(tableId);
 		} catch (error) {
@@ -91,13 +94,17 @@ const Teams = () => {
 				<Table 
 					config={teamCoachCaptainViewConfig} 
 					data={teamsView || []}
+					tableId="teamsTable"
 					isEditing={!!isEditing['teamsTable']}
 					onToggleEdit={() => toggleEditMode('teamsTable')}
 					onEditChange={(
 						rowIndex: number, 
 						updatedData: ITeamCoachCaptainView
-					 ) => handleTableChange('teamsTable', rowIndex, updatedData)}
-					tableId="teamsTable"
+					) => handleTableChange('teamsTable', rowIndex, updatedData)}
+					onDeleteToggle={(tableId, rowIndex, rowData) => 
+						toggleDeleteRow(tableId, rowIndex, rowData)
+					}
+					rowsToDelete={getRowsToDelete('teamsTable')}
 				/>
 			</div>
 			<div className={classes.content__block}>
@@ -110,4 +117,4 @@ const Teams = () => {
 	);
 };
 
-export default Teams;
+export default observer(Teams);

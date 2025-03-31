@@ -59,10 +59,66 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE PROCEDURE delete_team(p_team_id INT)
 AS $$
+DECLARE
+    v_match_ids INT[];
 BEGIN
-    DELETE FROM team WHERE team_id = p_team_id;
+    -- Собираем ID всех матчей, связанных с этой командой
+    SELECT array_agg(m.match_id) INTO v_match_ids
+    FROM match m
+    JOIN match_info mi ON m.match_info_id = mi.match_info_id
+    WHERE mi.team1_id = p_team_id OR mi.team2_id = p_team_id;
+
+    -- Устанавливаем team_id = NULL для всех игроков этой команды
+    UPDATE player 
+    SET team_id = NULL 
+    WHERE team_id = p_team_id;
+
+    -- Удаляем статистику игроков в матчах этой команды
+    DELETE FROM player_player_match_stats
+    WHERE player_match_stats_id IN (
+        SELECT pms.player_match_stats_id
+        FROM player_match_stats pms
+        WHERE pms.match_id = ANY(v_match_ids)
+    );
+
+    -- Удаляем статистику игроков, связанную с этой командой
+    DELETE FROM player_player_stats
+    WHERE player_id IN (SELECT player_id FROM player WHERE team_id = p_team_id);
+
+    -- Удаляем статистику команды в матчах
+    DELETE FROM team_team_match_stats
+    WHERE team_match_stats_id IN (
+        SELECT tms.team_match_stats_id
+        FROM team_match_stats tms
+        WHERE tms.match_id = ANY(v_match_ids)
+    );
+
+    -- Удаляем статистику команды
+    DELETE FROM team_team_stats 
+    WHERE team_id = p_team_id;
+
+    -- Удаляем статистику матчей
+    DELETE FROM player_match_stats
+    WHERE match_id = ANY(v_match_ids);
+
+    DELETE FROM team_match_stats
+    WHERE match_id = ANY(v_match_ids);
+
+    -- Удаляем сами матчи
+    DELETE FROM match
+    WHERE match_id = ANY(v_match_ids);
+
+    -- Удаляем информацию о матчах
+    DELETE FROM match_info
+    WHERE team1_id = p_team_id OR team2_id = p_team_id;
+
+    -- Удаляем саму команду из таблицы team
+    DELETE FROM team 
+    WHERE team_id = p_team_id;
 END;
 $$ LANGUAGE plpgsql;
+
+SELECT * FROM player
 
 
 CREATE OR REPLACE FUNCTION check_team_name_exists(
@@ -82,7 +138,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT check_team_name_exists('w');
+SELECT check_team_name_exists('w', 123);
 
 CREATE OR REPLACE FUNCTION update_team_name(
     p_team_id INT,

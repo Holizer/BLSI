@@ -30,7 +30,17 @@ export default class TeamService {
      }
 
      static async deleteTeam(teamId: number): Promise<void> {
-          await $api.delete(`/teams/delete/${teamId}`);
+          try {
+               await $api.delete(`/teams/delete/${teamId}`);
+          } catch (error: any) {
+               if (error.response?.data?.detail) {
+                    alert(error.response.data.detail);
+               } else {
+                    console.log('Произошла ошибка при удалении команды:', error.message);
+                    alert('Произошла ошибка при удалении команды');
+               }
+               throw error;
+          }
      }
 
      static async updateTeamName(teamData: ITeam): Promise<ITeam> {

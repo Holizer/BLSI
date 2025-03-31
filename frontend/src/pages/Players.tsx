@@ -10,16 +10,18 @@ import useTableManager from '../hooks/useTableManager';
 
 const PlayersManager: React.FC = () => {
 	const { playerStore, teamStore } = useContext(AppContext)
-	const [playerTeamView, setPlayerTeamView] = useState<IPlayerTeamView[] | undefined>();
+	const { playerTeamView } = playerStore
 
 	const {
 		editedRows,
-		rowsToDelete,
 		isEditing,
+		rowsToDelete,
 		handleTableChange,
+		toggleDeleteRow,
 		toggleEditMode,
-		handleDeleteRow,
-		resetTableState
+		resetTableState,
+		getRowsToDelete,
+		getRowsToEdit
 	} = useTableManager<IPlayerTeamView>();
 
 	const playerTeamViewConfig: TableConfig<IPlayerTeamView> = {
@@ -32,53 +34,56 @@ const PlayersManager: React.FC = () => {
 				title: 'Команда',
 				editable: true,
 				type: 'select',
+				emptyValueText: 'Без команды',
 				options: teamStore.teams.map((team) => ({
-				  value: team.team_id,
-				  label: team.team_name,
+					value: team.team_id,
+					label: team.team_name,
 				})),
 				displayValue: (rowData) => {
+					if (rowData.team_id == null) {
+						return 'Без команды';
+					}
 					const team = teamStore.teams.find(t => t.team_id === rowData.team_id);
-					return team ? team.team_name : '';
+					return team?.team_name || 'Без команды';
 				}
-			},
+			}
 		] as TableColumn<IPlayerTeamView>[],
 	};
 
 	const fetchPlayerViewTeam = async () => {
 		await playerStore.fetchPlayerTeamView();		
-		setPlayerTeamView(playerStore.playerTeamView)
 	}
 
 	useEffect(() => {
 		fetchPlayerViewTeam();
 	}, [])
 
-	const handleSave = async (tableId: string, state?: boolean) => {
-		const tableEditedRows = editedRows[tableId] || {};
-		
-		if(Object.keys(tableEditedRows).length === 0) {
-			toggleEditMode(tableId, false)
-			return;
-		}
-
-		const changesWithFullData = Object.entries(tableEditedRows).map(([rowIndex, changes]) => {
-			return {
-				rowIndex: Number(rowIndex),
-				changes: changes as IPlayerTeamView,
-			};
-		});
-		
+	const handleSave = async (tableId: string) => {
 		try {
+			const rowsToEdit = getRowsToEdit(tableId);
+			const rowsToDelete = getRowsToDelete(tableId);
+
+			if (Object.keys(rowsToEdit).length === 0 && Object.keys(rowsToDelete).length === 0) {
+				resetTableState(tableId);
+				return;
+			}
+
 			await Promise.all(
-				changesWithFullData.map(({ changes }) => 
-					playerStore.updatePlayerTeam(changes)
+				Object.values(rowsToEdit).map(changes => 
+					playerStore.updatePlayerTeam(changes as IPlayerTeamView)
 				)
 			);
-		 
+
+			// await Promise.all(
+			// 	Object.values(rowsToDelete).map((playerForDelete) =>
+			// 		playerForDelete.team_id ? playerForDelete.deletePlayer(playerForDelete.player_id) : Promise.resolve()
+			// 	)
+			// );
+				
 			await fetchPlayerViewTeam();
 			resetTableState(tableId);
 		} catch (error) {
-			console.error("Ошибка при сохранении игроков:", error);
+			console.error("Ошибка при сохранении:", error);
 		}
 	};
 
@@ -93,19 +98,23 @@ const PlayersManager: React.FC = () => {
 						tableId="playerTeamTable"
 						onEdit={toggleEditMode} 
 						onCancel={() => toggleEditMode('playerTeamTable', false)}
-						onSave={() => handleSave('playerTeamTable', false)}
+						onSave={() => handleSave('playerTeamTable')}
 					/>
 				</div>
-				<Table 
+				<Table
 					config={playerTeamViewConfig} 
 					data={playerTeamView || []}
+					tableId="playerTeamTable"
 					isEditing={!!isEditing['playerTeamTable']}
 					onToggleEdit={() => toggleEditMode('playerTeamTable')}
 					onEditChange={(
 						rowIndex: number, 
 						updatedData: IPlayerTeamView
 					) => handleTableChange('playerTeamTable', rowIndex, updatedData)}
-					tableId="playerTeamTable"
+					onDeleteToggle={(tableId, rowIndex, rowData) => 
+						toggleDeleteRow(tableId, rowIndex, rowData)
+					}
+					rowsToDelete={getRowsToDelete('playerTeamTable')}
 				/>
 			</div>
 		</main>

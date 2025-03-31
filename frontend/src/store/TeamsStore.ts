@@ -63,13 +63,11 @@ export default class TeamsStore {
             try {
                   await TeamService.deleteTeam(teamId);
             } catch (error) {
-                  console.error("Неудалось обновить название команды:", error);
+                  console.error("Неудалось удалить команду:", error);
             } finally {
                   this.loading = false;
             }
       }
-
-
 
       // async updateTeam(teamData: ITeam) {
       //       this.loading = true;
