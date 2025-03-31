@@ -15,12 +15,42 @@ export default class TeamService {
 
      
      static async createTeam(teamData: Partial<ITeam>): Promise<ITeam> {
-          const response = await $api.post<ITeam>('/teams/create', teamData);
-          return response.data;
+          try {
+               const response = await $api.post<ITeam>('/teams/create', teamData);
+               return response.data; 
+          } catch (error: any) {
+               if (error.response?.data?.detail) {
+                    alert(error.response.data.detail);
+               } else {
+                    console.log('Произошла ошибка при создании команды:', error.message);
+                    alert('Произошла ошибка при создании команды');
+               }
+               throw error;
+          }
      }
 
-     static async updateTeam(teamData: Partial<ITeam>): Promise<ITeam> {
-          const response = await $api.put<ITeam>(`/teams/update/${teamData.team_id}`, teamData);
-          return response.data;
+     static async deleteTeam(teamId: number): Promise<void> {
+          await $api.delete(`/teams/delete/${teamId}`);
      }
+
+     static async updateTeamName(teamData: ITeam): Promise<ITeam> {
+          try {
+               const response = await $api.put<ITeam>(`/teams/update-team-name/${teamData.team_id}`, teamData);
+               return response.data; 
+          } catch (error: any) {
+               if (error.response?.data?.detail) {
+                    alert(error.response.data.detail);
+               } else {
+                    console.log('Произошла ошибка при обновлении названия команды:', error.message);
+                    alert('Произошла ошибка при обновлении названия команды');
+               }
+               throw error;
+          }
+     }
+
+
+     // static async updateTeam(teamData: ITeam): Promise<ITeam> {
+     //      const response = await $api.put<ITeam>(`/teams/update/${teamData.team_id}`, teamData);
+     //      return response.data;
+     // }
  }

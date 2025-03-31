@@ -47,15 +47,38 @@ export default class TeamsStore {
             }
       }
 
-
-      async updateTeam(teamData: Partial<ITeam>) {
+      async updateTeamName(teamData: ITeam) {
             this.loading = true;
             try {
-                  await TeamService.updateTeam(teamData);
+                  await TeamService.updateTeamName(teamData);
             } catch (error) {
-                  console.error("Ошибка загрузки игроков:", error);
+                  console.error("Неудалось обновить название команды:", error);
             } finally {
                   this.loading = false;
             }
       }
+
+      async deleteTeam(teamId: number) {
+            this.loading = true;
+            try {
+                  await TeamService.deleteTeam(teamId);
+            } catch (error) {
+                  console.error("Неудалось обновить название команды:", error);
+            } finally {
+                  this.loading = false;
+            }
+      }
+
+
+
+      // async updateTeam(teamData: ITeam) {
+      //       this.loading = true;
+      //       try {
+      //             await TeamService.updateTeam(teamData);
+      //       } catch (error) {
+      //             console.error("Ошибка загрузки игроков:", error);
+      //       } finally {
+      //             this.loading = false;
+      //       }
+      // }
 }

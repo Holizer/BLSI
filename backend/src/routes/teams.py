@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from services.team_service import TeamService
-from schemas.team import TeamCreateUpdateSchema
+from src.services.team_service import TeamService
+from src.schemas.team import TeamCreateUpdateSchema
 from database import get_db
 
 team_router = APIRouter(prefix="/teams")
@@ -25,14 +25,34 @@ async def delete_team(team_id: int, db: Session = Depends(get_db)):
 #POST
 @team_router.post("/create")
 async def create_team(team_data: TeamCreateUpdateSchema, db: Session = Depends(get_db)):
-    TeamService(db).create_team(team_data.team_name, team_data.captain_id, team_data.coach_id)
-    return {"message": f"Команда '{team_data.team_name}' успешно создана!"}
+    try:
+        TeamService(db).create_team(team_data.team_name, team_data.captain_id, team_data.coach_id)
+        return {"message": f"Команда '{team_data.team_name}' успешно создана!"}
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+
 
 #PUT
-@team_router.put("/update/{team_id}")
-async def update_team(team_id: int, team_data: TeamCreateUpdateSchema, db: Session = Depends(get_db)):
-    TeamService(db).update_team(team_id, team_data.team_name, team_data.captain_id, team_data.coach_id)
-    return {"message": f"Команда {team_data.team_name} успешно обновлена!"}
+@team_router.put("/update-team-name/{team_id}")
+async def update_team_name(team_id: int, team_data: TeamCreateUpdateSchema, db: Session = Depends(get_db)):
+    try:
+        TeamService(db).update_team_name(team_id, team_data.team_name)
+        return {"message": f"Название команды успешно изменено!"}
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+
+# @team_router.put("/update/{team_id}")
+# async def update_team(team_id: int, team_data: TeamCreateUpdateSchema, db: Session = Depends(get_db)):
+#     TeamService(db).update_team(team_id, team_data.team_name, team_data.captain_id, team_data.coach_id)
+#     return {"message": f"Команда {team_data.team_name} успешно обновлена!"}
 
 # Добавление капитана
 @team_router.post("/add-captain")
@@ -51,6 +71,8 @@ async def remove_captain(team_id: int, db: Session = Depends(get_db)):
 async def update_captain(team_id: int, new_captain_id: int, db: Session = Depends(get_db)):
     TeamService(db).update_captain(team_id, new_captain_id)
     return {"message": f"Капитан команды {team_id} обновлен на игрока {new_captain_id}"}
+
+
 
 # Добавление тренера
 @team_router.post("/add-coach")

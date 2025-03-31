@@ -1,15 +1,17 @@
 @import './../../styles/vars.scss';
 
 .sidebar__quicklinks {
-      display: flex;
-      flex-direction: column;
       padding: 6rem 0;
       background-color: $baground-menu;
       width: 220px;
-      height: 100vh;
+      height: 100%;
       border-right: 1px solid $light-gray-color;
 
       nav {
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+
             ul {
                   list-style: none;
                   padding: 0;

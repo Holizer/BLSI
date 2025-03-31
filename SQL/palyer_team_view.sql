@@ -33,7 +33,7 @@ SELECT * FROM get_player_team();
 
 
 -- Процедура для обновления
-CREATE OR REPLACE PROCEDURE update_player(
+CREATE OR REPLACE PROCEDURE update_player_team(
     p_player_id INT,
     p_first_name VARCHAR(50) DEFAULT NULL,
     p_last_name VARCHAR(50) DEFAULT NULL,
@@ -49,11 +49,9 @@ BEGIN
         team_id = COALESCE(p_team_id, team_id)
     WHERE player_id = p_player_id;
     
-    COMMIT;
     RAISE NOTICE 'Игрок с ID % успешно обновлен', p_player_id;
 EXCEPTION
     WHEN OTHERS THEN
-        ROLLBACK;
         RAISE EXCEPTION 'Ошибка при обновлении игрока: %', SQLERRM;
 END;
 $$;

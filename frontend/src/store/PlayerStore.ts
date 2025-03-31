@@ -21,4 +21,15 @@ export default class PlayerStore {
                   this.loading = false;
             }
       }
+
+      async updatePlayerTeam(playerTeamData: IPlayerTeamView) {
+            this.loading = true;
+            try {
+                  await PlayerService.updatePlayerTeam(playerTeamData);
+            } catch (error) {
+                  console.error("Ошибка загрузки игроков:", error);
+            } finally {
+                  this.loading = false;
+            }
+      }
 }

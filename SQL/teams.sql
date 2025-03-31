@@ -64,18 +64,39 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE PROCEDURE update_team(
-    p_team_id INT,
+
+CREATE OR REPLACE FUNCTION check_team_name_exists(
     p_team_name VARCHAR,
-    p_captain_id INT,
-    p_coach_id INT
-) AS $$
+    p_exclude_id INT DEFAULT NULL
+) RETURNS BOOLEAN AS $$
+DECLARE
+    v_exists BOOLEAN;
 BEGIN
-    UPDATE team
-    SET 
-        team_name = p_team_name,
-        captain_id = p_captain_id,
-        coach_id = p_coach_id
-    WHERE team_id = p_team_id;
+    IF p_exclude_id IS NULL THEN
+        SELECT EXISTS(SELECT 1 FROM team WHERE team_name = p_team_name) INTO v_exists;
+    ELSE
+        SELECT EXISTS(SELECT 1 FROM team WHERE team_name = p_team_name AND team_id != p_exclude_id) INTO v_exists;
+    END IF;
+    
+    RETURN v_exists;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT check_team_name_exists('w');
+
+CREATE OR REPLACE FUNCTION update_team_name(
+    p_team_id INT,
+    p_new_name VARCHAR
+) RETURNS VOID AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM teams WHERE team_name = p_new_name AND id != p_team_id) THEN
+        RAISE EXCEPTION 'Команда с названием "%" уже существует', p_new_name;
+    END IF;
+    
+    UPDATE teams SET team_name = p_new_name WHERE id = p_team_id;
+    
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Команда с ID % не найдена', p_team_id;
+    END IF;
 END;
 $$ LANGUAGE plpgsql;

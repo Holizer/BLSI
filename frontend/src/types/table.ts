@@ -3,19 +3,26 @@ export interface TableColumn<T> {
       title: string;
       editable?: boolean;
       type?: 'text' | 'select' | 'number';
-      options?: string[];
       validator?: (value: any) => boolean;
+      options?: Array<{
+            value: any;
+            label: string;
+      }>;
+      displayValue?: (rowData: T) => React.ReactNode;
 }
 
 export interface TableConfig<T> {
-      model: string;
       columns: TableColumn<T>[];
+      applyDelete: boolean;
 }
 
-export interface TableProps<T> {
-	config: TableConfig<T>;
-	data: T[];
-	onSave: (updatedData: T[]) => void;
-	isEditing: boolean;
-	onToggleEdit: () => void;
-}
+export type TableProps<T extends Record<string, any>> = {
+      config: TableConfig<T>;
+      data: T[];
+      isEditing: boolean;
+      onEditChange: (rowIndex: number, updatedData: T) => void;
+      tableId: string;
+      onToggleEdit?: () => void;
+      onSave?: () => void;
+      onRowClick?: (rowData: T) => void; 
+};
