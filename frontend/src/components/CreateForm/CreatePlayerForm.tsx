@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AppContext } from '../../index';
 import { useContext } from 'react';
-import classes from './CreateTeamForm.module.scss';
+import classes from './CreateForm.module.scss';
 
 const CreatePlayerForm = () => {
      const { playerStore } = useContext(AppContext);

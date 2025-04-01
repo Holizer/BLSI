@@ -1,6 +1,6 @@
 import $api from "../http";
 import { toast } from "sonner";
-import { IPlayerTeamView } from "../views/IPlayerTeamView";
+import { IPlayerTeamView } from "../models/views/IPlayerTeamView";
 
 export default class PlayerService {
      static async fetchPlayerTeamView(): Promise<IPlayerTeamView[]> {

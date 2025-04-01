@@ -1,16 +1,16 @@
 import { useContext, useEffect, useState } from 'react';
 import classes from './../styles/layout.module.scss';
 import { TableColumn, TableConfig } from '@/types/table';
-import { ITeamCoachCaptainView } from '../views/ITeamCoachCaptainView';
+import { ITeamCoachCaptainView } from '../models/views/ITeamCoachCaptainView';
 import { AppContext } from '../index';
 import Search from '../UI/Search/Search';
 import EditButton from '../UI/Edit/EditButton';
 import Table from '../UI/Table/Table';
-import CreateTeamForm from '../components/CreateTeamForm/CreateTeamForm';
+import CreateTeamForm from '../components/CreateForm/CreateTeamForm';
 import { ITeam } from '@/models/ITeam';
 import useTableManager from '../hooks/useTableManager';
 import { observer } from 'mobx-react-lite';
-import CreateCoachForm from '../components/CreateCoachForm/CreateCoachForm';
+import CreateCoachForm from '../components/CreateForm/CreateCoachForm';
 
 const Teams = () => {
 	const { teamStore } = useContext(AppContext)

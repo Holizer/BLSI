@@ -1,13 +1,13 @@
 -- Город
 CREATE TABLE city (
     city_id SERIAL PRIMARY KEY,
-    city_name VARCHAR(150) NOT NULL
+    city_name VARCHAR(150) NOT NULL UNIQUE
 );
 
 -- Адрес
 CREATE TABLE address (
     address_id SERIAL PRIMARY KEY,
-    city_id INT NOT NULL,
+    city_id INT NULL,
     street VARCHAR(150) NOT NULL,
     house_number INT NOT NULL,
     postal_code INT NOT NULL,
@@ -152,7 +152,7 @@ CREATE TABLE match_status (
 );
 
 -- Информация о матче
-ALTER TABLE match_info (
+CREATE TABLE match_info (
     match_info_id SERIAL PRIMARY KEY,
     match_status_id INT NOT NULL,
     team1_id INT NULL,

@@ -19,11 +19,11 @@ const useTableManager = <T,>() => {
           setEditedRows(prev => ({
                ...prev,
                [tableId]: {
-               ...(prev[tableId] || {}),
-               [rowIndex]: {
-                    ...(prev[tableId]?.[rowIndex] || {}),
-                    ...updatedData
-               }
+                    ...(prev[tableId] || {}),
+                    [rowIndex]: {
+                         ...(prev[tableId]?.[rowIndex] || {}),
+                         ...updatedData
+                    }
                }
           }));
      };

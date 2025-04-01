@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from sqlalchemy.sql import text
 from src.schemas.views import TeamCoachCaptainModel
-from src.models.models import Team
+from src.schemas.team import TeamSchema
 
 class TeamRepository:
     def __init__(self, db: Session):
@@ -13,7 +13,7 @@ class TeamRepository:
     def get_teams(self):
         query = text("SELECT * FROM get_teams()")  
         result = self.db.execute(query)
-        return [Team(**row) for row in result.mappings()]
+        return [TeamSchema(**row) for row in result.mappings()]
 
     # Получить представление teams_coach_captain
     def get_teams_captain_coach(self):
@@ -35,13 +35,6 @@ class TeamRepository:
         query = text("CALL create_team(:team_name, :captain_id, :coach_id)")
         self.db.execute(query, {"team_name": team_name, "captain_id": captain_id, "coach_id": coach_id})
         self.db.commit()
-
-    # Проверить существование команды
-    def check_team_name_exists(self, team_name: str, exclude_id: int = None):
-        query = text("SELECT * FROM check_team_name_exists(:team_name, :exclude_id)")
-        result = self.db.execute(query, {"team_name": team_name, "exclude_id": exclude_id})
-        self.db.commit()
-        return result.scalar()
 
     #PUT
     # Изменить название команды

@@ -1,27 +1,29 @@
 @import './../../styles/vars.scss';
 
 .sidebar__quicklinks {
-      padding: 6rem 0;
       background-color: $baground-menu;
-      width: 220px;
-      height: 100%;
+      width: 100%;
+      height: 100vh;
       border-right: 1px solid $light-gray-color;
 
       nav {
             display: flex;
             flex-direction: column;
             position: sticky;
+            margin-top: 6rem;
+            padding-left: 2rem;
 
             ul {
+                  display: flex;
+                  flex-direction: column;
                   list-style: none;
                   padding: 0;
         
                   .menuSection {
-                        margin-left: 3rem;
-
                         .menuItem {
                               display: flex;
                               width: 100%;
+                              float: left;
                               color: $primary-color;
                               text-decoration: none;
                               font-size: 0.8rem;

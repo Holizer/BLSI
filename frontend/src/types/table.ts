@@ -10,6 +10,9 @@ export interface TableColumn<T> {
       }>;
       displayValue?: (rowData: T) => React.ReactNode;
       emptyValueText?: string;
+      maxLength?: number;
+      max?: number,
+      min?: number
 }
 
 export interface TableConfig<T> {

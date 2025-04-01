@@ -47,11 +47,6 @@ async def update_team_name(team_id: int, team_data: TeamCreateUpdateSchema, db: 
         )
 
 
-# @team_router.put("/update/{team_id}")
-# async def update_team(team_id: int, team_data: TeamCreateUpdateSchema, db: Session = Depends(get_db)):
-#     TeamService(db).update_team(team_id, team_data.team_name, team_data.captain_id, team_data.coach_id)
-#     return {"message": f"Команда {team_data.team_name} успешно обновлена!"}
-
 # Добавление капитана
 @team_router.post("/add-captain")
 async def add_captain(team_id: int, player_id: int, db: Session = Depends(get_db)):

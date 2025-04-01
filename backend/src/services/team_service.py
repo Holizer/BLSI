@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from src.repositories.team_repository import TeamRepository
+from sqlalchemy.exc import SQLAlchemyError
 
 class TeamService:
     def __init__(self, db: Session):
@@ -19,23 +20,20 @@ class TeamService:
     
     #POST
     def create_team(self, team_name: str, captain_id: int = None, coach_id: int = None):
-        existing_team = self.repository.check_team_name_exists(team_name)
-        if existing_team:
-            raise ValueError(f"Команда с названием '{team_name}' уже существует")
-    
-        return self.repository.create_team(team_name, captain_id, coach_id)
+        try:
+            return self.repository.create_team(team_name, captain_id, coach_id)
+        except SQLAlchemyError as e:
+            error_msg = str(e.orig).split("CONTEXT:")[0].strip()
+            raise ValueError(error_msg)
 
     #PUT
     def update_team_name(self, team_id: int, team_name: str):
-        existing_team = self.repository.check_team_name_exists(team_name, team_id)
-        if existing_team:
-            raise ValueError(f"Команда с названием '{team_name}' уже существует")
-
-        return self.repository.update_team_name(team_id, team_name)
-    
-    # def update_team(self, team_id: int, team_name: str, captain_id: int = None, coach_id: int = None):
-    #     return self.repository.update_team(team_id, team_name, captain_id, coach_id)
-
+        try:
+            # Используются тригеры trg_check_team_name_unique
+            return self.repository.update_team_name(team_id, team_name)
+        except SQLAlchemyError as e:
+            error_msg = str(e.orig).split("CONTEXT:")[0].strip()
+            raise ValueError(error_msg)
     
     #region Работа с капитанами
     def add_captain(self, team_id: int, player_id: int):

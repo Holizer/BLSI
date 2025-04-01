@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
 from sqlalchemy.sql import text
 from src.schemas.views import PlayerTeamSchema
 

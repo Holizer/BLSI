@@ -4,14 +4,16 @@ import { observer } from 'mobx-react-lite';
 import EditButton from '../UI/Edit/EditButton';
 import useTableManager from '../hooks/useTableManager';
 import Table from '../UI/Table/Table';
-import { IPlayerTeamView } from '@/views/IPlayerTeamView';
 import { TableColumn, TableConfig } from '@/types/table';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { AppContext } from '../index';
+import { IPlayerAddressView } from '@/models/views/IPlayerAddressView';
+import CreateCityForm from '../components/CreateForm/CreateCityForm';
+import { ICity } from '../models/ICity';
 
 const Addresses = () => {
-	const { playerStore, teamStore } = useContext(AppContext)
-	const { playerTeamView } = playerStore
+	const { addressStore } = useContext(AppContext)
+	const { playerAddresses } = addressStore
 	
 	const {
 		isEditing,
@@ -21,18 +23,54 @@ const Addresses = () => {
 		resetTableState,
 		getRowsToDelete,
 		getRowsToEdit
-	} = useTableManager<IPlayerTeamView>();
+	} = useTableManager<IPlayerAddressView>();
 
-	const playerTeamViewConfig: TableConfig<IPlayerTeamView> = {
+	const playerTeamViewConfig: TableConfig<IPlayerAddressView> = {
 		applyDelete: true,
 		columns: [
 			{ key: 'first_name', title: 'Имя', editable: true, type: 'text' },
 			{ key: 'last_name', title: 'Фамилия', editable: true, type: 'text' },
-		] as TableColumn<IPlayerTeamView>[],
+			{
+				key: 'city_id',
+				title: 'Город',
+				editable: true,
+				type: 'select',
+				emptyValueText: 'Сайлент Хилл',
+				options: addressStore.cities.map((city) => ({
+					value: city.city_id,
+					label: city.city_name,
+				})),
+				displayValue: (rowData) => {
+					if (rowData.city_id == null) {
+						return 'Сайлент Хилл';
+					}
+					const city = addressStore.cities.find(t => t.city_id === rowData.city_id);
+					return city?.city_name || 'Сайлент Хилл';
+				}
+			},
+			{ key: 'street', title: 'Улица', editable: true, type: 'text' },
+			{ key: 'house_number', title: 'Номер дома', editable: true, type: 'number', min: 18, max: 99 },
+			{ key: 'postal_code', title: 'Почтовый индекс', editable: true, type: 'number', max: 9999 },
+
+		] as TableColumn<IPlayerAddressView>[],
+	};
+
+	const cityTableConfig: TableConfig<ICity> = {
+		applyDelete: true,
+		columns: [
+			{ key: 'city_name', title: 'Город', editable: true, type: 'text' },
+		] as TableColumn<ICity>[],
 	};
 	
+	const loadAllAddressesData = async () => {
+		await addressStore.loadAllAddressesData();		
+	}
 	
-	const handleSave = async (tableId: string) => {
+	useEffect(() => {
+		loadAllAddressesData();
+	}, [])
+
+	const handlePlayerAddressTableSave = async (tableId: string) => {
 		try {
 			const rowsToEdit = getRowsToEdit(tableId);
 			const rowsToDelete = getRowsToDelete(tableId);
@@ -42,19 +80,48 @@ const Addresses = () => {
 				return;
 			}
 
-			// await Promise.all(
-			// 	Object.values(rowsToEdit).map(changes => 
-			// 		playerStore.updatePlayerTeam(changes as IPlayerTeamView)
-			// 	)
-			// );
+			await Promise.all(
+				Object.values(rowsToEdit).map(changes => 
+					addressStore.updatePlayerAddress(changes as IPlayerAddressView)
+				)
+			);
 
-			// await Promise.all(
-			// 	Object.values(rowsToDelete).map((playerForDelete) =>
-			// 		playerForDelete.player_id ? playerStore.deletePlayer(playerForDelete.player_id) : Promise.resolve()
-			// 	)
-			// );
+			await Promise.all(
+				Object.values(rowsToDelete).map((deleted) =>
+					deleted.player_id ? addressStore.deletePlayerAddress(deleted.player_id) : Promise.resolve()
+				)
+			);
 				
-			// await fetchPlayerViewTeam();
+			await loadAllAddressesData();
+			resetTableState(tableId);
+		} catch (error) {
+			console.error("Ошибка при сохранении:", error);
+		}
+	};
+
+	const handleCityTableSave = async (tableId: string) => {
+		try {
+			const rowsToEdit = getRowsToEdit(tableId);
+			const rowsToDelete = getRowsToDelete(tableId);
+
+			if (Object.keys(rowsToEdit).length === 0 && Object.keys(rowsToDelete).length === 0) {
+				resetTableState(tableId);
+				return;
+			}
+
+			await Promise.all(
+				Object.values(rowsToEdit).map(changes => 
+					addressStore.updateCityName(changes as ICity)
+				)
+			);
+
+			await Promise.all(
+				Object.values(rowsToDelete).map((deleted) =>
+					deleted.city_id ? addressStore.deleteCity(deleted.city_id) : Promise.resolve()
+				)
+			);
+				
+			await loadAllAddressesData();
 			resetTableState(tableId);
 		} catch (error) {
 			console.error("Ошибка при сохранении:", error);
@@ -69,21 +136,21 @@ const Addresses = () => {
 					<Search />
 					<EditButton
 						isEditing={!!isEditing['playerAddressTable']} 
-						tableId="v"
+						tableId="playerAddressTable"
 						onEdit={toggleEditMode} 
 						onCancel={() => toggleEditMode('playerAddressTable', false)}
-						onSave={() => handleSave('playerAddressTable')}
+						onSave={() => handlePlayerAddressTableSave('playerAddressTable')}
 					/>
 				</div>
 				<Table
 					config={playerTeamViewConfig} 
-					data={playerTeamView || []}
+					data={playerAddresses || []}
 					tableId="playerTeamTable"
 					isEditing={!!isEditing['playerAddressTable']}
 					onToggleEdit={() => toggleEditMode('playerAddressTable')}
 					onEditChange={(
 						rowIndex: number, 
-						updatedData: IPlayerTeamView
+						updatedData: IPlayerAddressView
 					) => handleTableChange('playerAddressTable', rowIndex, updatedData)}
 					onDeleteToggle={(tableId, rowIndex, rowData) => 
 						toggleDeleteRow(tableId, rowIndex, rowData)
@@ -91,6 +158,37 @@ const Addresses = () => {
 					rowsToDelete={getRowsToDelete('playerAddressTable')}
 				/>
 			</div>
+
+			<div className={classes.content__block}>
+				<div className={classes.block__header}>
+					<h2>Города</h2>
+					<Search />
+					<EditButton
+						isEditing={!!isEditing['citiesTabel']} 
+						tableId="citiesTabel"
+						onEdit={toggleEditMode} 
+						onCancel={() => toggleEditMode('citiesTabel', false)}
+						onSave={() => handleCityTableSave('citiesTabel')}
+					/>
+				</div>
+				<Table
+					config={cityTableConfig} 
+					data={addressStore.cities || []}
+					tableId="citiesTabel"
+					isEditing={!!isEditing['citiesTabel']}
+					onToggleEdit={() => toggleEditMode('citiesTabel')}
+					onEditChange={(
+						rowIndex: number, 
+						updatedData: ICity
+					) => handleTableChange('citiesTabel', rowIndex, updatedData)}
+					onDeleteToggle={(tableId, rowIndex, rowData) => 
+						toggleDeleteRow(tableId, rowIndex, rowData)
+					}
+					rowsToDelete={getRowsToDelete('citiesTabel')}
+				/>
+			</div>
+
+			<CreateCityForm/>
 		</main>
 	);
 };

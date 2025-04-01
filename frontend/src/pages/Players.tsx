@@ -3,7 +3,7 @@ import classes from './../styles/layout.module.scss'
 import EditButton from '../UI/Edit/EditButton';
 import { useContext, useEffect, useState } from 'react';
 import Table from '../UI/Table/Table';
-import { IPlayerTeamView } from '@/views/IPlayerTeamView';
+import { IPlayerTeamView } from '@/models/views/IPlayerTeamView';
 import { TableColumn, TableConfig } from '@/types/table';
 import { AppContext } from '..';
 import useTableManager from '../hooks/useTableManager';
@@ -28,8 +28,8 @@ const PlayersManager: React.FC = () => {
 		columns: [
 			{ key: 'first_name', title: 'Имя', editable: true, type: 'text' },
 			{ key: 'last_name', title: 'Фамилия', editable: true, type: 'text' },
-			{ key: 'age', title: 'Возраст', editable: true, type: 'text' },
-			{ key: 'phone', title: 'Номер телефона', editable: true, type: 'text' },
+			{ key: 'age', title: 'Возраст', editable: true, type: 'number', min: 18, max: 99 },
+			{ key: 'phone', title: 'Номер телефона', editable: true, type: 'text', maxLength: 12  },
 			{
 				key: 'team_id',
 				title: 'Команда',

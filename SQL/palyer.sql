@@ -136,10 +136,31 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- ТРИГЕР
+-- ПРОВЕРКА ВОЗРАСТА
+CREATE OR REPLACE FUNCTION check_player_age()
+RETURNS TRIGGER
+AS $$
+BEGIN
+    IF TG_OP = 'INSERT' OR NEW.age <> OLD.age THEN
+        IF NEW.age < 18 OR NEW.age > 99 THEN
+            RAISE EXCEPTION 'Возраст игрока должен быть от 18 до 99 лет. Указан возраст: %', NEW.age;
+        END IF;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ТРИГЕРЫ
 CREATE TRIGGER trg_check_phone_unique
 BEFORE INSERT OR UPDATE OF phone ON player
 FOR EACH ROW
 EXECUTE FUNCTION check_phone_uniqueness();
+
+CREATE TRIGGER trg_check_player_age
+BEFORE INSERT OR UPDATE OF age ON player
+FOR EACH ROW
+EXECUTE FUNCTION check_player_age();
+
 
 CALL check_phone_exists('3752912345683', NULL, 1);

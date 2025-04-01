@@ -10,9 +10,12 @@
       font-size: 14px;
       font-family: $font-family;
       color: $primary-color;
+      // max-width: 1600px;
+      // margin: 0 auto;
       
       .grid__container {
             display: grid;
-            grid-template-columns: auto 1fr auto;
+            max-width: 100%;
+            grid-template-columns: 180px auto 220px;
       }
 }

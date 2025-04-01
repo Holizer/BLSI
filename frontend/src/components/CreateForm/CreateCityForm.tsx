@@ -1,26 +1,26 @@
 import { useState } from 'react';
 import { AppContext } from '../../index';
 import { useContext } from 'react';
-import classes from './CreateTeamForm.module.scss';
+import classes from './CreateForm.module.scss';
 
-const CreateTeamForm = () => {
-     const { teamStore } = useContext(AppContext);
-     const [teamName, setTeamName] = useState('');
+const CreateCityForm = () => {
+     const { addressStore } = useContext(AppContext);
      const [error, setError] = useState<string | null>(null);
+     const [cityName, setCityName] = useState<string>('');
 
      const handleSubmit = async (event: React.FormEvent) => {
           event.preventDefault();
-          if (!teamName) {
-               setError("Название команды обязательно для заполнения.");
+          if (!cityName) {
+               setError("Название города обязательно для заполнения.");
                return;
           }
-          const newTeamData = {
-               team_name: teamName,
+          const newCityData = {
+               city_name: cityName,
           };
           try {
-               await teamStore.createTeam(newTeamData);
-               await teamStore.loadAllTeamsData();
-               setTeamName('');
+               await addressStore.createCity(newCityData);
+               await addressStore.loadAllAddressesData();
+               setCityName('');
                setError(null);
           } catch (err) {
                setError('Произошла ошибка при создании команды. Попробуйте снова.');
@@ -30,15 +30,15 @@ const CreateTeamForm = () => {
      return (
           <form onSubmit={handleSubmit} className={classes.createTeamForm}>
                <div>
-                    <label htmlFor="team-name" className={classes.createTeamForm__label}>
-                         Название команды
+                    <label htmlFor="city-name" className={classes.createTeamForm__label}>
+                         Название города
                     </label>
                     <input
-                         id="team-name"
+                         id="city-name"
                          type="text"
-                         value={teamName}
-                         onChange={(e) => setTeamName(e.target.value)}
-                         placeholder="Введите название команды"
+                         value={cityName}
+                         onChange={(e) => setCityName(e.target.value)}
+                         placeholder="Введите название города"
                          className={classes.createTeamForm__input}
                     />
                </div>
@@ -48,11 +48,11 @@ const CreateTeamForm = () => {
                <button
                     type="submit"
                     className={classes.createTeamForm__submit}
-                    >
-                    Создать команду
+               >
+                    Создать город
                </button>
           </form>
      );
 };
 
-export default CreateTeamForm;
+export default CreateCityForm;

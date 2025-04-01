@@ -1,46 +1,49 @@
 import PlayerService from "../service/PlayerService";
-import { IPlayerTeamView } from "@/views/IPlayerTeamView";
+import { IPlayerTeamView } from "@/models/views/IPlayerTeamView";
 import { makeAutoObservable } from "mobx";
 
-
-export default class PlayerStore {
+export default class PlayerStore{
       playerTeamView: IPlayerTeamView[] = [];
       loading = false;
 
       constructor() {
-            makeAutoObservable(this);
+            makeAutoObservable(this)
       }
 
+      setLoading = (value: boolean) => {
+            this.loading = value;
+      } 
+
       async fetchPlayerTeamView() {
-            this.loading = true;
+            this.setLoading(true)
             try {
                   this.playerTeamView = await PlayerService.fetchPlayerTeamView();
             } catch (error) {
                   console.error("Ошибка загрузки игроков:", error);
             } finally {
-                  this.loading = false;
+                  this.setLoading(false)
             }
       }
 
       async updatePlayerTeam(playerTeamData: IPlayerTeamView) {
-            this.loading = true;
+            this.setLoading(true)
             try {
                   await PlayerService.updatePlayerTeam(playerTeamData);
             } catch (error) {
                   console.error("Ошибка загрузки игроков:", error);
             } finally {
-                  this.loading = false;
+                  this.setLoading(false)
             }
       }
 
       async deletePlayer(player_id: number) {
-            this.loading = true;
+            this.setLoading(true)
             try {
                   await PlayerService.deletePlayer(player_id);
             } catch (error) {
                   console.error("Ошибка загрузки игроков:", error);
             } finally {
-                  this.loading = false;
+                  this.setLoading(false)
             }
       }
 }

@@ -138,22 +138,38 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT check_team_name_exists('w', 123);
-
-
-CREATE OR REPLACE FUNCTION update_team_name(
-    p_team_id INT,
-    p_new_name VARCHAR
-) RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION check_team_name_trigger()
+RETURNS TRIGGER
+AS $$
 BEGIN
-    IF EXISTS (SELECT 1 FROM teams WHERE team_name = p_new_name AND id != p_team_id) THEN
-        RAISE EXCEPTION 'Команда с названием "%" уже существует', p_new_name;
+    IF TG_OP = 'INSERT' OR (TG_OP = 'UPDATE' AND NEW.team_name <> OLD.team_name) THEN
+        IF check_team_name_exists(NEW.team_name, 
+                                 CASE WHEN TG_OP = 'UPDATE' THEN NEW.team_id ELSE NULL END) THEN
+            RAISE EXCEPTION 'Название "%" уже занято', NEW.team_name;
+        END IF;
     END IF;
     
-    UPDATE teams SET team_name = p_new_name WHERE id = p_team_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_check_team_name_unique
+BEFORE INSERT OR UPDATE OF team_name ON team
+FOR EACH ROW
+EXECUTE FUNCTION check_team_name_trigger();
+
+
+CREATE OR REPLACE PROCEDURE update_team_name(
+    p_team_id INT,
+    p_new_name VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE team SET team_name = p_new_name WHERE team_id = p_team_id;
     
     IF NOT FOUND THEN
         RAISE EXCEPTION 'Команда с ID % не найдена', p_team_id;
     END IF;
 END;
-$$ LANGUAGE plpgsql;
+$$
