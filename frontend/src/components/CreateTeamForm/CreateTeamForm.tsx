@@ -19,7 +19,7 @@ const CreateTeamForm = () => {
           };
           try {
                await teamStore.createTeam(newTeamData);
-               await teamStore.fetchTeamsWithCatainAndCoach();
+               await teamStore.loadAllTeamsData();
                setTeamName('');
                setError(null);
           } catch (err) {

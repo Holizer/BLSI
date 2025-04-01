@@ -32,4 +32,15 @@ export default class PlayerStore {
                   this.loading = false;
             }
       }
+
+      async deletePlayer(player_id: number) {
+            this.loading = true;
+            try {
+                  await PlayerService.deletePlayer(player_id);
+            } catch (error) {
+                  console.error("Ошибка загрузки игроков:", error);
+            } finally {
+                  this.loading = false;
+            }
+      }
 }

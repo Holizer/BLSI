@@ -1,12 +1,23 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from src.repositories.player_repository import PlayerRepository
+from src.schemas.views import PlayerTeamSchema
 
 class PlayerService:
     def __init__(self, db: Session):
         self.repository = PlayerRepository(db)
 
-    def get_player_team(self):
+    def get_player_team(self) -> list[PlayerTeamSchema]:
         return self.repository.get_player_team()
     
-    def update_player_team(self, player_id: int, first_name: str, last_name: str, team_id: int):
-        return self.repository.update_player_team(player_id, first_name, last_name, team_id)
+    def update_player_team(self, player_data: PlayerTeamSchema):
+        try:
+            # Исп тригер trg_check_phone_unique и trg_check_player_age
+            return self.repository.update_player_team(player_data.model_dump())
+        except SQLAlchemyError as e:
+            error_msg = str(e.orig).split("CONTEXT:")[0].strip()
+            raise ValueError(error_msg)
+    
+    
+    def delete_player(self, player_id: int):
+        return self.repository.delete_player(player_id)

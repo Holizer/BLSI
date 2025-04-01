@@ -1,7 +1,9 @@
 from fastapi import APIRouter
-from .players import player_router
+from .players import players_router
 from .teams import team_router
+from .addresses import addresses_router
 
 api_router = APIRouter(prefix="/api")
-api_router.include_router(player_router)
+api_router.include_router(players_router)
 api_router.include_router(team_router)
+api_router.include_router(addresses_router)

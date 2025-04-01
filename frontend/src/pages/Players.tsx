@@ -7,15 +7,14 @@ import { IPlayerTeamView } from '@/views/IPlayerTeamView';
 import { TableColumn, TableConfig } from '@/types/table';
 import { AppContext } from '..';
 import useTableManager from '../hooks/useTableManager';
+import { observer } from 'mobx-react-lite';
 
 const PlayersManager: React.FC = () => {
 	const { playerStore, teamStore } = useContext(AppContext)
 	const { playerTeamView } = playerStore
 
 	const {
-		editedRows,
 		isEditing,
-		rowsToDelete,
 		handleTableChange,
 		toggleDeleteRow,
 		toggleEditMode,
@@ -29,6 +28,8 @@ const PlayersManager: React.FC = () => {
 		columns: [
 			{ key: 'first_name', title: 'Имя', editable: true, type: 'text' },
 			{ key: 'last_name', title: 'Фамилия', editable: true, type: 'text' },
+			{ key: 'age', title: 'Возраст', editable: true, type: 'text' },
+			{ key: 'phone', title: 'Номер телефона', editable: true, type: 'text' },
 			{
 				key: 'team_id',
 				title: 'Команда',
@@ -74,11 +75,11 @@ const PlayersManager: React.FC = () => {
 				)
 			);
 
-			// await Promise.all(
-			// 	Object.values(rowsToDelete).map((playerForDelete) =>
-			// 		playerForDelete.team_id ? playerForDelete.deletePlayer(playerForDelete.player_id) : Promise.resolve()
-			// 	)
-			// );
+			await Promise.all(
+				Object.values(rowsToDelete).map((playerForDelete) =>
+					playerForDelete.player_id ? playerStore.deletePlayer(playerForDelete.player_id) : Promise.resolve()
+				)
+			);
 				
 			await fetchPlayerViewTeam();
 			resetTableState(tableId);
@@ -121,4 +122,4 @@ const PlayersManager: React.FC = () => {
 	);
 };
 
-export default PlayersManager;
+export default observer(PlayersManager);

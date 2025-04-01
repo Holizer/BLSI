@@ -1,3 +1,4 @@
+import { Toaster } from "sonner";
 import classes from './styles/App.module.scss';
 import LeftSideBar from '../../frontend/src/components/LeftSideBar/LeftSideBar';
 import RightSidebarBar from '../../frontend/src/components/RightSideBar/RightSideBar';
@@ -22,6 +23,7 @@ const App = () => {
                 </Routes>
                 <RightSidebarBar />
             </div>
+            <Toaster position="top-center" />
         </div>
     );
 };

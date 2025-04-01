@@ -34,8 +34,6 @@ async def create_team(team_data: TeamCreateUpdateSchema, db: Session = Depends(g
             detail=str(e)
         )
 
-
-
 #PUT
 @team_router.put("/update-team-name/{team_id}")
 async def update_team_name(team_id: int, team_data: TeamCreateUpdateSchema, db: Session = Depends(get_db)):

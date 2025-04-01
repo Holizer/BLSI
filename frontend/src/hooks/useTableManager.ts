@@ -74,8 +74,6 @@ const useTableManager = <T,>() => {
      };
 
      return {
-          editedRows,
-          rowsToDelete,
           isEditing,
           handleTableChange,
           toggleEditMode,

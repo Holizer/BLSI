@@ -9,8 +9,6 @@ const Table = <T extends Record<string, any>>({
 	isEditing,
 	onEditChange,
 	tableId,
-	onToggleEdit,
-	onSave,
 	onRowClick,
 	onDeleteToggle,
 	rowsToDelete = {},
@@ -48,6 +46,9 @@ const Table = <T extends Record<string, any>>({
 	 
 	return (
 		<div className={classes.tableWrapper}>
+			<div className={classes.scrollbar}>
+				<div className={classes.scrollbar_thumb}></div>
+    			</div>
 			<table className={classes.table}>
 				<thead>
 					<tr>
@@ -74,22 +75,23 @@ const Table = <T extends Record<string, any>>({
 							<td key={column.key.toString()}>
 								{isEditing && column.editable ? (
 									column.type === 'select' && column.options ? (
-									
-									<select
-										value={editedData[rowIndex]?.[column.key] ?? row[column.key] ?? ''}
-										onChange={(e) => {
-											const value = e.target.value === '' ? null : e.target.value;
-											handleChange(rowIndex, column.key, value);
-										}}
-									>
+									<div className={classes.select__wrapper}>
+										<select
+											value={editedData[rowIndex]?.[column.key] ?? row[column.key] ?? ''}
+											onChange={(e) => {
+												const value = e.target.value === '' ? null : e.target.value;
+												handleChange(rowIndex, column.key, value);
+											}}
+										>
 										<option value="">{column.emptyValueText || 'Не выбрано'}</option>
 											{column.options.map((option) => (
-											<option key={option.value} value={option.value}>
-												{option.label}
-											</option>
-										))}
-									</select>
-
+												<option key={option.value} value={option.value}>
+													{option.label}
+												</option>
+											))}
+										</select>
+									</div>
+									   
 									) : column.type === 'number' ? (
 									
 									<input
@@ -119,10 +121,10 @@ const Table = <T extends Record<string, any>>({
 							{isEditing && config.applyDelete === true && (
 								<td onClick={(e) => e.stopPropagation()}>
 									<button 
-									onClick={() => handleDelete(rowIndex, row)} 
-									className={classes.deleteButton}
+										onClick={() => handleDelete(rowIndex, row)} 
+										className={classes.deleteButton}
 									>
-									<img src={deleteIcon} alt='Удалить'/>
+										<img src={deleteIcon} alt='Удалить'/>
 									</button>
 								</td>
 							)}

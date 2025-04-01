@@ -140,6 +140,7 @@ $$ LANGUAGE plpgsql;
 
 SELECT check_team_name_exists('w', 123);
 
+
 CREATE OR REPLACE FUNCTION update_team_name(
     p_team_id INT,
     p_new_name VARCHAR

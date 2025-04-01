@@ -1,12 +1,14 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, conint, constr
 from typing import Optional
 
-class PlayerTeamModel(BaseModel):
+class PlayerTeamSchema(BaseModel):
     player_id: int
     first_name: str
     last_name: str
-    team_id: Optional[int] = None 
-    team_name: str = "Отсутствует" 
+    age: int
+    phone: str 
+    team_id: Optional[int]
+    team_name: str
 
 class TeamCoachCaptainModel(BaseModel):
     team_id: int

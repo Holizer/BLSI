@@ -10,26 +10,13 @@ import CreateTeamForm from '../components/CreateTeamForm/CreateTeamForm';
 import { ITeam } from '@/models/ITeam';
 import useTableManager from '../hooks/useTableManager';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
-
-//#region TablesConfig
-const teamCoachCaptainViewConfig: TableConfig<ITeamCoachCaptainView> = {
-	applyDelete: true,
-	columns: [
-		{ key: 'team_name', title: 'Команда', editable: true, type: 'text' },
-		{ key: 'captain_name', title: 'Капитан', type: 'text' },
-		{ key: 'coach_name', title: 'Тренер', type: 'text' },
-	] as TableColumn<ITeamCoachCaptainView>[],
-};
-//#endregion
+import CreateCoachForm from '../components/CreateCoachForm/CreateCoachForm';
 
 const Teams = () => {
 	const { teamStore } = useContext(AppContext)
-	const { teamsView } = teamStore;
+	const { teamsDetailed } = teamStore;
 	const {
-		editedRows,
 		isEditing,
-		rowsToDelete,
 		handleTableChange,
 		toggleDeleteRow,
 		toggleEditMode,
@@ -38,9 +25,20 @@ const Teams = () => {
 		getRowsToEdit
 	} = useTableManager<ITeamCoachCaptainView>();
 
+	//#region TablesConfig
+	const teamCoachCaptainViewConfig: TableConfig<ITeamCoachCaptainView> = {
+		applyDelete: true,
+		columns: [
+			{ key: 'team_name', title: 'Команда', editable: true, type: 'text' },
+			{ key: 'captain_name', title: 'Капитан', type: 'text' },
+			{ key: 'coach_name', title: 'Тренер', type: 'text' },
+		] as TableColumn<ITeamCoachCaptainView>[],
+	};
+	//#endregion
+
 	//#region FETCH DATA
 	const fetchTeamsWithCatainAndCoach = async () => {
-		await teamStore.fetchTeamsWithCatainAndCoach();	
+		await teamStore.loadAllTeamsData();	
 	}
 
 	useEffect(() => {
@@ -93,7 +91,7 @@ const Teams = () => {
 				</div>
 				<Table 
 					config={teamCoachCaptainViewConfig} 
-					data={teamsView || []}
+					data={teamsDetailed || []}
 					tableId="teamsTable"
 					isEditing={!!isEditing['teamsTable']}
 					onToggleEdit={() => toggleEditMode('teamsTable')}
@@ -112,6 +110,12 @@ const Teams = () => {
 					<h2>Создать команду</h2>
 				</div>
 				<CreateTeamForm/>
+			</div>
+			<div className={classes.content__block}>
+				<div className={classes.block__header}>
+					<h2>Создать команду</h2>
+				</div>
+				<CreateCoachForm/>
 			</div>
 		</main>
 	);

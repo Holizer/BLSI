@@ -1,3 +1,4 @@
+import { observer } from 'mobx-react-lite';
 import classes from './../styles/layout.module.scss'
 
 const Matches = () => {
@@ -8,4 +9,4 @@ const Matches = () => {
       )
 }
 
-export default Matches;
+export default observer(Matches);
