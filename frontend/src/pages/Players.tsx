@@ -8,6 +8,7 @@ import { TableColumn, TableConfig } from '@/types/table';
 import { AppContext } from '..';
 import useTableManager from '../hooks/useTableManager';
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 
 const PlayersManager: React.FC = () => {
 	const { playerStore, teamStore } = useContext(AppContext)
@@ -52,7 +53,7 @@ const PlayersManager: React.FC = () => {
 	};
 
 	const fetchPlayerViewTeam = async () => {
-		await playerStore.fetchPlayerTeamView();		
+		await playerStore.fetchPlayerTeamView();
 	}
 
 	useEffect(() => {

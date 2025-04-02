@@ -25,7 +25,7 @@ const Table = <T extends Record<string, any>>({
 		};
 		   
 		setEditedData(newData);
-
+		console.log(editedData[rowIndex])
 		onEditChange(
 			rowIndex,
 			{ ...data[rowIndex], ...newData[rowIndex] }
@@ -71,6 +71,10 @@ const Table = <T extends Record<string, any>>({
 						
 						const isRowMarkedForDeletion = rowsToDelete[rowIndex] !== undefined;
 					
+						{config.columns.map((column) => (
+							console.log(column)
+						))}
+
 						return (
 							<tr 
 								key={rowIndex} 
@@ -84,7 +88,7 @@ const Table = <T extends Record<string, any>>({
 										<div className={classes.select__wrapper}>
 											<select
 												value={
-												editedData[rowIndex]?.[column.key] !== undefined 
+													editedData[rowIndex]?.[column.key] !== undefined 
 													? editedData[rowIndex]?.[column.key] ?? ""
 													: row[column.key] !== null ? row[column.key] : ""
 												}

@@ -13,7 +13,8 @@ export default class PlayerService {
           }
      }
 
-     static async updatePlayerTeam(playerTeamData: IPlayerTeamView): Promise<IPlayerTeamView> {
+     // static async updatePlayerTeam(playerTeamData: IPlayerTeamView): Promise<IPlayerTeamView> {
+     static async updatePlayerTeam(playerTeamData: IPlayerTeamView) {
           try {
                const response = await $api.put<IPlayerTeamView>(`/players/update-player-team/${playerTeamData.player_id}`, playerTeamData);
                return response.data; 

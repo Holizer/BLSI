@@ -17,19 +17,12 @@ class AddressRepository:
         self.db.execute(query, {"player_id": player_id})
         self.db.commit()
 
-    def update_player_address(self, player_id: int, first_name: str, last_name: str, city_id: int, street: str, house_number: int, postal_code: int):
+    def update_player_address(self, address_data: PlayerAddressSchema):
         query = text("CALL update_player_address(:player_id, :first_name, :last_name, :city_id, :street, :house_number, :postal_code)")
-        self.db.execute(query, {
-            "player_id": player_id,
-            "first_name": first_name,
-            "last_name": last_name,
-            "city_id": city_id,
-            "street": street,
-            "house_number": house_number,
-            "postal_code": postal_code
-        })
+        params = address_data.model_dump()
+        self.db.execute(query, params)
         self.db.commit()
-        return {"message": f"Адрес игрока с ID {player_id} успешно обновлен."}
+        return {"message": f"Адрес игрока {address_data.first_name} успешно обновлен."}
 
     #ГОРОДА
     def get_cities(self):

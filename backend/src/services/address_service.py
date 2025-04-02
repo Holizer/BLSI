@@ -11,8 +11,8 @@ class AddressService:
     def get_player_address(self) -> list[PlayerAddressSchema]:
         return self.repository.get_player_address()
 
-    def update_player_address(self, player_id: int, first_name: str, last_name: str, city_id: int, street: str, house_number: int, postal_code: int):
-        return self.repository.update_player_address(player_id, first_name, last_name, city_id, street, house_number, postal_code)
+    def update_player_address(self, address_data: PlayerAddressSchema):
+        return self.repository.update_player_address(address_data)
 
     def delete_player_address(self, player_id: int):
         try:
@@ -40,9 +40,9 @@ class AddressService:
             error_msg = str(e.orig).split("CONTEXT:")[0].strip()
             raise ValueError(error_msg)
 
-    def update_city_name(self, city_id: int, city_name: str):
+    def update_city_name(self, city_data: CitySchema):
         try:
-            return self.repository.update_city_name(city_id, city_name)
+            return self.repository.update_city_name(city_data.city_id, city_data.city_name)
         except SQLAlchemyError as e:
             error_msg = str(e.orig).split("CONTEXT:")[0].strip()
             raise ValueError(error_msg)

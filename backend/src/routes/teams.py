@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from src.services.team_service import TeamService
-from src.schemas.team import TeamCreateUpdateSchema
+from src.schemas.team import TeamUpdateSchema
 from database import get_db
 
 team_router = APIRouter(prefix="/teams")
@@ -24,7 +24,7 @@ async def delete_team(team_id: int, db: Session = Depends(get_db)):
 
 #POST
 @team_router.post("/create")
-async def create_team(team_data: TeamCreateUpdateSchema, db: Session = Depends(get_db)):
+async def create_team(team_data: TeamUpdateSchema, db: Session = Depends(get_db)):
     try:
         TeamService(db).create_team(team_data.team_name, team_data.captain_id, team_data.coach_id)
         return {"message": f"Команда '{team_data.team_name}' успешно создана!"}
@@ -36,7 +36,7 @@ async def create_team(team_data: TeamCreateUpdateSchema, db: Session = Depends(g
 
 #PUT
 @team_router.put("/update-team-name/{team_id}")
-async def update_team_name(team_id: int, team_data: TeamCreateUpdateSchema, db: Session = Depends(get_db)):
+async def update_team_name(team_id: int, team_data: TeamUpdateSchema, db: Session = Depends(get_db)):
     try:
         TeamService(db).update_team_name(team_id, team_data.team_name)
         return {"message": f"Название команды успешно изменено!"}

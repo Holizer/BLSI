@@ -1,13 +1,14 @@
 from sqlalchemy.orm import Session
 from src.repositories.team_repository import TeamRepository
 from sqlalchemy.exc import SQLAlchemyError
+from src.schemas.team import TeamSchema
 
 class TeamService:
     def __init__(self, db: Session):
         self.repository = TeamRepository(db)
 
     #region GET
-    def get_teams(self):
+    def get_teams(self) -> list[TeamSchema]:
         return self.repository.get_teams()
     
     def get_teams_captain_coach(self):

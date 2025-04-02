@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from src.services.player_service import PlayerService
-from src.schemas.views import UpdatePlayerTeamSchema
 from src.schemas.views import PlayerTeamSchema
 from database import get_db
 
@@ -14,7 +13,7 @@ async def get_player_team(db: Session = Depends(get_db)):
 @players_router.put("/update-player-team/{player_id}")
 async def update_player_team(player_data: PlayerTeamSchema, db: Session = Depends(get_db)):
     try:
-        # PlayerService(db).update_player_team(player_data)
+        PlayerService(db).update_player_team(player_data)
         return {"message": f"Игрок {player_data.player_id} успешно обовлен!"}
     except ValueError as e:
         raise HTTPException(

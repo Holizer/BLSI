@@ -12,11 +12,9 @@ async def get_player_address(db: Session = Depends(get_db)):
     return AddressService(db).get_player_address()
 
 @addresses_router.put("/update-player-address/{player_id}")
-async def update_player_address(player_id: int, address_data: PlayerAddressSchema, db: Session = Depends(get_db)):
+async def update_player_address(address_data: PlayerAddressSchema, db: Session = Depends(get_db)):
     try:
-        AddressService(db).update_player_address(player_id, address_data.first_name,
-                                                address_data.last_name, address_data.city_id,
-                                                address_data.street, address_data.house_number, address_data.postal_code)
+        AddressService(db).update_player_address(address_data)
         return {"message": f"Адерес успешно обновлен!"}
     except ValueError as e:
         raise HTTPException(
