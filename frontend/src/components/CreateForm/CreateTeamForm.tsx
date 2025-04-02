@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AppContext } from '../../index';
 import { useContext } from 'react';
 import classes from './CreateForm.module.scss';
+import Input from '../../UI/Input/Input';
 
 const CreateTeamForm = () => {
      const { teamStore } = useContext(AppContext);
@@ -28,26 +29,22 @@ const CreateTeamForm = () => {
      };
 
      return (
-          <form onSubmit={handleSubmit} className={classes.createTeamForm}>
-               <div>
-                    <label htmlFor="team-name" className={classes.createTeamForm__label}>
-                         Название команды
-                    </label>
-                    <input
-                         id="team-name"
-                         type="text"
-                         value={teamName}
-                         onChange={(e) => setTeamName(e.target.value)}
-                         placeholder="Введите название команды"
-                         className={classes.createTeamForm__input}
-                    />
-               </div>
+          <form onSubmit={handleSubmit} className={classes.createDefaultForm}>
+               <h2>Создание команды</h2>
+               <Input
+                    name="team-name"
+                    label='Название команды'
+                    type="text"
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    maxLength={150}
+               />
 
                {error && <p className={classes.createTeamForm__error}>{error}</p>}
 
                <button
                     type="submit"
-                    className={classes.createTeamForm__submit}
+                    className={classes.submit__button}
                     >
                     Создать команду
                </button>

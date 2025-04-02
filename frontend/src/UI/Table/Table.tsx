@@ -71,10 +71,6 @@ const Table = <T extends Record<string, any>>({
 						
 						const isRowMarkedForDeletion = rowsToDelete[rowIndex] !== undefined;
 					
-						{config.columns.map((column) => (
-							console.log(column)
-						))}
-
 						return (
 							<tr 
 								key={rowIndex} 

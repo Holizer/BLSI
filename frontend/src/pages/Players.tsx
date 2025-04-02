@@ -8,7 +8,7 @@ import { TableColumn, TableConfig } from '@/types/table';
 import { AppContext } from '..';
 import useTableManager from '../hooks/useTableManager';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
+import CreatePlayerForm from '../components/CreateForm/CreatePlayerForm';
 
 const PlayersManager: React.FC = () => {
 	const { playerStore, teamStore } = useContext(AppContext)
@@ -119,6 +119,7 @@ const PlayersManager: React.FC = () => {
 					rowsToDelete={getRowsToDelete('playerTeamTable')}
 				/>
 			</div>
+			<CreatePlayerForm/>
 		</main>
 	);
 };

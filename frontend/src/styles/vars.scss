@@ -1,11 +1,11 @@
 $font-family: "Helvetica Neue", sans-serif;
 
 $primary-color: rgb(50, 49, 48);
-$secondary-color: rgb(170, 70, 20);
-
 $light-gray-color: rgb(220, 220, 220);
+
 $border-color: rgb(220, 220, 220);
 $border-hover-color: rgb(180, 180, 180);
+$border-focus-color: rgb(140, 140, 140);
 
 $nav-item-bg-color-hover: rgb(240, 240, 240);
 $tools-bg-color-hover: rgb(210, 210, 210);
@@ -13,7 +13,14 @@ $tools-bg-color-hover: rgb(210, 210, 210);
 
 $transition-duration: 0.2s;
 $accent-color: rgb(249, 210, 100);
+
 $ligth-blue-color: #d9e8ff;
+$blue-color: #aaccff;
+
+
+$secondary: #38ef7d;
+$placeholder-color: #9b9b9b;
+$error-color: #ff3860;
 
 $transition-duration: 0.2s;
 $baground-menu: white;

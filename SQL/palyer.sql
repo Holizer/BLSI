@@ -33,7 +33,124 @@ EXCEPTION
 END;
 $$;
 
-SELECT * FROM get_player_team();
+SELECT * FROM get_teams();
+SELECT * FROM get_player_address();
+
+CALL create_player(
+    'Пидоров', 
+    'Сидоров', 
+    '375422430523', 
+    30, 
+    'Советская', 
+    7, 
+    111222, 
+    NULL,
+    NULL
+);
+
+
+DROP  PROCEDURE create_player
+
+CREATE OR REPLACE FUNCTION create_player(
+    p_first_name VARCHAR(50),
+    p_last_name VARCHAR(50),
+    p_phone VARCHAR(20),
+    p_age INT,
+    p_street VARCHAR(150),
+    p_house_number INT,
+    p_postal_code INT,
+    p_city_id INT DEFAULT NULL,
+    p_team_id INT DEFAULT NULL
+)
+RETURNS JSON
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_player_id INT;
+    v_address_id INT;
+BEGIN
+    -- Проверка обязательных полей
+    IF p_first_name IS NULL OR p_first_name = '' THEN
+        RETURN json_build_object('status', 'error', 'message', 'Имя игрока обязательно для заполнения');
+    END IF;
+    
+    IF p_last_name IS NULL OR p_last_name = '' THEN
+        RETURN json_build_object('status', 'error', 'message', 'Фамилия игрока обязательна для заполнения');
+    END IF;
+    
+    IF p_age < 18 OR p_age > 99 THEN
+        RETURN json_build_object('status', 'error', 'message', 'Возраст игрока должен быть между 18 и 99 годами');
+    END IF;
+    
+    IF p_street IS NULL OR p_street = '' THEN
+        RETURN json_build_object('status', 'error', 'message', 'Улица обязательна для заполнения');
+    END IF;
+    
+    IF p_house_number IS NULL OR p_house_number <= 0 THEN
+        RETURN json_build_object('status', 'error', 'message', 'Номер дома должен быть положительным числом');
+    END IF;
+    
+    IF p_postal_code IS NULL OR p_postal_code <= 0 THEN
+        RETURN json_build_object('status', 'error', 'message', 'Почтовый индекс должен быть положительным числом');
+    END IF;
+    
+    -- Проверка существования города, если указан
+    IF p_city_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM city WHERE city_id = p_city_id) THEN
+        RETURN json_build_object('status', 'error', 'message', 'Город с ID ' || p_city_id || ' не существует');
+    END IF;
+    
+    -- Проверка существования команды, если указана
+    IF p_team_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM team WHERE team_id = p_team_id) THEN
+        RETURN json_build_object('status', 'error', 'message', 'Команда с ID ' || p_team_id || ' не существует');
+    END IF;
+    
+    -- Создание адреса
+    INSERT INTO address (
+        city_id,
+        street,
+        house_number,
+        postal_code
+    ) VALUES (
+        p_city_id,
+        p_street,
+        p_house_number,
+        p_postal_code
+    )
+    RETURNING address_id INTO v_address_id;
+    
+    -- Создание игрока
+    INSERT INTO player (
+        first_name,
+        last_name,
+        phone,
+        age,
+        address_id,
+        team_id
+    ) VALUES (
+        p_first_name,
+        p_last_name,
+        NULLIF(p_phone, ''),
+        p_age,
+        v_address_id,
+        p_team_id
+    )
+    RETURNING player_id INTO v_player_id;
+    
+    -- Возвращаем успешный результат
+    RETURN json_build_object(
+        'status', 'success',
+        'player_id', v_player_id,
+        'address_id', v_address_id
+    );
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN json_build_object(
+            'status', 'error',
+            'message', SQLERRM
+        );
+END;
+$$;
+
 
 CREATE OR REPLACE PROCEDURE delete_player(p_player_id INT)
 LANGUAGE plpgsql

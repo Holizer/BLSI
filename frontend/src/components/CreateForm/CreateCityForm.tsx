@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AppContext } from '../../index';
 import { useContext } from 'react';
 import classes from './CreateForm.module.scss';
+import Input from '../../UI/Input/Input';
 
 const CreateCityForm = () => {
      const { addressStore } = useContext(AppContext);
@@ -28,26 +29,22 @@ const CreateCityForm = () => {
      };
 
      return (
-          <form onSubmit={handleSubmit} className={classes.createTeamForm}>
-               <div>
-                    <label htmlFor="city-name" className={classes.createTeamForm__label}>
-                         Название города
-                    </label>
-                    <input
-                         id="city-name"
-                         type="text"
-                         value={cityName}
-                         onChange={(e) => setCityName(e.target.value)}
-                         placeholder="Введите название города"
-                         className={classes.createTeamForm__input}
-                    />
-               </div>
-
+          <form onSubmit={handleSubmit} className={classes.createDefaultForm}>
+               <h2>Создание города</h2>
+               <Input
+                    name="city-name"
+                    label='Название города'
+                    type="text"
+                    value={cityName}
+                    onChange={(e) => setCityName(e.target.value)}
+                    maxLength={150}
+               />
+               
                {error && <p className={classes.createTeamForm__error}>{error}</p>}
-
+               
                <button
                     type="submit"
-                    className={classes.createTeamForm__submit}
+                    className={classes.submit__button}
                >
                     Создать город
                </button>

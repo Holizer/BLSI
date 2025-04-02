@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from src.repositories.player_repository import PlayerRepository
 from src.schemas.views import PlayerTeamSchema
+from src.schemas.player import CreatePlayerSchema
 
 class PlayerService:
     def __init__(self, db: Session):
@@ -18,6 +19,14 @@ class PlayerService:
             error_msg = str(e.orig).split("CONTEXT:")[0].strip()
             raise ValueError(error_msg)
     
+    def create_player(self, player_data: CreatePlayerSchema):
+        try:
+            # Используются тригеры trg_check_phone_unique и trg_check_player_age
+            return self.repository.create_player(player_data)
+        except SQLAlchemyError as e:
+            error_msg = str(e.orig).split("CONTEXT:")[0].strip()
+            raise ValueError(error_msg)
+        
     
     def delete_player(self, player_id: int):
         return self.repository.delete_player(player_id)

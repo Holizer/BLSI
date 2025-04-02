@@ -1,0 +1,57 @@
+@import '../../styles/vars.scss';
+
+.form__group {
+     background-color: white;
+     position: relative;
+     width: 100%;
+     
+     .form__field {
+          width: 100%;
+          border: none;
+          outline: none;
+          border-bottom: 2px solid $border-color;
+          font-size: 1rem;
+          color: $primary-color;
+          transition: all $transition-duration ease;
+          position: relative;
+
+          &:hover {
+               border-color: $border-hover-color;
+          }
+
+          &:focus {
+               border-color: $border-focus-color;
+          }
+        
+          &.error {
+               border-color: $error-color;
+          }
+     }
+     
+     .form__label {
+          position: absolute;
+          left: 0;
+          top: 0;
+          display: block;
+          transition: all $transition-duration ease;
+          font-size: 1rem;
+          color: $placeholder-color;
+          pointer-events: none;
+       
+          &.floated {
+               top: 0;
+               font-size: 0.8rem;
+               color: $primary-color;
+               font-weight: 700;
+               transform: translateY(-1rem);
+          }
+     }
+     
+     
+     .errorMessage {
+          display: block;
+          margin-top: 5px;
+          font-size: 0.8rem;
+          color: $error-color;
+     }
+}     

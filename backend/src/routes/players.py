@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from src.services.player_service import PlayerService
 from src.schemas.views import PlayerTeamSchema
+from src.schemas.player import CreatePlayerSchema
 from database import get_db
 
 players_router = APIRouter(prefix="/players")
+
 
 @players_router.get("/get-player-team")
 async def get_player_team(db: Session = Depends(get_db)):
@@ -15,6 +17,17 @@ async def update_player_team(player_data: PlayerTeamSchema, db: Session = Depend
     try:
         PlayerService(db).update_player_team(player_data)
         return {"message": f"Игрок {player_data.player_id} успешно обовлен!"}
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+@players_router.post("/create-player")
+async def create_player(player_data: CreatePlayerSchema, db: Session = Depends(get_db)):
+    try:
+        PlayerService(db).create_player(player_data)
+        return {"message": f"Игрок '{player_data.first_name}' успешно создан!"}
     except ValueError as e:
         raise HTTPException(
             status_code=400,

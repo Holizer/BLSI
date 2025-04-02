@@ -43,7 +43,6 @@ class TeamRepository:
         self.db.execute(query, {"team_id": team_id, "team_name": team_name})
         self.db.commit()
         return {"message": f"Название команды успешно изменено на '{team_name}'"}
- 
 
 
     # def update_team(self, team_id: int, team_name: str, captain_id: int = None, coach_id: int = None):

@@ -10,7 +10,6 @@ import CreateTeamForm from '../components/CreateForm/CreateTeamForm';
 import { ITeam } from '@/models/ITeam';
 import useTableManager from '../hooks/useTableManager';
 import { observer } from 'mobx-react-lite';
-import CreateCoachForm from '../components/CreateForm/CreateCoachForm';
 
 const Teams = () => {
 	const { teamStore } = useContext(AppContext)
@@ -110,12 +109,6 @@ const Teams = () => {
 					<h2>Создать команду</h2>
 				</div>
 				<CreateTeamForm/>
-			</div>
-			<div className={classes.content__block}>
-				<div className={classes.block__header}>
-					<h2>Создать команду</h2>
-				</div>
-				<CreateCoachForm/>
 			</div>
 		</main>
 	);

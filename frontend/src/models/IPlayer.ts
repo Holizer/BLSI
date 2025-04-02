@@ -3,7 +3,7 @@ export interface IPlayer {
       first_name: string;
       last_name: string;
       age: number;
-      phone?: string | null;
+      phone: string;
       address_id?: number | null;
       team_id?: number | null;
 }

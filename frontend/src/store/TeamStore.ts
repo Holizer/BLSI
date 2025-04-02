@@ -21,7 +21,6 @@ export default class TeamStore {
 
       async loadTeams() {
             const result = await runWithLoader(() => TeamService.fetchTeamsList(), this.setLoading);
-            console.log("result", result)
             if (result) {
                 this.teams = result;
             }

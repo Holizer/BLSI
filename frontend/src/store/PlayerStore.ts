@@ -1,6 +1,8 @@
 import PlayerService from "../service/PlayerService";
 import { IPlayerTeamView } from "@/models/views/IPlayerTeamView";
 import { makeAutoObservable } from "mobx";
+import { runWithLoader } from "../utilits/runWithLoader";
+import { IPlayerCreator } from "@/models/IPlayerCreator";
 
 export default class PlayerStore{
       playerTeamView: IPlayerTeamView[] = [];
@@ -14,36 +16,20 @@ export default class PlayerStore{
             this.loading = value;
       } 
 
+      async createPlayer(playerData: IPlayerCreator) {
+            await runWithLoader(() => PlayerService.createPlayer(playerData), this.setLoading );
+      }
+
       async fetchPlayerTeamView() {
-            this.setLoading(true)
-            try {
-                  this.playerTeamView = await PlayerService.fetchPlayerTeamView();
-            } catch (error) {
-                  console.error("Ошибка загрузки игроков:", error);
-            } finally {
-                  this.setLoading(false)
-            }
+            const result = await runWithLoader(() => PlayerService.fetchPlayerTeamView(), this.setLoading );
+            if (result) this.playerTeamView = result;
       }
 
       async updatePlayerTeam(playerTeamData: IPlayerTeamView) {
-            this.setLoading(true)
-            try {
-                  await PlayerService.updatePlayerTeam(playerTeamData);
-            } catch (error) {
-                  console.error("Ошибка загрузки игроков:", error);
-            } finally {
-                  this.setLoading(false)
-            }
+            await runWithLoader(() => PlayerService.updatePlayerTeam(playerTeamData), this.setLoading );
       }
 
       async deletePlayer(player_id: number) {
-            this.setLoading(true)
-            try {
-                  await PlayerService.deletePlayer(player_id);
-            } catch (error) {
-                  console.error("Ошибка загрузки игроков:", error);
-            } finally {
-                  this.setLoading(false)
-            }
+            await runWithLoader(() => PlayerService.deletePlayer(player_id), this.setLoading );
       }
 }

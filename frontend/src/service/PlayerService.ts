@@ -1,6 +1,8 @@
 import $api from "../http";
 import { toast } from "sonner";
 import { IPlayerTeamView } from "../models/views/IPlayerTeamView";
+import { IPlayerCreator } from "@/models/IPlayerCreator";
+import { IPlayer } from "@/models/IPlayer";
 
 export default class PlayerService {
      static async fetchPlayerTeamView(): Promise<IPlayerTeamView[]> {
@@ -13,8 +15,22 @@ export default class PlayerService {
           }
      }
 
-     // static async updatePlayerTeam(playerTeamData: IPlayerTeamView): Promise<IPlayerTeamView> {
-     static async updatePlayerTeam(playerTeamData: IPlayerTeamView) {
+
+     static async createPlayer(playerData: IPlayerCreator) {
+          try {
+               const response = await $api.post('/players/create-player', playerData);
+               return response.data; 
+          } catch (error: any) {
+               if (error.response?.data?.detail) {
+                    toast.error(error.response.data.detail);
+               } else {
+                    console.error('Произошла ошибка при создании игрока:', error.message);
+               }
+               throw error;
+          }
+     }
+
+     static async updatePlayerTeam(playerTeamData: IPlayerTeamView): Promise<IPlayerTeamView> {
           try {
                const response = await $api.put<IPlayerTeamView>(`/players/update-player-team/${playerTeamData.player_id}`, playerTeamData);
                return response.data; 
