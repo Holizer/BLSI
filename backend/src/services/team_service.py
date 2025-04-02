@@ -46,14 +46,3 @@ class TeamService:
     def update_captain(self, team_id: int, new_captain_id: int):
         return self.repository.update_captain(team_id, new_captain_id)
     #endregion
-
-    #region Работа с тренерами
-    def add_coach(self, first_name: str, last_name: str):
-        return self.repository.add_coach(first_name, last_name)
-
-    def set_coach(self, team_id: int, coach_id: int):
-        return self.repository.set_coach(team_id, coach_id)
-
-    def remove_coach(self, team_id: int):
-        return self.repository.remove_coach(team_id)
-    #endregion

@@ -25,7 +25,7 @@ const Table = <T extends Record<string, any>>({
 		};
 		   
 		setEditedData(newData);
-		console.log(editedData[rowIndex])
+
 		onEditChange(
 			rowIndex,
 			{ ...data[rowIndex], ...newData[rowIndex] }

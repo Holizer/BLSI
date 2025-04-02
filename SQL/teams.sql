@@ -2,14 +2,61 @@ CREATE OR REPLACE VIEW team_coach_captain_view AS
 SELECT 
     t.team_id,
     t.team_name,
-    CONCAT(c.first_name, ' ', c.last_name) AS captain_name,
-    CONCAT(co.first_name, ' ', co.last_name) AS coach_name
+    CASE 
+        WHEN p.first_name IS NULL OR p.last_name IS NULL THEN 'Отсутствует'
+        ELSE CONCAT(p.first_name, ' ', p.last_name)
+    END AS captain_name,
+    CASE 
+        WHEN co.first_name IS NULL OR co.last_name IS NULL THEN 'Отсутствует'
+        ELSE CONCAT(co.first_name, ' ', co.last_name)
+    END AS coach_name
 FROM team t
 LEFT JOIN captain ca ON t.captain_id = ca.captain_id
-LEFT JOIN player c ON ca.player_id = c.player_id
+LEFT JOIN player p ON ca.player_id = p.player_id
 LEFT JOIN coach co ON t.coach_id = co.coach_id;
 
-SELECT * FROM get_teams()
+
+SELECT * FROM team_coach_captain_view;
+
+SELECT * FROM captain;
+SELECT * FROM team;
+
+CREATE OR REPLACE FUNCTION get_teams_coach_captain()
+RETURNS SETOF team_coach_captain_view
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT * FROM team_coach_captain_view
+    ORDER BY team_id ASC;
+    
+    RAISE NOTICE 'Данные команд успешно получены';
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Ошибка при получении данных: %', SQLERRM;
+END;
+$$;
+
+SELECT * FROM get_teams_coach_captain()
+
+CREATE OR REPLACE FUNCTION get_capitans()
+RETURNS SETOF captain_view
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT * FROM captain_view
+    ORDER BY player_id ASC;
+    
+    RAISE NOTICE 'Капитаны получены';
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Ошибка при получении данных: %', SQLERRM;
+END;
+$$;
+
+SELECT * FROM get_capitans()
+
 
 CREATE OR REPLACE FUNCTION get_teams()
 RETURNS TABLE (team_id INT, team_name VARCHAR)
@@ -28,23 +75,7 @@ EXCEPTION
 END;
 $$;
 
-SELECT * FROM get_teams_coach_captain()
-
-CREATE OR REPLACE FUNCTION get_teams_coach_captain()
-RETURNS SETOF team_coach_captain_view
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RETURN QUERY
-    SELECT * FROM team_coach_captain_view
-    ORDER BY team_id ASC;
-    
-    RAISE NOTICE 'Данные команд успешно получены';
-EXCEPTION
-    WHEN OTHERS THEN
-        RAISE EXCEPTION 'Ошибка при получении данных: %', SQLERRM;
-END;
-$$;
+SELECT * FROM get_teams()
 
 CREATE OR REPLACE PROCEDURE create_team(
     p_team_name VARCHAR,

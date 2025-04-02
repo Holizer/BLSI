@@ -1,7 +1,7 @@
 import classes from './LeftSideBar.module.scss';
 import Link from '../../UI/Link';
 import { useLocation } from 'react-router-dom';
-import { ADDREESES_ROUTE, MATCHES_ROUTE, PLAYERS_ROUTE, TEAMS_ROUTE } from '../../const';
+import { ADDREESES_ROUTE, MATCHES_ROUTE, PLAYERS_ROUTE, PLAYGROUNDS_ROUTE, TEAMS_ROUTE } from '../../const';
 
 const LeftSideBar = () => {
 	const location = useLocation();
@@ -40,6 +40,14 @@ const LeftSideBar = () => {
 							className={`${classes.menuItem} ${location.pathname === MATCHES_ROUTE ? classes.active : ''}`}
 						>
 							Матчи
+						</Link>
+					</li>
+					<li className={classes.menuSection}>
+						<Link 
+							to={PLAYGROUNDS_ROUTE} 
+							className={`${classes.menuItem} ${location.pathname === PLAYGROUNDS_ROUTE ? classes.active : ''}`}
+						>
+							Игровые площадки
 						</Link>
 					</li>
 				</ul>

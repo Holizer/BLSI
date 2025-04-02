@@ -64,23 +64,3 @@ async def remove_captain(team_id: int, db: Session = Depends(get_db)):
 async def update_captain(team_id: int, new_captain_id: int, db: Session = Depends(get_db)):
     TeamService(db).update_captain(team_id, new_captain_id)
     return {"message": f"Капитан команды {team_id} обновлен на игрока {new_captain_id}"}
-
-
-
-# Добавление тренера
-@team_router.post("/add-coach")
-async def add_coach(first_name: str, last_name: str, db: Session = Depends(get_db)):
-    TeamService(db).add_coach(first_name, last_name)
-    return {"message": f"Тренер {first_name} {last_name} добавлен"}
-
-# Назначение тренера
-@team_router.put("/set-coach/{team_id}")
-async def set_coach(team_id: int, coach_id: int, db: Session = Depends(get_db)):
-    TeamService(db).set_coach(team_id, coach_id)
-    return {"message": f"Тренер {coach_id} назначен для команды {team_id}"}
-
-# Удаление тренера
-@team_router.delete("/remove-coach/{team_id}")
-async def remove_coach(team_id: int, db: Session = Depends(get_db)):
-    TeamService(db).remove_coach(team_id)
-    return {"message": f"Тренер команды {team_id} удален"}

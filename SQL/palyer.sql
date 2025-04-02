@@ -281,3 +281,14 @@ EXECUTE FUNCTION check_player_age();
 
 
 CALL check_phone_exists('3752912345683', NULL, 1);
+
+
+CREATE VIEW captain_view AS
+SELECT 
+    c.captain_id AS captain_id,
+    p.player_id AS player_id,
+    p.first_name || ' ' || p.last_name AS full_name
+FROM 
+    captain c
+JOIN 
+    player p ON c.player_id = p.player_id;

@@ -187,7 +187,6 @@ const Addresses = () => {
 					rowsToDelete={getRowsToDelete('citiesTabel')}
 				/>
 			</div>
-
 			<CreateCityForm/>
 		</main>
 	);

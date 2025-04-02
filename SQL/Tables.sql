@@ -111,22 +111,14 @@ CREATE TABLE week (
 CREATE TABLE playground (
     playground_id SERIAL PRIMARY KEY,
     playground_name VARCHAR(150) NOT NULL,
-    capacity INT DEFAULT 0 NOT NULL
+    capacity INT DEFAULT 0 NOT NULL,
+	FOREIGN KEY (playground_type_id) REFERENCES playground_type(playground_type_id)
 );
 
 -- Типы игровых площадок
 CREATE TABLE playground_type (
     playground_type_id SERIAL PRIMARY KEY,
     playground_type VARCHAR(50) NOT NULL
-);
-
--- Связь между площадками и их типами
-CREATE TABLE playground_playground_type (
-    playground_type_id INT NOT NULL,
-    playground_id INT NOT NULL,
-    PRIMARY KEY (playground_type_id, playground_id),
-    FOREIGN KEY (playground_type_id) REFERENCES playground_type(playground_type_id),
-    FOREIGN KEY (playground_id) REFERENCES playground(playground_id)
 );
 
 -- Причины отмены матча

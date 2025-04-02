@@ -39,11 +39,9 @@ class AddressRepository:
         query = text("CALL create_city(:city_name)")
         self.db.execute(query, {"city_name": city_name})
         self.db.commit()
-        return {"message": f"Название города успешно изменено на '{city_name}'"}
 
 
     def update_city_name(self, city_id: int, city_name: str):
         query = text("CALL update_city_name(:city_id, :city_name)")
         self.db.execute(query, {"city_id": city_id, "city_name": city_name})
         self.db.commit()
-        return {"message": f"Название города успешно изменено на '{city_name}'"}
