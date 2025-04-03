@@ -11,13 +11,9 @@ import useTableManager from '../hooks/useTableManager';
 import { ICoachTeam } from '@/models/ICoach';
 import { ITeam } from '@/models/ITeam';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
  
 const Teams = () => {
-	const { playerStore, teamStore, coachStore } = useContext(AppContext)
-	
-	const { teams } = teamStore;
-	const { playerTeamView } = playerStore;
+	const { teamStore, coachStore } = useContext(AppContext)
 	const { teamsDetailed } = teamStore;
 	
 	//#region TablesConfiguration
@@ -44,9 +40,9 @@ const Teams = () => {
 	const teamCoachCaptainViewConfig: TableConfig<ITeamCoachCaptainView> = {
 		applyDelete: true,
 		columns: [
-			{ key: 'team_name', title: 'Команда', editable: true, type: 'text' },
-			{ key: 'captain_name', title: 'Капитан', type: 'text' },
-			{ key: 'coach_name', title: 'Тренер', type: 'text' },
+			{ key: 'team_name', title: 'Команда', editable: true, type: 'text', maxLength: 150 },
+			{ key: 'captain_name', title: 'Капитан', type: 'text', maxLength: 50 },
+			{ key: 'coach_name', title: 'Тренер', type: 'text', maxLength: 50 },
 		] as TableColumn<ITeamCoachCaptainView>[],
 	};
 
@@ -54,8 +50,8 @@ const Teams = () => {
 	const teamCoachTableConfig: TableConfig<ICoachTeam> = {
 		applyDelete: true,
 		columns: [
-			{ key: 'first_name', title: 'Имя', editable: true, type: 'text' },
-			{ key: 'last_name', title: 'Фамилия', editable: true, type: 'text' },
+			{ key: 'first_name', title: 'Имя', editable: true, type: 'text', maxLength: 50 },
+			{ key: 'last_name', title: 'Фамилия', editable: true, type: 'text', maxLength: 50 },
 			{
 				key: 'team_id',
 				title: 'Команда',

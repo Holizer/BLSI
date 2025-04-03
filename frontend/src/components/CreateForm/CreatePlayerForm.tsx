@@ -4,7 +4,7 @@ import classes from './CreateForm.module.scss';
 import Input from '../../UI/Input/Input';
 import Select from '../../UI/Select/Select';
 import { toast } from 'sonner';
-import { IPlayerCreator } from '@/models/IPlayerCreator';
+import { IPlayerCreator } from '@/models/creators/IPlayerCreator';
 
 const CreatePlayerForm = () => {
     const { playerStore, teamStore, addressStore } = useContext(AppContext);
@@ -52,7 +52,7 @@ const CreatePlayerForm = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className={classes.createPlayerForm}>
+        <form onSubmit={handleSubmit} className={classes.createSpecialForm}>
             <h2 className={classes.createTeamForm__title}>Создать нового игрока</h2>
             
             <Input
@@ -197,7 +197,7 @@ const CreatePlayerForm = () => {
                 className={classes.submit__button}
                 disabled={playerStore.loading}
             >
-                {playerStore.loading ? 'Создание...' : 'Создать игрока'}
+                Создать
             </button>
         </form>
     );

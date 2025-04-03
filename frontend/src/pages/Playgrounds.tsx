@@ -8,7 +8,9 @@ import { TableColumn, TableConfig } from '@/types/table';
 import { useContext, useEffect } from 'react';
 import { AppContext } from '../index';
 import { IPlaygroundType } from '@/models/IPlaygroundType';
-import { IPlaygroundFullInfo } from '@/models/IPlaygroundFullInfo';
+import { IPlayground } from '@/models/IPlayground';
+import CreatePlaygroundType from '../components/CreateForm/CreatePlaygroundTypeForm';
+import CreatePlaygroundForm from '../components/CreateForm/CreatePlaygroundForm';
 
 const Playgrounds = () => {
     const { playgroundStore } = useContext(AppContext);
@@ -22,7 +24,7 @@ const Playgrounds = () => {
         resetTableState: resetPlaygroundsTableState,
         getRowsToDelete: getPlaygroundsRowsToDelete,
         getRowsToEdit: getPlaygroundsRowsToEdit
-    } = useTableManager<IPlaygroundFullInfo>();
+    } = useTableManager<IPlayground>();
 
     const {
         isEditing: isTypesEditing,
@@ -41,27 +43,32 @@ const Playgrounds = () => {
         ] as TableColumn<IPlaygroundType>[],
     };
 
-    const playgroundsTableConfig: TableConfig<IPlaygroundFullInfo> = {
+    const playgroundsTableConfig: TableConfig<IPlayground> = {
         applyDelete: true,
         columns: [
-            { key: 'playground_name', title: 'Название', editable: true, type: 'text' },
-            { key: 'capacity', title: 'Вместимость', editable: true, type: 'number' },
-            { 
-                key: 'playground_type', 
+            { key: 'playground_name', title: 'Название', editable: true, type: 'text', maxLength: 150 },
+            { key: 'capacity', title: 'Вместимость', editable: true, type: 'number', min: 0, max: 100000, maxLength: 5 },
+            {
+				key: 'playground_type_id',
                 title: 'Тип игровой площадки', 
-                editable: true, 
-                type: 'select',
-                options: playground_types?.map(type => ({
-                    value: type.playground_type_id,
-                    label: type.playground_type
-                })) || []
-            },
-        ] as TableColumn<IPlaygroundFullInfo>[],
+				editable: true,
+				type: 'select',
+				emptyValueText: 'Неизвестный тип',
+				options: playgroundStore.playground_types.map((type) => ({
+					value: type.playground_type_id,
+					label: type.playground_type,
+				})),
+				displayValue: (rowData) => {
+					const type = playgroundStore.playground_types.find(t => t.playground_type_id === rowData.playground_type_id);
+					return type?.playground_type || 'Неизвестный тип';
+				}
+			}
+        ] as TableColumn<IPlayground>[],
     };
 
     const fetchPlaygroundData = async () => {
         await playgroundStore.fetchPlaygroundTypes();        
-        await playgroundStore.fetchPlaygroundsFullInfo();        
+        await playgroundStore.fetchPlaygrounds();        
     };
     
     useEffect(() => {
@@ -78,15 +85,14 @@ const Playgrounds = () => {
                 return;
             }
 
-            // Реализуйте логику сохранения для площадок
-            // await Promise.all([
-            //     ...Object.values(rowsToEdit).map(changes => 
-            //         playgroundStore.updatePlayground(changes as IPlaygroundFullInfo)
-            //     ),
-            //     ...Object.values(rowsToDelete).map((deleted) =>
-            //         deleted.playground_id ? playgroundStore.deletePlayground(deleted.playground_id) : Promise.resolve()
-            //     )
-            // ]);
+            await Promise.all([
+                ...Object.values(rowsToEdit).map(changes => 
+                    playgroundStore.updatePlayground(changes as IPlayground)
+                ),
+                ...Object.values(rowsToDelete).map((deleted) =>
+                    deleted.playground_id ? playgroundStore.deletePlayground(deleted.playground_id) : Promise.resolve()
+                )
+            ]);
                 
             await fetchPlaygroundData();
             resetPlaygroundsTableState(tableId);
@@ -105,15 +111,14 @@ const Playgrounds = () => {
                 return;
             }
 
-            // Реализуйте логику сохранения для типов площадок
-            // await Promise.all([
-            //     ...Object.values(rowsToEdit).map(changes => 
-            //         playgroundStore.updatePlaygroundType(changes as IPlaygroundType)
-            //     ),
-            //     ...Object.values(rowsToDelete).map((deleted) =>
-            //         deleted.playground_type_id ? playgroundStore.deletePlaygroundType(deleted.playground_type_id) : Promise.resolve()
-            //     )
-            // ]);
+            await Promise.all([
+                ...Object.values(rowsToEdit).map(changes => 
+                    playgroundStore.updatePlaygroundType(changes as IPlaygroundType)
+                ),
+                ...Object.values(rowsToDelete).map((deleted) =>
+                    deleted.playground_type_id ? playgroundStore.deletePlaygroundType(deleted.playground_type_id) : Promise.resolve()
+                )
+            ]);
                 
             await fetchPlaygroundData();
             resetTypesTableState(tableId);
@@ -144,7 +149,7 @@ const Playgrounds = () => {
                     onToggleEdit={() => togglePlaygroundsEditMode('playgroundsTable')}
                     onEditChange={(
                         rowIndex: number, 
-                        updatedData: IPlaygroundFullInfo
+                        updatedData: IPlayground
                     ) => handlePlaygroundsTableChange('playgroundsTable', rowIndex, updatedData)}
                     onDeleteToggle={(tableId, rowIndex, rowData) => 
                         togglePlaygroundsDeleteRow(tableId, rowIndex, rowData)
@@ -152,6 +157,7 @@ const Playgrounds = () => {
                     rowsToDelete={getPlaygroundsRowsToDelete('playgroundsTable')}
                 />
             </div>
+            <CreatePlaygroundForm />
 
             <div className={classes.content__block}>
                 <div className={classes.block__header}>
@@ -181,6 +187,7 @@ const Playgrounds = () => {
                     rowsToDelete={getTypesRowsToDelete('playgroundTypesTable')}
                 />
             </div>
+            <CreatePlaygroundType/>
         </main>
     );
 };

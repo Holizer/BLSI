@@ -28,8 +28,8 @@ const Addresses = () => {
 	const playerTeamViewConfig: TableConfig<IPlayerAddressView> = {
 		applyDelete: true,
 		columns: [
-			{ key: 'first_name', title: 'Имя', editable: true, type: 'text' },
-			{ key: 'last_name', title: 'Фамилия', editable: true, type: 'text' },
+			{ key: 'first_name', title: 'Имя', editable: true, type: 'text', maxLength: 50 },
+			{ key: 'last_name', title: 'Фамилия', editable: true, type: 'text', maxLength: 50 },
 			{
 				key: 'city_id',
 				title: 'Город',
@@ -48,9 +48,9 @@ const Addresses = () => {
 					return city?.city_name || 'Сайлент Хилл';
 				}
 			},
-			{ key: 'street', title: 'Улица', editable: true, type: 'text' },
-			{ key: 'house_number', title: 'Номер дома', editable: true, type: 'number', min: 18, max: 99 },
-			{ key: 'postal_code', title: 'Почтовый индекс', editable: true, type: 'number', max: 9999 },
+			{ key: 'street', title: 'Улица', editable: true, type: 'text', maxLength: 150 },
+			{ key: 'house_number', title: 'Номер дома', editable: true, type: 'number', min: 18, max: 99, maxLength: 4 },
+			{ key: 'postal_code', title: 'Почтовый индекс', editable: true, type: 'number', min: 0, max: 10000, maxLength: 4 },
 
 		] as TableColumn<IPlayerAddressView>[],
 	};

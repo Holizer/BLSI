@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import classes from './Table.module.scss';
 import { TableProps } from '@/types/table';
 import deleteIcon from '../../assets/icons/delete.png'
+import Input from '../Input/Input';
 
 const Table = <T extends Record<string, any>>({
 	config,
@@ -103,26 +104,31 @@ const Table = <T extends Record<string, any>>({
 										</div>
 										
 										) : column.type === 'number' ? (
-										
-										<input
-											type="number"
-											value={editedData[rowIndex]?.[column.key] ?? row[column.key]}
-											onChange={(e) => handleChange(rowIndex, column.key, Number(e.target.value))}
-											min={column.min} 
-											max={column.max} 
-										/>
-
+											<Input
+												type="number"
+												value={editedData[rowIndex]?.[column.key] ?? row[column.key]}
+												onChange={(e) => handleChange(rowIndex, column.key, Number(e.target.value))}
+												onKeyDown={(e) => {
+													if (!/[0-9]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(e.key)) {
+														e.preventDefault();
+													}
+													if (['-', '+', 'e', 'E', '.'].includes(e.key)) {
+													    e.preventDefault();
+													}
+												}}
+												maxLength={column.maxLength}
+												min={column.min} 
+												max={column.max} 
+											/>
 										) : (
-											<input
+											<Input
 												type="text"
 												value={editedData[rowIndex]?.[column.key] ?? row[column.key]}
 												onChange={(e) => handleChange(rowIndex, column.key, e.target.value)}
 												maxLength={column.maxLength}
 											/>
 											)
-										
 										) : (
-										
 											column.displayValue 
 											? column.displayValue(row) 
 											: (row[column.key] == null ? (column.emptyValueText || 'Не указано') : row[column.key])

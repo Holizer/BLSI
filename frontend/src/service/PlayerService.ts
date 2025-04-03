@@ -1,8 +1,7 @@
 import $api from "../http";
 import { toast } from "sonner";
 import { IPlayerTeamView } from "../models/views/IPlayerTeamView";
-import { IPlayerCreator } from "@/models/IPlayerCreator";
-import { IPlayer } from "@/models/IPlayer";
+import { IPlayerCreator } from "@/models/creators/IPlayerCreator";
 
 export default class PlayerService {
      static async fetchPlayerTeamView(): Promise<IPlayerTeamView[]> {

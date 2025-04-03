@@ -1,14 +1,12 @@
 import { makeAutoObservable } from "mobx";
 import { runWithLoader } from "../utilits/runWithLoader";
-import { ICoachTeam } from "@/models/ICoach";
-import CoachService from "../service/CoachService";
 import { IPlaygroundType } from "@/models/IPlaygroundType";
-import PlayerService from "@/service/PlayerService";
 import PlaygroundService from "../service/PlaygroundService";
-import { IPlaygroundFullInfo } from "@/models/IPlaygroundFullInfo";
+import { IPlayground } from "@/models/IPlayground";
+import { IPlaygroundCreator } from "@/models/creators/IPlaygroundCreator";
 
 export default class PlaygroundStore {
-      playgrounds: IPlaygroundFullInfo[] = [];
+      playgrounds: IPlayground[] = [];
       playground_types: IPlaygroundType[] = [];
       loading = false;
   
@@ -20,6 +18,31 @@ export default class PlaygroundStore {
             this.loading = value;
       }            
 
+      
+      async fetchPlaygrounds() {
+            const result = await runWithLoader(() => PlaygroundService.fetchPlaygrounds(), this.setLoading);
+            if (result) {
+                this.playgrounds = result;
+            }
+      }
+      
+      
+      async createPlayground(new_playground: IPlaygroundCreator) {
+            await runWithLoader(() => PlaygroundService.createPlayground(new_playground), this.setLoading);
+      }
+
+      async updatePlayground(playground_data: IPlayground) {
+            await runWithLoader(() => PlaygroundService.updatePlayground(
+                  playground_data.playground_id, playground_data.playground_name,
+                  playground_data.capacity, playground_data.playground_type_id
+            ), this.setLoading);
+      }
+      
+      async deletePlayground(playground_id: number) {
+            await runWithLoader(() => PlaygroundService.deletePlayground(playground_id), this.setLoading);
+      }
+      
+      
       async fetchPlaygroundTypes() {
             const result = await runWithLoader(() => PlaygroundService.fetchPlaygroundTypes(), this.setLoading);
             if (result) {
@@ -27,22 +50,15 @@ export default class PlaygroundStore {
             }
       }
 
-      async fetchPlaygroundsFullInfo() {
-            const result = await runWithLoader(() => PlaygroundService.fetchPlaygroundsFullInfo(), this.setLoading);
-            if (result) {
-                this.playgrounds = result;
-            }
+      async createPlaygroundType(playground_type: string) {
+            await runWithLoader(() => PlaygroundService.createPlaygroundType(playground_type), this.setLoading);
       }
 
-      // async createCoach(coachData: Partial<ICoachTeam>) {
-      //       await runWithLoader(() => CoachService.createCoach(coachData), this.setLoading);
-      // }
-
-      // async updateCoach(coachData: ICoachTeam) {
-      //       await runWithLoader(() => CoachService.updateCoach(coachData), this.setLoading);
-      // }
-
-      // async deleteCoach(coach_id: number) {
-      //       await runWithLoader(() => CoachService.deleteCoach(coach_id), this.setLoading);
-      // }
+      async updatePlaygroundType(playground_type_data: IPlaygroundType) {
+            await runWithLoader(() => PlaygroundService.updatePlaygroundType(playground_type_data.playground_type_id, playground_type_data.playground_type), this.setLoading);
+      }
+      
+      async deletePlaygroundType(playground_type_id: number) {
+            await runWithLoader(() => PlaygroundService.deletePlaygroundType(playground_type_id), this.setLoading);
+      }
 }

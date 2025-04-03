@@ -27,9 +27,9 @@ const PlayersManager: React.FC = () => {
 	const playerTeamViewConfig: TableConfig<IPlayerTeamView> = {
 		applyDelete: true,
 		columns: [
-			{ key: 'first_name', title: 'Имя', editable: true, type: 'text' },
-			{ key: 'last_name', title: 'Фамилия', editable: true, type: 'text' },
-			{ key: 'age', title: 'Возраст', editable: true, type: 'number', min: 18, max: 99 },
+			{ key: 'first_name', title: 'Имя', editable: true, type: 'text', maxLength: 50 },
+			{ key: 'last_name', title: 'Фамилия', editable: true, type: 'text', maxLength: 50 },
+			{ key: 'age', title: 'Возраст', editable: true, type: 'number', min: 18, max: 99, maxLength: 2 },
 			{ key: 'phone', title: 'Номер телефона', editable: true, type: 'text', maxLength: 12  },
 			{
 				key: 'team_id',
