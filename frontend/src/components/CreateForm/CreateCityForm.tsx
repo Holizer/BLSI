@@ -1,9 +1,8 @@
-import { AppContext } from '../../index';
-import { useContext } from 'react';
+import { useAppContext } from '../../hooks/useAppContext';
 import CreateForm from './CreateForm';
 
 const CreateCityForm = () => {
-     const { addressStore } = useContext(AppContext);
+     const { addressStore } = useAppContext();
      
      return (
           <CreateForm

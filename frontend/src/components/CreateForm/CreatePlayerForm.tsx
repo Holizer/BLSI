@@ -1,13 +1,13 @@
-import { useState, useContext } from 'react';
-import { AppContext } from '../../index';
+import { useState } from 'react';
 import classes from './CreateForm.module.scss';
 import Input from '../../UI/Input/Input';
 import Select from '../../UI/Select/Select';
 import { toast } from 'sonner';
-import { IPlayerCreator } from '@/models/creators/IPlayerCreator';
+import { IPlayerCreator } from '../../models/creators/IPlayerCreator';
+import { useAppContext } from '../../hooks/useAppContext';
 
 const CreatePlayerForm = () => {
-    const { playerStore, teamStore, addressStore } = useContext(AppContext);
+    const { playerStore, teamStore, addressStore } = useAppContext();
     
     const [playerData, setPlayerData] = useState<IPlayerCreator>({
         first_name: '',

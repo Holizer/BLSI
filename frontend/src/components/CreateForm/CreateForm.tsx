@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { AppContext } from '../../index';
-import { useContext } from 'react';
 import classes from './CreateForm.module.scss';
 import Input from '../../UI/Input/Input';
 

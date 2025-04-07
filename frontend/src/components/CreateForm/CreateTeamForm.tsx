@@ -1,9 +1,8 @@
-import { AppContext } from '../../index';
-import { useContext } from 'react';
 import CreateForm from './CreateForm';
+import { useAppContext } from '../../hooks/useAppContext';
 
 const CreateTeamForm = () => {
-     const { teamStore } = useContext(AppContext);
+     const { teamStore } = useAppContext();
      
      return (
           <CreateForm

@@ -2,13 +2,40 @@
 
 .header {
       display: flex;
-      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
       border-bottom: 1px solid $light-gray-color;
+      gap: 1rem;
+      background-color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
 
-      h1 {
-            width: 100%;
-            font-size: 1.2rem;
-            text-align: center;
-            padding: 0.4rem;
+      .titleContainer {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+
+            .title {
+                  margin: 0;
+                  font-size: 1.1rem;
+                  color: $primary-color;
+            }
       }
-}
+  
+      .infoContainer {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: flex-end;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+            color: #666;
+  
+            .season, .week {
+                  background: #f0f0f0;
+                  padding: 0.3rem 0.6rem;
+                  border-radius: 4px;
+            }
+      }
+  }

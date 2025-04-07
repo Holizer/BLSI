@@ -42,9 +42,9 @@ export default class AddressService {
           }
      }
 
-     static async updateCityName(cityData: ICity): Promise<ICity> {
+     static async updateCityName(city_id: number, city_name: string): Promise<ICity> {
           try {
-               const response = await $api.put<ICity>(`/addresses/update-city-name/${cityData.city_id}`, cityData);
+               const response = await $api.put<ICity>(`/addresses/update-city-name/${city_id}`, {city_name});
                return response.data; 
           } catch (error: any) {
                if (error.response?.data?.detail) {

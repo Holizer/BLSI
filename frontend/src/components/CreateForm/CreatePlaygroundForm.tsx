@@ -1,13 +1,13 @@
-import { useState, useContext } from 'react';
-import { AppContext } from '../../index';
+import { useState } from 'react';
 import classes from './CreateForm.module.scss';
 import Input from '../../UI/Input/Input';
 import Select from '../../UI/Select/Select';
 import { toast } from 'sonner';
-import { IPlaygroundCreator } from '@/models/creators/IPlaygroundCreator';
+import { IPlaygroundCreator } from '../../models/creators/IPlaygroundCreator';
+import { useAppContext } from '../../hooks/useAppContext';
 
 const CreatePlaygroundForm = () => {
-    const { playgroundStore } = useContext(AppContext);
+    const { playgroundStore } = useAppContext();
     
     const [playgroundData, setPlaygroundData] = useState<IPlaygroundCreator>({
         playground_name: '',

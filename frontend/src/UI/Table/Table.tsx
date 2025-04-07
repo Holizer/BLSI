@@ -3,6 +3,7 @@ import classes from './Table.module.scss';
 import { TableProps } from '@/types/table';
 import deleteIcon from '../../assets/icons/delete.png'
 import Input from '../Input/Input';
+import Select from '../Select/Select';
 
 const Table = <T extends Record<string, any>>({
 	config,
@@ -82,8 +83,7 @@ const Table = <T extends Record<string, any>>({
 								<td key={column.key.toString()}>
 									{isEditing && column.editable ? (
 										column.type === 'select' && column.options ? (
-										<div className={classes.select__wrapper}>
-											<select
+											<Select
 												value={
 													editedData[rowIndex]?.[column.key] !== undefined 
 													? editedData[rowIndex]?.[column.key] ?? ""
@@ -93,15 +93,15 @@ const Table = <T extends Record<string, any>>({
 													const value = e.target.value === "" ? null : e.target.value;
 													handleChange(rowIndex, column.key, value);
 												}}
+												options={[
+													{ value: "", label: column.emptyValueText || 'Не выбрано' },
+													...column.options.map(option => ({
+														value: option.value,
+														label: option.label
+													}))
+												]}
 											>
-												<option value="">{column.emptyValueText || 'Не выбрано'}</option>
-												{column.options.map((option) => (
-													<option key={option.value} value={option.value}>
-														{option.label}
-													</option>
-												))}
-											</select>
-										</div>
+											</Select>
 										
 										) : column.type === 'number' ? (
 											<Input
@@ -147,7 +147,6 @@ const Table = <T extends Record<string, any>>({
 								)}
 							</tr>
 						);
-						
 					})}
 				</tbody>
 		   </table>

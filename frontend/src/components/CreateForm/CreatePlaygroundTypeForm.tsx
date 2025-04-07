@@ -1,9 +1,8 @@
-import { AppContext } from '../../index';
-import { useContext } from 'react';
 import CreateForm from './CreateForm';
+import { useAppContext } from '../../hooks/useAppContext';
 
 const CreatePlaygroundTypeForm = () => {
-     const { playgroundStore } = useContext(AppContext);
+     const { playgroundStore } = useAppContext();
      
      return (
           <CreateForm

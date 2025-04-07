@@ -4,7 +4,7 @@ import { ICoachTeam } from "@/models/ICoach";
 import CoachService from "../service/CoachService";
 
 export default class CoachStore {
-      coachces: ICoachTeam[] = [];
+      coaches: ICoachTeam[] = [];
       loading = false;
   
       constructor() {
@@ -19,7 +19,7 @@ export default class CoachStore {
       async fetchCoaches() {
             const result = await runWithLoader(() => CoachService.fetchCoaches(), this.setLoading);
             if (result) {
-                this.coachces = result;
+                this.coaches = result;
             }
       }
 

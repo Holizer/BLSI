@@ -57,7 +57,7 @@ export default class AddressStore {
     }
 
     async updateCityName(cityData: ICity) {
-        await runWithLoader(() => AddressService.updateCityName(cityData), this.setLoading);
+        await runWithLoader(() => AddressService.updateCityName(cityData.city_id, cityData.city_name), this.setLoading);
     }
     //#endregion
 }

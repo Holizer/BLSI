@@ -5,7 +5,6 @@ import RightSidebarBar from '../../frontend/src/components/RightSideBar/RightSid
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { publicRoutes } from './routes';
 import { observer } from 'mobx-react-lite';
-import './styles/normalize.css';
 import Header from '../../frontend/src/components/Header/Header';
 import { PLAYERS_ROUTE } from './const';
 
@@ -21,7 +20,7 @@ const App = () => {
                         <Route key={path} path={path} element={<Component /> } />
                     ))}
                 </Routes>
-                <RightSidebarBar />
+                {/* <RightSidebarBar /> */}
             </div>
             <Toaster position="top-center" />
         </div>

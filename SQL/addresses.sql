@@ -28,9 +28,11 @@ RETURNS TABLE (
     postal_code INT
 ) AS $$
 BEGIN
-    RETURN QUERY SELECT * FROM player_address_view;
+    RETURN QUERY SELECT * FROM player_address_view ORDER BY player_id;
 END;
 $$ LANGUAGE plpgsql;
+
+SELECT * FROM get_player_address()
 
 CREATE OR REPLACE PROCEDURE delete_player_address(
     p_player_id INT

@@ -92,6 +92,7 @@ CREATE TABLE team_team_stats (
 
 -- Сезон
 CREATE TABLE season (
+	season_name VARCHAR(100) NOT NULL,
     season_id SERIAL PRIMARY KEY,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL
@@ -101,7 +102,6 @@ CREATE TABLE season (
 CREATE TABLE week (
     week_id SERIAL PRIMARY KEY,
     season_id INT NOT NULL,
-    season_name VARCHAR(100) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     FOREIGN KEY (season_id) REFERENCES season(season_id)
