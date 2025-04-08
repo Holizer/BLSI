@@ -5,6 +5,8 @@ import CoachStore from './store/CoachStore';
 import PlaygroundStore from './store/PlaygroundStore';
 import { createContext, useMemo } from 'react';
 import CancellationReasonStore from './store/CancellationReasonStore';
+import MatchStore from './store/MatchStore';
+import SeasonStore from './store/SeasonStore';
 
 export interface State {
     playerStore: PlayerStore,
@@ -13,6 +15,8 @@ export interface State {
     coachStore: CoachStore,
     playgroundStore: PlaygroundStore,
     cancellationReasonStore: CancellationReasonStore,
+    matchStore: MatchStore,
+    seasonStore: SeasonStore,
 }
 
 const playerStore = new PlayerStore();
@@ -21,6 +25,8 @@ const addressStore = new AddressStore();
 const coachStore = new CoachStore();
 const playgroundStore = new PlaygroundStore();
 const cancellationReasonStore = new CancellationReasonStore();
+const matchStore = new MatchStore();
+const seasonStore = new SeasonStore();
 
 export const contextValue = {
     playerStore,
@@ -29,6 +35,8 @@ export const contextValue = {
     coachStore,
     playgroundStore,
     cancellationReasonStore,
+    matchStore,
+    seasonStore,
 }
 
 export const AppContext = createContext<State>({
@@ -38,4 +46,6 @@ export const AppContext = createContext<State>({
     coachStore,
     playgroundStore,
     cancellationReasonStore,
+    matchStore,
+    seasonStore,
 });

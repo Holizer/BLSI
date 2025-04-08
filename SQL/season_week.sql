@@ -41,6 +41,25 @@ VALUES
     ('Завершен'),        -- 2
     ('Отменен'),         -- 3
     ('Неявка команды');  -- 5
+
+
+CREATE OR REPLACE FUNCTION get_match_status_types()
+RETURNS SETOF match_status_type
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT * FROM match_status_type
+    ORDER BY match_status_type_id ASC;
+    
+    RAISE NOTICE 'Тип матчей получены!';
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Ошибка при получении данных: %', SQLERRM;
+END;
+$$;
+
+SELECT * FROM get_match_status_types()
 	
 INSERT INTO match_status (match_status_type_id, cancellation_reason_id, forfeiting_team_id)
 VALUES
@@ -54,197 +73,64 @@ VALUES
 SELECT * FROM match_status_type
 SELECT * FROM match_info
 
-CREATE OR REPLACE FUNCTION update_team_stats()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Если матч завершен
-    IF NEW.match_status_id = 2 THEN
-        -- Обновляем статистику team1
-        UPDATE team_stats
-        SET 
-            total_points = total_points + NEW.team1_points,
-            wins = wins + CASE WHEN NEW.team1_points > NEW.team2_points THEN 1 ELSE 0 END,
-            losses = losses + CASE WHEN NEW.team1_points < NEW.team2_points THEN 1 ELSE 0 END,
-            draws = draws + CASE WHEN NEW.team1_points = NEW.team2_points THEN 1 ELSE 0 END
-        WHERE team_id = NEW.team1_id;
 
-        -- Обновляем статистику team2
-        UPDATE team_stats
-        SET 
-            total_points = total_points + NEW.team2_points,
-            wins = wins + CASE WHEN NEW.team2_points > NEW.team1_points THEN 1 ELSE 0 END,
-            losses = losses + CASE WHEN NEW.team2_points < NEW.team1_points THEN 1 ELSE 0 END,
-            draws = draws + CASE WHEN NEW.team2_points = NEW.team1_points THEN 1 ELSE 0 END
-        WHERE team_id = NEW.team2_id;
-    
-    -- Если неявка команды
-    ELSIF NEW.match_status_id = 5 THEN
-        -- Команда, которая не явилась, получает 4 поражения
-        UPDATE team_stats
-        SET 
-            losses = losses + 4
-        WHERE team_id = (SELECT forfeiting_team_id FROM match_status WHERE match_status_id = NEW.match_status_id);
-        
-        -- Противник получает 4 победы
-        UPDATE team_stats
-        SET 
-            wins = wins + 4
-        WHERE team_id = CASE 
-            WHEN NEW.team1_id = (SELECT forfeiting_team_id FROM match_status WHERE match_status_id = NEW.match_status_id) 
-            THEN NEW.team2_id 
-            ELSE NEW.team1_id 
-        END;
-    END IF;
-    
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
-INSERT INTO match_info (
-    match_status_id, 
-    team1_id, 
-    team2_id, 
-    team1_points, 
-    team2_points, 
-    event_date, 
-    event_time
-)
-VALUES (
-    8,          -- Статус "Завершен"
-    20,          -- team1_id
-    36,          -- team2_id
-    150,        -- Очки team1
-    120,        -- Очки team2
-    '2024-06-10',
-    '18:00'
-);
 
 -- Привязываем к неделе и площадке
 INSERT INTO match (week_id, playground_id, match_info_id)
 VALUES (40, 1, 4);
 
 SELECT * FROM match
-
+SELECT * FROM team
 SELECT * FROM playground;
 SELECT * FROM week;
 SELECT * FROM match_status_type;
 SELECT * FROM match_status;
+SELECT * FROM match_status_view
+SELECT * FROM playground
+
+DELETE FROM team_team_match_stats
+DELETE FROM team_match_stats
+DELETE FROM match_info
+DELETE FROM match
+
+INSERT INTO match_info (
+    match_status_id, team1_id, team2_id, 
+    team1_points, team2_points, views_count, match_duration, event_date, event_time
+) VALUES (
+    2, 
+    41, 
+    36, 
+    320, 240,
+    2450, '01:15',
+    '2024-08-10', '19:00'
+);
+
+INSERT INTO match (week_id, playground_id, match_info_id)
+VALUES (41, 11, 23);
+
+SELECT * FROM match;
 SELECT * FROM match_info;
+SELECT * FROM team_match_stats
+SELECT * FROM team_team_match_stats
+SELECT * FROM team_stats
+SELECT * FROM team_team_stats
 
-
-
-CREATE OR REPLACE VIEW scheduled_matches AS
+DROP VIEW v_full_match_stats
+CREATE OR REPLACE VIEW v_full_match_stats AS
 SELECT 
-    m.match_id,
-    s.season_name,
-    w.start_date AS week_start,
-    w.end_date AS week_end,
-    t1.team_name AS team1,
-    t2.team_name AS team2,
-    mi.event_date,
-    mi.event_time,
-    pg.playground_name,
-    mst.match_status_type AS status
-FROM match m
-JOIN match_info mi ON m.match_info_id = mi.match_info_id
-JOIN match_status ms ON mi.match_status_id = ms.match_status_id
-JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
-JOIN team t1 ON mi.team1_id = t1.team_id
-JOIN team t2 ON mi.team2_id = t2.team_id
-JOIN week w ON m.week_id = w.week_id
-JOIN season s ON w.season_id = s.season_id
-JOIN playground pg ON m.playground_id = pg.playground_id
-WHERE mst.match_status_type = 'Запланирован'
-ORDER BY mi.event_date, mi.event_time;
-
-SELECT * FROM scheduled_matches
-
-
-CREATE OR REPLACE VIEW completed_matches AS
-SELECT 
-    m.match_id,
-    s.season_name,
-    w.start_date AS week_start,
-    w.end_date AS week_end,
-    t1.team_name AS team1,
-    t2.team_name AS team2,
-    mi.team1_points,
-    mi.team2_points,
-    mi.event_date,
-    pg.playground_name,
-    CASE 
-        WHEN mi.team1_points > mi.team2_points THEN t1.team_name
-        WHEN mi.team1_points < mi.team2_points THEN t2.team_name
-        ELSE 'Ничья'
-    END AS winner,
-    mst.match_status_type AS status
-FROM match m
-JOIN match_info mi ON m.match_info_id = mi.match_info_id
-JOIN match_status ms ON mi.match_status_id = ms.match_status_id
-JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
-JOIN team t1 ON mi.team1_id = t1.team_id
-JOIN team t2 ON mi.team2_id = t2.team_id
-JOIN week w ON m.week_id = w.week_id
-JOIN season s ON w.season_id = s.season_id
-JOIN playground pg ON m.playground_id = pg.playground_id
-WHERE mst.match_status_type = 'Завершен'
-ORDER BY mi.event_date DESC;
-
-
-SELECT * FROM completed_matches
-
-CREATE OR REPLACE VIEW canceled_matches AS
-SELECT 
-    m.match_id,
-    s.season_name,
-    w.start_date AS week_start,
-    w.end_date AS week_end,
-    t1.team_name AS team1,
-    t2.team_name AS team2,
-    mi.event_date,
-    cr.reason AS cancellation_reason,
-    pg.playground_name,
-    mst.match_status_type AS status
-FROM match m
-JOIN match_info mi ON m.match_info_id = mi.match_info_id
-JOIN match_status ms ON mi.match_status_id = ms.match_status_id
-JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
-JOIN cancellation_reason cr ON ms.cancellation_reason_id = cr.cancellation_reason_id
-JOIN team t1 ON mi.team1_id = t1.team_id
-JOIN team t2 ON mi.team2_id = t2.team_id
-JOIN week w ON m.week_id = w.week_id
-JOIN season s ON w.season_id = s.season_id
-JOIN playground pg ON m.playground_id = pg.playground_id
-WHERE mst.match_status_type = 'Отменен'
-ORDER BY mi.event_date DESC;
-
-SELECT * FROM canceled_matches
-
-CREATE OR REPLACE VIEW forfeited_matches AS
-SELECT 
-    m.match_id,
-    s.season_name,
-    w.start_date AS week_start,
-    w.end_date AS week_end,
-    t1.team_name AS team1,
-    t2.team_name AS team2,
-    mi.event_date,
-    forfeiter.team_name AS forfeiting_team,
-    pg.playground_name,
-    mst.match_status_type AS status
-FROM match m
-JOIN match_info mi ON m.match_info_id = mi.match_info_id
-JOIN match_status ms ON mi.match_status_id = ms.match_status_id
-JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
-JOIN team t1 ON mi.team1_id = t1.team_id
-JOIN team t2 ON mi.team2_id = t2.team_id
-JOIN team forfeiter ON ms.forfeiting_team_id = forfeiter.team_id
-JOIN week w ON m.week_id = w.week_id
-JOIN season s ON w.season_id = s.season_id
-JOIN playground pg ON m.playground_id = pg.playground_id
-WHERE mst.match_status_type = 'Неявка команды'
-ORDER BY mi.event_date DESC;
-
-
-SELECT * FROM forfeited_matches
+    tms.team_match_stats_id,
+    tms.match_id,
+    t.team_id,
+    t.team_name,
+    tms.scored_points,
+    rt.result_name AS result_type
+FROM 
+    team_match_stats tms
+JOIN 
+    team_team_match_stats ttms ON tms.team_match_stats_id = ttms.team_match_stats_id
+JOIN 
+    team t ON ttms.team_id = t.team_id
+JOIN 
+    match_result_type rt ON tms.result_type_id = rt.result_type_id;
+	
+SELECT * FROM v_full_match_stats

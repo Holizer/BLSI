@@ -11,7 +11,7 @@ from src.schemas.playground import (
     UpdatePlaygroundSchema,
 )
 
-playgrounds_router = APIRouter(prefix="/playgrounds", tags=["playgrounds"])
+playgrounds_router = APIRouter(prefix="/playgrounds")
 
 
 @playgrounds_router.get("/", response_model=list[PlaygroundSchema])

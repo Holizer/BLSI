@@ -20,7 +20,7 @@ export interface TableConfig<T> {
       applyDelete: boolean;
 }
 
-export type TableProps<T extends Record<string, any>> = {
+export type TableProps<T extends Record<string, Partial<T>>> = {
       config: TableConfig<T>;
       data: T[];
       tableId: string;

@@ -24,6 +24,7 @@ export default class TeamStore {
             if (result) {
                 this.teams = result;
             }
+
       }
 
       async loadTeamsDetailed() {

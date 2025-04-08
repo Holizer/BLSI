@@ -1,6 +1,6 @@
 import PlayerService from "../service/PlayerService";
 import { IPlayerTeamView } from "@/models/views/IPlayerTeamView";
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, toJS } from "mobx";
 import { runWithLoader } from "../utilits/runWithLoader";
 import { IPlayerCreator } from "../models/creators/IPlayerCreator";
 

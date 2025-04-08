@@ -6,11 +6,25 @@ import Table from '../UI/Table/Table';
 import { useAppContext } from '../hooks/useAppContext';
 import { useEffect } from 'react';
 import { useCancellationReasonTable } from '../configs/useCancellationReasonTable';
+import { useScheduledMatchesTable } from '../configs/useScheduledMatchesTable';
 
 const Matches = () => {
-      const { cancellationReasonStore } = useAppContext();
+      const { cancellationReasonStore, matchStore } = useAppContext();
       const { cancellation_reasons } = cancellationReasonStore;
+      const { scheduledMatches } = matchStore;
       
+      const {
+            tableId: scheduledMatchesTableId,
+            config: scheduledMatchesConfig, 
+            isEditing: isScheduledMatchesEditing,
+            handleTableChange: handleScheduledMatchesChange,
+            toggleDeleteRow: toggleScheduledMatchesDelete,
+            toggleEditMode: toggleScheduledMatchesEdit,
+            getRowsToDelete: getScheduledMatchesRowsToDelete,
+            // handleSave: handleScheduledMatchesSave,
+      } = useScheduledMatchesTable();
+
+
       const {
             tableId: cancellationReasonTableId,
             config: cancellationReasonConfig, 
@@ -24,6 +38,8 @@ const Matches = () => {
       
       useEffect(() => {
             cancellationReasonStore.fetchCancellationReason();
+            matchStore.fetchMatchStatusTypes();
+            matchStore.fetchSheduledMacthes();
       }, [cancellationReasonStore]);
 
       return (
@@ -31,20 +47,51 @@ const Matches = () => {
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Запланированные матчи</h2>
+                              <Search />
+                              {/* <EditButton
+                                    isEditing={isScheduledMatchesEditing[scheduledMatchesTableId]} 
+                                    tableId={scheduledMatchesTableId}
+                                    onEdit={toggleScheduledMatchesEdit} 
+                                    onCancel={() => toggleScheduledMatchesEdit(scheduledMatchesTableId, false)}
+                                    onSave={() => handleScheduledMatchesSave(scheduledMatchesTableId)}
+                              /> */}
                         </div>
+                        <Table
+                              config={scheduledMatchesConfig} 
+                              data={scheduledMatches || []}
+                              tableId={scheduledMatchesTableId}
+                              isEditing={isScheduledMatchesEditing[scheduledMatchesTableId]}
+                              onToggleEdit={() => toggleScheduledMatchesEdit(scheduledMatchesTableId)}
+                              onEditChange={(rowIndex, updatedData) => 
+                                    handleScheduledMatchesChange(scheduledMatchesTableId, rowIndex, updatedData)
+                              }
+                              onDeleteToggle={(tableId, rowIndex, rowData) => 
+                                    toggleScheduledMatchesDelete(tableId, rowIndex, rowData)
+                              }
+                              rowsToDelete={getScheduledMatchesRowsToDelete(scheduledMatchesTableId)}
+                        />
+                  </div>   
 
+                  <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Завершенные матчи</h2>
                         </div>
+                  </div>
 
+
+                  <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Отмененные матчи</h2>
                         </div>
+                  </div>
 
+                  <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Неявки</h2>
                         </div>
+                  </div>
 
+                  <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Причины отмены матчей</h2>
                               <Search />

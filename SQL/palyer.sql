@@ -292,3 +292,5 @@ FROM
     captain c
 JOIN 
     player p ON c.player_id = p.player_id;
+
+	

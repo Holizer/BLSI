@@ -1,9 +1,11 @@
+import { toJS } from 'mobx';
+import { useAppContext } from '../../hooks/useAppContext';
 import classes from './Header.module.scss';
 // import logo from './';
 
 const Header = () => {
-    const currentSeason = "Весна 2024";
-    const gameWeek = "12–18 мая";
+    const { seasonStore } = useAppContext();
+    const currentSeason = seasonStore.activeSeason;
 
     return (
         <header className={classes.header}>
@@ -14,8 +16,10 @@ const Header = () => {
                 <h1 className={classes.title}>Информационная система кегельной лиги</h1>
             </div>
             <div className={classes.infoContainer}>
-                <div className={classes.season}>Сезон: {currentSeason}</div>
-                <div className={classes.week}>Неделя: {gameWeek}</div>
+                <div className={classes.season}>
+                    Сезон: {currentSeason.season_name}
+                </div>
+                {/* <div className={classes.week}>Неделя: {}</div> */}
             </div>
         </header>
     );

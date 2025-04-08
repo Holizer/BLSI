@@ -149,7 +149,6 @@ CREATE TABLE match_info (
     match_status_id INT NOT NULL,
     team1_id INT NULL,
     team2_id INT NULL,
-    winning_team_id INT NULL,
     team1_points INT DEFAULT 0 NOT NULL,
     team2_points INT DEFAULT 0 NOT NULL,
     views_count INT DEFAULT 0,
@@ -175,7 +174,7 @@ CREATE TABLE team_match_stats (
     team_match_stats_id SERIAL PRIMARY KEY,
     match_id INT NOT NULL,
     scored_points INT NOT NULL,
-    match_result VARCHAR(10) NOT NULL,
+    match_result VARCHAR(50) NOT NULL,
   	FOREIGN KEY (match_id) REFERENCES match(match_id)
 );
 
@@ -190,7 +189,7 @@ CREATE TABLE team_team_match_stats (
 
 -- Статистика команды за сыгранный матч
 CREATE TABLE player_match_stats (
-    player_match_stats_id SERIAL PRIMARY KEY,
+    player_match_stats_id SERIAL PRIMARY KEY,F
     match_id INT NOT NULL,
     scored_points INT NOT NULL
 );
