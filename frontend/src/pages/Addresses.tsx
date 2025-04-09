@@ -10,6 +10,7 @@ import { useAppContext } from '../hooks/useAppContext';
 import { ICity } from '@/models/ICity';
 import { usePlayerAddressTable } from '../configs/usePlayerAddressTable';
 import { IPlayerAddressView } from '../models/views/IPlayerAddressView';
+import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
 
 const Addresses = () => {
     const { addressStore } = useAppContext();
@@ -81,6 +82,9 @@ const Addresses = () => {
                         onCancel={() => toggleCityEdit(cityTableId, false)}
                         onSave={handleCitySave}
                     />
+                    <ModalOpenButton modalItem={ <CreateCityForm/> } >
+                        +
+                    </ModalOpenButton>
                 </div>
                 <Table
 					tableId={cityTableId}
@@ -95,8 +99,6 @@ const Addresses = () => {
                     rowsToDelete={getCityRowsToDelete(cityTableId)}
                 />
             </div>
-            
-			<CreateCityForm/>
 		</main>
 	);
 };

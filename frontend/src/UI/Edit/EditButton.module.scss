@@ -49,8 +49,12 @@
                   width: 2rem;
                   height: 2rem;
 
+                  &:first-child {
+                        padding: 0.4rem;
+                  }
+
                   &:hover {
-                        background-color: rgba(240, 248, 255, 0.4);
+                        background-color: rgba(240, 255, 255, 0.3);
                         transform: scale(0.85);
                   }
         

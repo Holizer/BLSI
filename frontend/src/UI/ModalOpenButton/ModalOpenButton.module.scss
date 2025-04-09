@@ -1,0 +1,25 @@
+@import './../../styles/vars.scss';
+
+.modal__open_button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      padding: 0.2rem;
+      font-size: 2rem;
+      border: none;
+      border-radius: 50%;
+      color: $primary-color;
+      background-color: transparent;
+      cursor: pointer;
+      transition: all $transition-duration ease;
+  
+      &:hover {
+            background-color: $tools-bg-color-hover;
+      }
+      
+      &:active {
+            transform: scale(0.95);
+      }
+}

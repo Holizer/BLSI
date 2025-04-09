@@ -45,13 +45,6 @@ class TeamRepository:
         return {"message": f"Название команды успешно изменено на '{team_name}'"}
 
 
-    # def update_team(self, team_id: int, team_name: str, captain_id: int = None, coach_id: int = None):
-    #     query = text("CALL update_team(:team_id, :team_name, :captain_id, :coach_id)")
-    #     self.db.execute(query, {"team_id": team_id, "team_name": team_name, "captain_id": captain_id, "coach_id": coach_id})
-    #     self.db.commit()
-
-
-    
     # Действия с капитаном
     def add_captain(self, team_id: int, player_id: int):
         query = text("CALL add_captain(:team_id, :player_id)")

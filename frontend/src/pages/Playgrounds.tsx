@@ -9,6 +9,7 @@ import CreatePlaygroundForm from '../components/CreateForm/CreatePlaygroundForm'
 import { useAppContext } from '../hooks/useAppContext';
 import { usePlaygroundsTable } from '../configs/usePlaygroundsTable';
 import { usePlaygroundsTypeTable } from '../configs/usePlaygroundsTypeTable';
+import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
 
 const Playgrounds = () => {
     const { playgroundStore } = useAppContext();
@@ -54,6 +55,9 @@ const Playgrounds = () => {
                         onCancel={() => togglePlaygroundsEdit(playgroundsTableId, false)}
                         onSave={() => handlePlaygroundsSave(playgroundsTableId)}
                     />
+                    <ModalOpenButton modalItem={ <CreatePlaygroundForm/> } >
+                        +
+                    </ModalOpenButton>
                 </div>
                 <Table
                     config={playgroundsConfig} 
@@ -70,7 +74,6 @@ const Playgrounds = () => {
                     rowsToDelete={getPlaygroundsRowsToDelete(playgroundsTableId)}
                 />
             </div>
-            <CreatePlaygroundForm />
 
             <div className={classes.content__block}>
                 <div className={classes.block__header}>
@@ -83,6 +86,9 @@ const Playgrounds = () => {
                         onCancel={() => toggleTypesEdit(typesTableId, false)}
                         onSave={() => handleTypesSave(typesTableId)}
                     />
+                    <ModalOpenButton modalItem={ <CreatePlaygroundType/> } >
+                        +
+                    </ModalOpenButton>
                 </div>
                 <Table
                     config={typesConfig} 
@@ -99,7 +105,6 @@ const Playgrounds = () => {
                     rowsToDelete={getTypesRowsToDelete(typesTableId)}
                 />
             </div>
-            <CreatePlaygroundType/>
         </main>
     );
 };

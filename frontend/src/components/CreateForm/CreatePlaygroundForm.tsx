@@ -46,7 +46,7 @@ const CreatePlaygroundForm = () => {
 
     return (
         <form onSubmit={handleSubmit} className={classes.createSpecialForm}>
-            <h2 className={classes.createTeamForm__title}>Создать новую игровую площадку</h2>
+            <h2 className={classes.form__title}>Создать новую игровую площадку</h2>
             
             <Input
                 label="Название площадки"

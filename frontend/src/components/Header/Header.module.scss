@@ -1,17 +1,23 @@
 @import './../../styles/vars.scss';
 
-.header {
+header {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      
       padding: 0.5rem 1rem;
       border-bottom: 1px solid $light-gray-color;
       gap: 1rem;
       background-color: white;
-      position: sticky;
-      top: 0;
-      z-index: 100;
 
+      height: 2.5rem; 
+      position: fixed;
+      z-index: 100;
+      width: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      
       .titleContainer {
             position: absolute;
             left: 50%;

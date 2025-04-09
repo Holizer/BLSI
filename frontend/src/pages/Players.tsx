@@ -7,6 +7,7 @@ import { observer } from 'mobx-react-lite';
 import CreatePlayerForm from '../components/CreateForm/CreatePlayerForm';
 import { useAppContext } from '../hooks/useAppContext';
 import { usePlayerTeamTable } from '../configs/usePlayerTeamTable';
+import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
 
 const PlayersManager: React.FC = () => {
     const { playerStore } = useAppContext();
@@ -40,6 +41,9 @@ const PlayersManager: React.FC = () => {
                         onCancel={() => toggleEditMode(tableId, false)}
                         onSave={() => handleSave(tableId)}
                     />
+                    <ModalOpenButton modalItem={ <CreatePlayerForm/> } >
+                        +
+                    </ModalOpenButton>
                 </div>
                 <Table
                     config={playerTeamViewConfig} 
@@ -57,7 +61,6 @@ const PlayersManager: React.FC = () => {
                     rowsToDelete={getRowsToDelete(tableId)}
                 />
             </div>
-            <CreatePlayerForm/>
         </main>
     );
 };

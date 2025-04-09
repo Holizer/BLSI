@@ -7,15 +7,21 @@
 }
 
 .Application {
+      position: relative;
       font-size: 14px;
       font-family: $font-family;
       color: $primary-color;
       margin-inline: 0;
-      
+      padding-top: 2.5rem; 
+
       .grid__container {
             display: grid;
             max-width: 100%;
             // grid-template-columns: 0.5fr 2fr 0.5fr;
             grid-template-columns: 200px auto;
+      }
+
+      h1, h2, h3 {
+            font-family: $accent-font-family;
       }
 }

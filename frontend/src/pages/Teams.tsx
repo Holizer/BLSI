@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
 import { useTeamCapitanCoachTable } from '../configs/useTeamCapitanCoachTable';
 import { useTeamCoachTable } from '../configs/useTeamCoachTable';
+import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
 
 const Teams = () => {
     const { teamStore, coachStore } = useAppContext();
@@ -56,6 +57,9 @@ const Teams = () => {
                         onCancel={() => toggleTeamsEditMode(teamTableId, false)}
                         onSave={() => handleSaveTeamsTable(teamTableId)}
                     />
+                    <ModalOpenButton modalItem={ <CreateTeamForm/> } >
+                        +
+                    </ModalOpenButton>
                 </div>
                 <Table 
                     config={teamCoachCaptainViewConfig} 
@@ -72,7 +76,6 @@ const Teams = () => {
                     rowsToDelete={getTeamsRowsToDelete(teamTableId)}
                 />
             </div>
-            <CreateTeamForm/>
 
             <div className={classes.content__block}>
                 <div className={classes.block__header}>

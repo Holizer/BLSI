@@ -19,6 +19,66 @@ VALUES
     (5, '2024-09-02', '2024-09-08'),
     (5, '2024-09-09', '2024-09-15');
 
+
+CREATE OR REPLACE VIEW seasons_with_weeks AS
+SELECT 
+    s.season_id,
+    s.season_name,
+    s.start_date AS season_start,
+    s.end_date AS season_end,
+    w.week_id,
+    w.start_date AS week_start,
+    w.end_date AS week_end,
+    ROW_NUMBER() OVER (PARTITION BY s.season_id ORDER BY w.start_date) AS week_number
+FROM 
+    season s
+LEFT JOIN 
+    week w ON s.season_id = w.season_id;
+
+SELECT * FROM get_seasons_with_weeks()
+
+DROP FUNCTION get_seasons_with_weeks
+
+CREATE OR REPLACE FUNCTION get_seasons_with_weeks()
+RETURNS TABLE (
+    season_id INT,
+    season_name VARCHAR,
+    season_start DATE,
+    season_end DATE,
+    week_id INT,
+    week_start DATE,
+    week_end DATE,
+    week_number INT
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        s.season_id,
+        s.season_name,
+        s.start_date,
+        s.end_date,
+        w.week_id,
+        w.start_date,
+        w.end_date,
+        ROW_NUMBER() OVER (PARTITION BY s.season_id ORDER BY w.start_date)::INT
+    FROM 
+        season s
+    LEFT JOIN 
+        week w ON s.season_id = w.season_id
+    ORDER BY 
+        s.season_id ASC, 
+        w.start_date ASC;
+    
+    RAISE NOTICE 'Данные успешно получены';
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Ошибка при получении данных: %', SQLERRM;
+END;
+$$;
+
+
 SELECT * FROM week
 SELECT * FROM season
 SELECT * FROM team
@@ -115,7 +175,7 @@ SELECT * FROM team_team_match_stats
 SELECT * FROM team_stats
 SELECT * FROM team_team_stats
 
-DROP VIEW v_full_match_stats
+DROP VIEW 
 CREATE OR REPLACE VIEW v_full_match_stats AS
 SELECT 
     tms.team_match_stats_id,

@@ -53,7 +53,7 @@ const CreatePlayerForm = () => {
 
     return (
         <form onSubmit={handleSubmit} className={classes.createSpecialForm}>
-            <h2 className={classes.createTeamForm__title}>Создать нового игрока</h2>
+            <h2 className={classes.form__title}>Создать нового игрока</h2>
             
             <Input
                 label="Имя игрока"

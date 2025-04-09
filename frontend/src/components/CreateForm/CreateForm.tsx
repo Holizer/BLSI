@@ -49,7 +49,7 @@ const CreateForm = ({
 
      return (
           <form onSubmit={handleSubmit} className={classes.createDefaultForm}>
-               <h2>{title}</h2>
+               <h2 className={classes.form__title}>{title}</h2>
                <Input
                     name={inputName}
                     label={inputLabel}
