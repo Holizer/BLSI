@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session
 from src.repositories.address_repository import AddressRepository
 from src.schemas.views import PlayerAddressSchema
-from src.schemas.city import CitySchema
 from sqlalchemy.exc import SQLAlchemyError
-
+from src.schemas.city import (
+    UpdateCitySchema,
+    CitySchema
+)
 class AddressService:
     def __init__(self, db: Session):
         self.repository = AddressRepository(db)
@@ -40,9 +42,9 @@ class AddressService:
             error_msg = str(e.orig).split("CONTEXT:")[0].strip()
             raise ValueError(error_msg)
 
-    def update_city_name(self, city_data: CitySchema):
+    def update_city_name(self, city_id: int, city_data: UpdateCitySchema):
         try:
-            return self.repository.update_city_name(city_data.city_id, city_data.city_name)
+            return self.repository.update_city_name(city_id, city_data.city_name)
         except SQLAlchemyError as e:
             error_msg = str(e.orig).split("CONTEXT:")[0].strip()
             raise ValueError(error_msg)

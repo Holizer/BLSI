@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from src.services.address_service import AddressService
-from src.schemas.city import CityCreateSchema
+from src.schemas.city import (
+    CityCreateSchema,
+    UpdateCitySchema,
+    CitySchema
+)
 from src.schemas.views import PlayerAddressSchema
 from database import get_db
 
@@ -29,7 +33,7 @@ async def delete_city(player_id: int, db: Session = Depends(get_db)):
 
 
 #ГОРОДА
-@addresses_router.get("/get-cities")
+@addresses_router.get("/get-cities", response_model=list[CitySchema])
 async def get_cities(db: Session = Depends(get_db)):
     return AddressService(db).get_cities()
 
@@ -49,9 +53,9 @@ async def create_city(city_data: CityCreateSchema, db: Session = Depends(get_db)
         )
 
 @addresses_router.put("/update-city-name/{city_id}")
-async def update_city_name(city_id: int, city_data: CityCreateSchema, db: Session = Depends(get_db)):
+async def update_city_name(city_id: int, city_data: UpdateCitySchema, db: Session = Depends(get_db)):
     try:
-        AddressService(db).update_city_name(city_id, city_data.city_name)
+        AddressService(db).update_city_name(city_id, city_data)
         return {"message": f"Город '{city_data.city_name}' успешно обновлен!"}
     except ValueError as e:
         raise HTTPException(

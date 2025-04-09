@@ -24,8 +24,8 @@ export type TableProps<T extends Record<string, Partial<T>>> = {
       config: TableConfig<T>;
       data: T[];
       tableId: string;
-      isEditing: boolean;
-      onEditChange: (rowIndex: number, updatedData: T) => void;
+      isEditing?: boolean;
+      onEditChange?: (rowIndex: number, updatedData: T) => void;
       onToggleEdit?: () => void;
       onRowClick?: (rowData: T) => void;
       onSave?: () => void;

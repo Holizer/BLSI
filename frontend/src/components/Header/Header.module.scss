@@ -31,16 +31,16 @@ header {
       }
   
       .infoContainer {
-            flex: 0 0 auto;
             display: flex;
             align-items: flex-end;
-            gap: 0.3rem;
-            font-size: 0.9rem;
-            color: #666;
-  
+            gap: 0.4rem;
+            font-size: 1rem;
+            color: $primary-color;
+            margin-left: auto;
+
             .season, .week {
-                  background: #f0f0f0;
-                  padding: 0.3rem 0.6rem;
+                  background-color: $light-gray-color;
+                  padding: 0.2rem 0.4rem;
                   border-radius: 4px;
             }
       }

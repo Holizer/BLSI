@@ -3,6 +3,8 @@ from sqlalchemy import select
 from sqlalchemy.sql import text
 from src.schemas.match import (
     ScheduledMatch,
+    CanceledMatch,
+    ForfeitedMatch,
     MatchStatusType
 )
 
@@ -19,3 +21,13 @@ class MatchRepository:
         query = text("SELECT * FROM get_scheduled_matches()")  
         result = self.db.execute(query)
         return [ScheduledMatch(**row) for row in result.mappings()]
+
+    def get_canceled_matches(self):
+        query = text("SELECT * FROM get_canceled_matches()")  
+        result = self.db.execute(query)
+        return [CanceledMatch(**row) for row in result.mappings()]
+    
+    def get_forfeited_matches(self):
+        query = text("SELECT * FROM get_forfeited_matches()")  
+        result = self.db.execute(query)
+        return [ForfeitedMatch(**row) for row in result.mappings()]

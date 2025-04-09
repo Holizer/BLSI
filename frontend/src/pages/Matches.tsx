@@ -7,24 +7,28 @@ import { useAppContext } from '../hooks/useAppContext';
 import { useEffect } from 'react';
 import { useCancellationReasonTable } from '../configs/useCancellationReasonTable';
 import { useScheduledMatchesTable } from '../configs/useScheduledMatchesTable';
-import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
+import { useCanceledMatchesTable } from '../configs/useCanceledMatchesTable';
+import { useForfeitedMatchesTable } from '../configs/useForfeitedMatchesTable';
 
 const Matches = () => {
       const { cancellationReasonStore, matchStore } = useAppContext();
       const { cancellation_reasons } = cancellationReasonStore;
-      const { scheduledMatches } = matchStore;
+      const { scheduledMatches, canceledMatches, forfeitedMatches } = matchStore;
       
       const {
             tableId: scheduledMatchesTableId,
             config: scheduledMatchesConfig, 
-            isEditing: isScheduledMatchesEditing,
-            handleTableChange: handleScheduledMatchesChange,
-            toggleDeleteRow: toggleScheduledMatchesDelete,
-            toggleEditMode: toggleScheduledMatchesEdit,
-            getRowsToDelete: getScheduledMatchesRowsToDelete,
-            // handleSave: handleScheduledMatchesSave,
       } = useScheduledMatchesTable();
 
+      const {
+            tableId: canceledMatchesTableId,
+            config: canceledMatchesConfig, 
+      } = useCanceledMatchesTable();
+
+      const {
+            tableId: forfeitedMatchesTableId,
+            config: forfeitedMatchesConfig, 
+      } = useForfeitedMatchesTable();
 
       const {
             tableId: cancellationReasonTableId,
@@ -41,6 +45,8 @@ const Matches = () => {
             cancellationReasonStore.fetchCancellationReason();
             matchStore.fetchMatchStatusTypes();
             matchStore.fetchSheduledMacthes();
+            matchStore.fetchCanceledMacthes();
+            matchStore.fetchForfeitedMacthes();
       }, [cancellationReasonStore]);
 
       return (
@@ -49,33 +55,18 @@ const Matches = () => {
                         <div className={classes.block__header}>
                               <h2>Запланированные матчи</h2>
                               <Search />
-                              {/* <EditButton
-                                    isEditing={isScheduledMatchesEditing[scheduledMatchesTableId]} 
-                                    tableId={scheduledMatchesTableId}
-                                    onEdit={toggleScheduledMatchesEdit} 
-                                    onCancel={() => toggleScheduledMatchesEdit(scheduledMatchesTableId, false)}
-                                    onSave={() => handleScheduledMatchesSave(scheduledMatchesTableId)}
-                              /> */}
                         </div>
                         <Table
                               config={scheduledMatchesConfig} 
                               data={scheduledMatches || []}
                               tableId={scheduledMatchesTableId}
-                              isEditing={isScheduledMatchesEditing[scheduledMatchesTableId]}
-                              onToggleEdit={() => toggleScheduledMatchesEdit(scheduledMatchesTableId)}
-                              onEditChange={(rowIndex, updatedData) => 
-                                    handleScheduledMatchesChange(scheduledMatchesTableId, rowIndex, updatedData)
-                              }
-                              onDeleteToggle={(tableId, rowIndex, rowData) => 
-                                    toggleScheduledMatchesDelete(tableId, rowIndex, rowData)
-                              }
-                              rowsToDelete={getScheduledMatchesRowsToDelete(scheduledMatchesTableId)}
                         />
                   </div>   
 
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Завершенные матчи</h2>
+                              <Search />
                         </div>
                   </div>
 
@@ -83,13 +74,25 @@ const Matches = () => {
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Отмененные матчи</h2>
+                              <Search />
                         </div>
+                        <Table
+                              config={canceledMatchesConfig} 
+                              data={canceledMatches || []}
+                              tableId={canceledMatchesTableId}
+                        />
                   </div>
 
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
-                              <h2>Неявки</h2>
+                              <h2>Матчи с неявками</h2>
+                              <Search />
                         </div>
+                        <Table
+                              config={forfeitedMatchesConfig} 
+                              data={forfeitedMatches || []}
+                              tableId={forfeitedMatchesTableId}
+                        />
                   </div>
 
                   <div className={classes.content__block}>

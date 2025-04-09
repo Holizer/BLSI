@@ -16,6 +16,7 @@ export default class CoachService {
      static async createCoach(coachData: Partial<ICoachTeam>): Promise<ICoachTeam> {
           try {
                const response = await $api.post<ICoachTeam>('/coaches/create-coach', coachData);
+               toast.success(`Тренер "${coachData.first_name} ${coachData.last_name}" успешно добавлен!`)
                return response.data; 
           } catch (error: any) {
                if (error.response?.data?.detail) {

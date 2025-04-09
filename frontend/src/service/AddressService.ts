@@ -4,7 +4,6 @@ import { IPlayerAddressView } from "@/models/views/IPlayerAddressView";
 import { ICity } from "@/models/ICity";
 
 export default class AddressService {
-    //#region ГОРОДА
      static async fetchCities(): Promise<ICity[]> {
           try {
                const response = await $api.get<ICity[]>('/addresses/get-cities');
@@ -18,6 +17,7 @@ export default class AddressService {
      static async createCity(cityData: Partial<ICity>): Promise<ICity> {
           try {
                const response = await $api.post<ICity>('/addresses/create-city', cityData);
+               toast.success(`Город ${cityData.city_name} создан успешно!`)
                return response.data; 
           } catch (error: any) {
                if (error.response?.data?.detail) {
@@ -55,8 +55,6 @@ export default class AddressService {
                throw error;
           }
      }
-    //#endregion
-
 
      static async fetchPlayerAddress(): Promise<IPlayerAddressView[]> {
           try {

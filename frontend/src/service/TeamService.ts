@@ -17,6 +17,7 @@ export default class TeamService {
      static async createTeam(teamData: Partial<ITeam>): Promise<ITeam> {
           try {
                const response = await $api.post<ITeam>('/teams/create', teamData);
+               toast.success(`Команда "${teamData.team_name}" успешно создана!`)
                return response.data; 
           } catch (error: any) {
                if (error.response?.data?.detail) {
@@ -57,10 +58,4 @@ export default class TeamService {
                throw error;
           }
      }
-
-
-     // static async updateTeam(teamData: ITeam): Promise<ITeam> {
-     //      const response = await $api.put<ITeam>(`/teams/update/${teamData.team_id}`, teamData);
-     //      return response.data;
-     // }
- }
+}

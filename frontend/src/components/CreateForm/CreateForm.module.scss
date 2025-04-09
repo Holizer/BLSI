@@ -3,7 +3,7 @@
 .createDefaultForm {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 1rem;
 
     background-color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
@@ -13,7 +13,7 @@
     
     width: 100%;
     min-width: 450px;
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 1rem 1rem 1rem;
     border-radius: 0.4rem;
 
     border: 2px solid $border-color;
@@ -62,10 +62,11 @@
 .submit__button {
     background-color: $accent-color;
     color: #fff;
-    padding: 0.4rem 0.8rem;
+    padding: 0.2rem 0;
+    font-weight: 700;
     border: none;
-    border-radius: 5px;
-    font-size: 1rem;
+    border-radius: 0.4rem;
+    font-size: 1.1rem;
     cursor: pointer;
     transition: all 0.2s ease;
     

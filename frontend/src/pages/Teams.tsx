@@ -9,13 +9,14 @@ import { useAppContext } from '../hooks/useAppContext';
 import { useTeamCapitanCoachTable } from '../configs/useTeamCapitanCoachTable';
 import { useTeamCoachTable } from '../configs/useTeamCoachTable';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
+import { useTeamSeasonStatsTable } from '../configs/useTeamSeasonStatsTable';
 
 const Teams = () => {
-    const { teamStore, coachStore } = useAppContext();
+    const { teamStore, seasonStore, coachStore } = useAppContext();
     const { teamsDetailed } = teamStore;
+    const { teamSeasonStats } = seasonStore;
     const { coaches } = coachStore;
 
-    // Team table management
     const {
         tableId: teamTableId,
         config: teamCoachCaptainViewConfig,
@@ -27,7 +28,6 @@ const Teams = () => {
         handleSave: handleSaveTeamsTable,
     } = useTeamCapitanCoachTable();
 
-    // Coach table management
     const {
         tableId: coachTableId,
         config: teamCoachTableConfig,
@@ -39,14 +39,34 @@ const Teams = () => {
         handleSave: handleSaveCoachTeamsTable,
     } = useTeamCoachTable();
 
+    
+    const {
+        tableId: teamSeasonStatsTableId,
+        config: teamSeasonStatsTableConfig,
+    } = useTeamSeasonStatsTable();
+    
     useEffect(() => {
         teamStore.loadAllTeamsData();
         coachStore.fetchCoaches();
-    }, [teamStore, coachStore]);
+        seasonStore.fetchAllTeamsSeasonStats();
+    }, [teamStore, coachStore, seasonStore]);
 
     return (
         <main className={classes.layout__container}>
             <div className={classes.content__block}>
+
+            <div className={classes.content__block}>
+                <div className={classes.block__header}>
+                    <h2>Статистика команд</h2>
+                    <Search />
+                </div>
+                <Table 
+                    config={teamSeasonStatsTableConfig} 
+                    data={teamSeasonStats || []}
+                    tableId={teamSeasonStatsTableId}
+                />
+            </div>
+
                 <div className={classes.block__header}>
                     <h2>Список команд</h2>
                     <Search />
@@ -104,6 +124,8 @@ const Teams = () => {
                     rowsToDelete={getCoachesRowsToDelete(coachTableId)}
                 />
             </div>
+
+            
         </main>
     );
 };

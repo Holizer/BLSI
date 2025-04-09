@@ -13,7 +13,7 @@ export const usePlayerTeamTable = () => {
         columns: [
             { key: 'first_name', title: 'Имя', editable: true, type: 'text', maxLength: 50 },
             { key: 'last_name', title: 'Фамилия', editable: true, type: 'text', maxLength: 50 },
-            { key: 'age', title: 'Возраст', editable: true, type: 'number', min: 18, max: 99, maxLength: 2 },
+            { key: 'age', title: 'Возраст', editable: true, type: 'number',  min: 18, max: 99, maxLength: 2 },
             { key: 'phone', title: 'Номер телефона', editable: true, type: 'text', maxLength: 12  },
             {
                 key: 'team_id',

@@ -16,6 +16,7 @@ export default class CancellationReasonService {
      static async createCancellationReason(reason: string): Promise<ICancellationReason> {
           try {
                const response = await $api.post<ICancellationReason>('/cancellation_reasons/', {reason});
+               toast.success(`Добавлена новая причина отмены матча!`)
                return response.data; 
           } catch (error: any) {
                if (error.response?.data?.detail) {

@@ -40,6 +40,7 @@ DROP TRIGGER IF EXISTS trigger_add_results ON match;
 CREATE OR REPLACE FUNCTION check_team_no_show()
 RETURNS TRIGGER AS $$
 DECLARE
+    v_match_status_type VARCHAR;
     v_team1_id INT;
     v_team2_id INT;
     v_team1_players INT;
@@ -47,6 +48,18 @@ DECLARE
     v_match_status_id INT;
     v_forfeit_team_id INT := NULL;
 BEGIN
+    SELECT mst.match_status_type
+    INTO v_match_status_type
+    FROM match_info mi
+    JOIN match_status ms ON mi.match_status_id = ms.match_status_id
+    JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
+    WHERE mi.match_info_id = NEW.match_info_id;
+    
+    -- Пропускаем если матч запланирован
+    IF v_match_status_type = 'Запланирован' OR v_match_status_type = 'Отменен' THEN
+        RETURN NEW;
+    END IF;
+    
     -- Получаем ID команд
     SELECT team1_id, team2_id INTO v_team1_id, v_team2_id
     FROM match_info 
@@ -71,7 +84,7 @@ BEGIN
             cancellation_reason_id, 
             forfeiting_team_id
         ) VALUES (
-            (SELECT match_status_type_id FROM match_status_type WHERE match_status_type = 'Отменен'),
+            (SELECT match_status_type_id FROM match_status_type WHERE match_status_type = 'Неявка команды'),
             4, -- ID причины "Недостаточное кол-во игроков"
             v_forfeit_team_id
         ) RETURNING match_status_id INTO v_match_status_id;
@@ -152,15 +165,19 @@ CREATE OR REPLACE FUNCTION add_technical_results(
     p_match_id INT,
     p_team1_id INT,
     p_team2_id INT,
-    p_forfeit_team_id INT,
-    p_week_id INT,
-    p_season_id INT
+    p_forfeit_team_id INT
 ) RETURNS VOID AS $$
 DECLARE
     v_win_result_id INT;
     v_lose_result_id INT;
     v_stats_id INT;
+    v_week_id INT;
+    v_season_id INT;
 BEGIN
+    -- Получаем ID недели и сезона
+    SELECT week_id INTO v_week_id FROM match WHERE match_id = p_match_id;
+    SELECT season_id INTO v_season_id FROM week WHERE week_id = v_week_id;
+    
     -- Получаем ID типов результатов для неявки
     v_win_result_id := get_result_type_id('Победа (неявка соперника)');
     v_lose_result_id := get_result_type_id('Поражение (неявка)');
@@ -184,8 +201,8 @@ BEGIN
         VALUES (v_stats_id, p_team2_id);
         
         -- Обновляем статистику команд
-        PERFORM update_team_stats(p_team1_id, p_week_id, p_season_id, 'Поражение (неявка)', 0);
-        PERFORM update_team_stats(p_team2_id, p_week_id, p_season_id, 'Победа (неявка соперника)', 0);
+        PERFORM update_team_stats(p_team1_id, v_week_id, v_season_id, 'Поражение (неявка)', 0);
+        PERFORM update_team_stats(p_team2_id, v_week_id, v_season_id, 'Победа (неявка соперника)', 0);
     ELSE
         -- Team2 не явилась (поражение)
         INSERT INTO team_match_stats (match_id, scored_points, result_type_id)
@@ -204,8 +221,8 @@ BEGIN
         VALUES (v_stats_id, p_team1_id);
         
         -- Обновляем статистику команд
-        PERFORM update_team_stats(p_team2_id, p_week_id, p_season_id, 'Поражение (неявка)', 0);
-        PERFORM update_team_stats(p_team1_id, p_week_id, p_season_id, 'Победа (неявка соперника)', 0);
+        PERFORM update_team_stats(p_team2_id, v_week_id, v_season_id, 'Поражение (неявка)', 0);
+        PERFORM update_team_stats(p_team1_id, v_week_id, v_season_id, 'Победа (неявка соперника)', 0);
     END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -243,8 +260,8 @@ BEGIN
     JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
     WHERE mi.match_info_id = NEW.match_info_id;
     
-    -- Пропускаем если матч отменен (неявка уже обработана)
-    IF v_match_status_type = 'Отменен' THEN
+    -- Пропускаем если матч запланирован или отменен
+    IF v_match_status_type = 'Запланирован' OR v_match_status_type = 'Отменен' THEN
         RETURN NEW;
     END IF;
     
@@ -253,6 +270,14 @@ BEGIN
     INTO v_team1_id, v_team2_id, v_team1_points, v_team2_points
     FROM match_info 
     WHERE match_info_id = NEW.match_info_id;
+    
+    -- Убедимся, что очки не NULL
+    IF v_team1_points IS NULL THEN
+        v_team1_points := 0;
+    END IF;
+    IF v_team2_points IS NULL THEN
+        v_team2_points := 0;
+    END IF;
     
     -- Получаем ID типов результатов
     v_win_result_id := get_result_type_id('Победа');
@@ -302,34 +327,18 @@ BEGIN
         PERFORM update_team_stats(v_team2_id, v_week_id, v_season_id, 'Победа', v_team2_points);
         PERFORM update_team_stats(v_team1_id, v_week_id, v_season_id, 'Поражение', v_team1_points);
     ELSE
-        -- Ничья (обе команды получают по 1 победе и 1 поражению)
-        -- Team1 победа
+        -- Ничья
+        -- Team1
         INSERT INTO team_match_stats (match_id, scored_points, result_type_id)
-        VALUES (NEW.match_id, v_team1_points, v_win_result_id)
+        VALUES (NEW.match_id, v_team1_points, v_draw_result_id)
         RETURNING team_match_stats_id INTO v_stats_id;
         
         INSERT INTO team_team_match_stats (team_match_stats_id, team_id)
         VALUES (v_stats_id, v_team1_id);
         
-        -- Team1 поражение
+        -- Team2
         INSERT INTO team_match_stats (match_id, scored_points, result_type_id)
-        VALUES (NEW.match_id, v_team1_points, v_lose_result_id)
-        RETURNING team_match_stats_id INTO v_stats_id;
-        
-        INSERT INTO team_team_match_stats (team_match_stats_id, team_id)
-        VALUES (v_stats_id, v_team1_id);
-        
-        -- Team2 победа
-        INSERT INTO team_match_stats (match_id, scored_points, result_type_id)
-        VALUES (NEW.match_id, v_team2_points, v_win_result_id)
-        RETURNING team_match_stats_id INTO v_stats_id;
-        
-        INSERT INTO team_team_match_stats (team_match_stats_id, team_id)
-        VALUES (v_stats_id, v_team2_id);
-        
-        -- Team2 поражение
-        INSERT INTO team_match_stats (match_id, scored_points, result_type_id)
-        VALUES (NEW.match_id, v_team2_points, v_lose_result_id)
+        VALUES (NEW.match_id, v_team2_points, v_draw_result_id)
         RETURNING team_match_stats_id INTO v_stats_id;
         
         INSERT INTO team_team_match_stats (team_match_stats_id, team_id)

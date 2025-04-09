@@ -1,9 +1,8 @@
 @import '../../styles/vars.scss';
 
 .form__group {
-     background-color: white;
-     position: relative;
      width: 100%;
+     position: relative;
 
      .form__field {
           width: 100%;
@@ -14,6 +13,7 @@
           color: $primary-color;
           transition: all $transition-duration ease;
           position: relative;
+          background-color: transparent;
 
           &[type="number"] {
                     -moz-appearance: textfield; 

@@ -4,13 +4,14 @@ import { observer } from 'mobx-react-lite';
 
 const Header = () => {
     const { seasonStore } = useAppContext();
-    const currentSeason = seasonStore.activeSeason;
 
+    const currentSeason = seasonStore.activeSeason;
+    
     return (
         <header>
-            <div className={classes.logoContainer}>
-                {/* <img src={logo} alt="Логотип лиги" className={classes.logo} /> */}
-            </div>
+            {/* <div className={classes.logoContainer}>
+                <img src={logo} alt="Логотип лиги" className={classes.logo} />
+            </div> */}
             <div className={classes.titleContainer}>
                 <h1 className={classes.title}>Информационная система кегельной лиги</h1>
             </div>
@@ -20,10 +21,14 @@ const Header = () => {
                         Сезон: {currentSeason.season_name}
                     </div>
                 )}
-                {/* <div className={classes.week}>Неделя: {}</div> */}
+                {currentSeason && (
+                    <div className={classes.week}>
+                        Игровая недля: {seasonStore.getLastWeekInSeason(currentSeason).week_number}
+                    </div>
+                )}
             </div>
         </header>
     );
 };
 
-export default observer(Header);
+export default observer(Header)

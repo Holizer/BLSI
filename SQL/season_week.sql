@@ -120,7 +120,8 @@ END;
 $$;
 
 SELECT * FROM get_match_status_types()
-	
+
+SELECT * FROM match_status
 INSERT INTO match_status (match_status_type_id, cancellation_reason_id, forfeiting_team_id)
 VALUES
     (1, NULL, NULL),     -- Запланирован (без причины)
@@ -132,8 +133,6 @@ VALUES
 
 SELECT * FROM match_status_type
 SELECT * FROM match_info
-
-
 
 -- Привязываем к неделе и площадке
 INSERT INTO match (week_id, playground_id, match_info_id)

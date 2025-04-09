@@ -28,6 +28,7 @@ export default class PlaygroundService {
      static async createPlayground(newPlayground: IPlaygroundCreator): Promise<IPlayground> {
           try {
                const response = await $api.post<IPlayground>('/playgrounds/', newPlayground);
+               toast.success(`Площадка ${newPlayground.playground_name} успешно создана!`)
                return response.data; 
           } catch (error: any) {
                if (error.response?.data?.detail) {
@@ -70,6 +71,7 @@ export default class PlaygroundService {
      static async createPlaygroundType(playground_type: string): Promise<IPlaygroundType> {
           try {
                const response = await $api.post<IPlaygroundType>('/playgrounds/types/', playground_type);
+               toast.success(`Новый вид площадки "${playground_type}" успешно создан!`)
                return response.data; 
           } catch (error: any) {
                if (error.response?.data?.detail) {

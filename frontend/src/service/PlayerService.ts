@@ -18,6 +18,7 @@ export default class PlayerService {
      static async createPlayer(playerData: IPlayerCreator) {
           try {
                const response = await $api.post('/players/create-player', playerData);
+               toast.success(`Игрок ${playerData.first_name} ${playerData.last_name} создан успешно!`)
                return response.data; 
           } catch (error: any) {
                if (error.response?.data?.detail) {
