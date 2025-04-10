@@ -6,6 +6,7 @@ from src.schemas.match import (
     ScheduledMatch,
     CanceledMatch,
     ForfeitedMatch,
+    CompletedMatch,
     MatchStatusType
 )
 matches_route = APIRouter(prefix="/matches")
@@ -25,3 +26,7 @@ async def get_canceled_matches(db: Session = Depends(get_db)):
 @matches_route.get("/forfeited/", response_model=list[ForfeitedMatch])
 async def get_forfeited_matches(db: Session = Depends(get_db)):
     return MatchService(db).get_forfeited_matches()
+
+@matches_route.get("/completed/", response_model=list[CompletedMatch])
+async def get_completed_matches(db: Session = Depends(get_db)):
+    return MatchService(db).get_completed_matches()

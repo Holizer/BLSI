@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
 from sqlalchemy.sql import text
-from src.schemas.views import TeamCoachCaptainModel
-from src.schemas.team import TeamSchema
+from src.schemas.team import (
+    TeamSchema,
+    TeamCoachCaptainModel
+)
 
 class TeamRepository:
     def __init__(self, db: Session):

@@ -64,6 +64,7 @@ export const useTeamCoachTable = () => {
             ]);
             
             await coachStore.fetchCoaches();
+            await teamStore.loadAllTeamsData();
             resetTableState(tableId);
         } catch (error) {
             console.error("Ошибка при сохранении:", error);

@@ -5,6 +5,7 @@ from src.schemas.match import (
     ScheduledMatch,
     CanceledMatch,
     ForfeitedMatch,
+    CompletedMatch,
     MatchStatusType
 )
 
@@ -31,3 +32,8 @@ class MatchRepository:
         query = text("SELECT * FROM get_forfeited_matches()")  
         result = self.db.execute(query)
         return [ForfeitedMatch(**row) for row in result.mappings()]
+
+    def get_completed_matches(self):
+        query = text("SELECT * FROM get_completed_matches()")  
+        result = self.db.execute(query)
+        return [CompletedMatch(**row) for row in result.mappings()] 

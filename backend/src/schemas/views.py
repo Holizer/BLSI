@@ -20,10 +20,3 @@ class PlayerAddressSchema(BaseModel):
     street: str
     house_number: int
     postal_code: int
-
-
-class TeamCoachCaptainModel(BaseModel):
-    team_id: int
-    team_name: str
-    captain_name: str
-    coach_name: str

@@ -1,17 +1,30 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 from src.schemas.views import PlayerTeamSchema
-from src.schemas.player import CreatePlayerSchema
+from src.schemas.player import (
+    CreatePlayerSchema,
+    PlayerStatistics
+)
 
 class PlayerRepository:
     def __init__(self, db: Session):
         self.db = db
+
 
     def get_player_team(self):
         query = text("SELECT * FROM get_player_team()")  
         result = self.db.execute(query)
         return [PlayerTeamSchema(**row) for row in result.mappings()]
     
+    def get_player_statistics(self, season_id: int, week_ids: list[int]):
+        query = text("""
+            SELECT * 
+            FROM get_player_statistics(:p_season_id, :p_week_ids);
+        """)
+        result = self.db.execute(query, {"p_season_id": season_id, "p_week_ids": week_ids})
+        return [PlayerStatistics(**row) for row in result.mappings()]
+
+
     def update_player_team(self, player_data: dict) -> None:
         query = text("CALL update_player_team(:player_id, :first_name, :last_name, :age, :phone, :team_id)")
         self.db.execute(query, player_data)
@@ -31,6 +44,7 @@ class PlayerRepository:
             'player_id': result_data['player_id'],
             'address_id': result_data['address_id']
         }
+
 
     def delete_player(self, player_id: int):
         query = text("CALL delete_player(:player_id)")

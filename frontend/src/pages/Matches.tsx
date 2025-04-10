@@ -9,11 +9,12 @@ import { useCancellationReasonTable } from '../configs/useCancellationReasonTabl
 import { useScheduledMatchesTable } from '../configs/useScheduledMatchesTable';
 import { useCanceledMatchesTable } from '../configs/useCanceledMatchesTable';
 import { useForfeitedMatchesTable } from '../configs/useForfeitedMatchesTable';
+import { useCompletedMatchesTable } from '../configs/useCompletedMatchesTable';
 
 const Matches = () => {
       const { cancellationReasonStore, matchStore } = useAppContext();
       const { cancellation_reasons } = cancellationReasonStore;
-      const { scheduledMatches, canceledMatches, forfeitedMatches } = matchStore;
+      const { scheduledMatches, canceledMatches, forfeitedMatches, complitedMathces } = matchStore;
       
       const {
             tableId: scheduledMatchesTableId,
@@ -31,6 +32,11 @@ const Matches = () => {
       } = useForfeitedMatchesTable();
 
       const {
+            tableId: completedMatchesTableId,
+            config: completedMatchesConfig, 
+      } = useCompletedMatchesTable();
+
+      const {
             tableId: cancellationReasonTableId,
             config: cancellationReasonConfig, 
             isEditing: isCancellationReasonEditing,
@@ -42,11 +48,15 @@ const Matches = () => {
       } = useCancellationReasonTable();
       
       useEffect(() => {
-            cancellationReasonStore.fetchCancellationReason();
-            matchStore.fetchMatchStatusTypes();
-            matchStore.fetchSheduledMacthes();
-            matchStore.fetchCanceledMacthes();
-            matchStore.fetchForfeitedMacthes();
+            const load = async () => {
+                  await cancellationReasonStore.fetchCancellationReason();
+                  await matchStore.fetchMatchStatusTypes();
+                  await matchStore.fetchSheduledMactches();
+                  await matchStore.fetchCanceledMactches();
+                  await matchStore.fetchForfeitedMactches();
+                  await matchStore.fetchCompletedMatches();
+            }
+            load();
       }, [cancellationReasonStore]);
 
       return (
@@ -68,8 +78,12 @@ const Matches = () => {
                               <h2>Завершенные матчи</h2>
                               <Search />
                         </div>
+                        <Table
+                              config={completedMatchesConfig} 
+                              data={complitedMathces || []}
+                              tableId={completedMatchesTableId}
+                        />
                   </div>
-
 
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>

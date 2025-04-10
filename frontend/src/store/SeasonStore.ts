@@ -40,8 +40,13 @@ export default class SeasonStore {
             return this.seasonWithWeeks[0]; 
       }
     
+      
+      getAllWeeksIdsInLastSeason() {
+            return this.activeSeason.weeks.map(week => week.week_id); 
+      }
+
       getAllWeeksInSeason(season: ISeasonWithWeeks) {
-            return season.weeks; 
+            return season.weeks.map(week => week.week_id); 
       }
     
       getLastWeekInSeason(season: ISeasonWithWeeks) {

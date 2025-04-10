@@ -3,6 +3,7 @@ import { IScheduledMatch } from "../models/views/IScheduledMatch";
 import { IMatchStatusType } from "../models/IMatchStatusType";
 import { ICanceledMatch } from "../models/views/ICanceledMatch";
 import { IForfeitedMatch } from "../models/views/IForfeitedMatch";
+import { ICompletedMatch } from "@/models/views/ICompletedMatch";
 
 export default class MatchesService {
      static async fetchMatchStatusTypes(): Promise<IMatchStatusType[]> {
@@ -16,7 +17,7 @@ export default class MatchesService {
           }
      }
 
-     static async fetchSheduledMacthes(): Promise<IScheduledMatch[]> {
+     static async fetchSheduledMactches(): Promise<IScheduledMatch[]> {
           try {
                const response = await $api.get<IScheduledMatch[]>('/matches/scheduled/');
                return response.data; 
@@ -26,7 +27,7 @@ export default class MatchesService {
           }
      }
 
-     static async fetchCanceledMacthes(): Promise<ICanceledMatch[]> {
+     static async fetchCanceledMactches(): Promise<ICanceledMatch[]> {
           try {
      
                const response = await $api.get<ICanceledMatch[]>('/matches/canceled/');
@@ -37,7 +38,18 @@ export default class MatchesService {
           }
      }
 
-     static async fetchForfeitedMacthes(): Promise<IForfeitedMatch[]> {
+     static async fetchCompletedMatches(): Promise<ICompletedMatch[]> {
+          try {
+     
+               const response = await $api.get<ICompletedMatch[]>('/matches/completed/');
+               return response.data; 
+          } catch (error) {
+               console.error("Неудалось получить матчи с неявками:", error);
+               throw error;
+          }
+     }
+
+     static async fetchForfeitedMactches(): Promise<IForfeitedMatch[]> {
           try {
      
                const response = await $api.get<IForfeitedMatch[]>('/matches/forfeited/');

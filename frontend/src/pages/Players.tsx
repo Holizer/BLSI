@@ -8,13 +8,14 @@ import CreatePlayerForm from '../components/CreateForm/CreatePlayerForm';
 import { useAppContext } from '../hooks/useAppContext';
 import { usePlayerTeamTable } from '../configs/usePlayerTeamTable';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
+import { usePlayerStatiscticsTable } from '../configs/usePlayerStatiscticsTable';
 
 const PlayersManager: React.FC = () => {
-    const { playerStore } = useAppContext();
-    const { playerTeamView } = playerStore;
+    const { playerStore, seasonStore } = useAppContext();
+    const { playerTeams, playerStatistics } = playerStore;
 
     const {
-        tableId,
+        tableId: playerTeamTableId,
         config: playerTeamViewConfig,
         isEditing,
         handleTableChange,
@@ -23,11 +24,20 @@ const PlayersManager: React.FC = () => {
         getRowsToDelete,
         handleSave,
     } = usePlayerTeamTable();
-
+    
+    const {
+        tableId: playerStatisticsTableId,
+        config: playerStatisticsConfig,
+    } = usePlayerStatiscticsTable();
+    
     useEffect(() => {
-        playerStore.fetchPlayerTeamView();
+        const load = async () => {
+            await playerStore.fetchPlayerTeamView();
+            await playerStore.fetchPlayerStatistics(seasonStore.activeSeason.season_id, seasonStore.getAllWeeksIdsInLastSeason());
+        };
+        load();
     }, []);
-
+    
     return (
         <main className={classes.layout__container}>
             <div className={classes.content__block}>
@@ -35,11 +45,11 @@ const PlayersManager: React.FC = () => {
                     <h2>Список игроков</h2>
                     <Search />
                     <EditButton
-                        isEditing={isEditing[tableId]} 
-                        tableId={tableId}
+                        isEditing={isEditing[playerTeamTableId]} 
+                        tableId={playerTeamTableId}
                         onEdit={toggleEditMode} 
-                        onCancel={() => toggleEditMode(tableId, false)}
-                        onSave={() => handleSave(tableId)}
+                        onCancel={() => toggleEditMode(playerTeamTableId, false)}
+                        onSave={() => handleSave(playerTeamTableId)}
                     />
                     <ModalOpenButton modalItem={ <CreatePlayerForm/> } >
                         +
@@ -47,18 +57,30 @@ const PlayersManager: React.FC = () => {
                 </div>
                 <Table
                     config={playerTeamViewConfig} 
-                    data={playerTeamView || []}
-                    tableId={tableId}
-                    isEditing={isEditing[tableId]}
-                    onToggleEdit={() => toggleEditMode(tableId)}
+                    data={playerTeams || []}
+                    tableId={playerTeamTableId}
+                    isEditing={isEditing[playerTeamTableId]}
+                    onToggleEdit={() => toggleEditMode(playerTeamTableId)}
                     onEditChange={(
                         rowIndex: number, 
                         updatedData
-                    ) => handleTableChange(tableId, rowIndex, updatedData)}
+                    ) => handleTableChange(playerTeamTableId, rowIndex, updatedData)}
                     onDeleteToggle={(tableId, rowIndex, rowData) => 
                         toggleDeleteRow(tableId, rowIndex, rowData)
                     }
-                    rowsToDelete={getRowsToDelete(tableId)}
+                    rowsToDelete={getRowsToDelete(playerTeamTableId)}
+                />
+            </div>
+
+            <div className={classes.content__block}>
+                <div className={classes.block__header}>
+                    <h2>Статистика игроков</h2>
+                    <Search />
+                </div>
+                <Table
+                    config={playerStatisticsConfig} 
+                    data={playerStatistics || []}
+                    tableId={playerStatisticsTableId}
                 />
             </div>
         </main>

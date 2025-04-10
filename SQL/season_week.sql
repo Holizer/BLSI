@@ -1,6 +1,28 @@
 ALTER TABLE season
 ADD COLUMN season_name VARCHAR(100);
 
+CREATE OR REPLACE FUNCTION get_season_id_from_week(p_week_id INT)
+RETURNS INT AS $$
+DECLARE
+    v_season_id INT;
+BEGIN
+    -- Предположим, что у нас есть таблица week, которая связана с сезоном
+    SELECT season_id
+    INTO v_season_id
+    FROM week
+    WHERE week_id = p_week_id;
+
+    -- Если сезон не найден, выбрасываем исключение
+    IF v_season_id IS NULL THEN
+        RAISE EXCEPTION 'Сезон для недели с ID % не найден', p_week_id;
+    END IF;
+
+    RETURN v_season_id;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT * FROM get_season_id_from_week(44)
+
 INSERT INTO season (season_name, start_date, end_date)
 VALUES 
     ('Летний кубок 2024', '2024-06-01', '2024-08-31'),
@@ -174,22 +196,7 @@ SELECT * FROM team_team_match_stats
 SELECT * FROM team_stats
 SELECT * FROM team_team_stats
 
-DROP VIEW 
-CREATE OR REPLACE VIEW v_full_match_stats AS
-SELECT 
-    tms.team_match_stats_id,
-    tms.match_id,
-    t.team_id,
-    t.team_name,
-    tms.scored_points,
-    rt.result_name AS result_type
-FROM 
-    team_match_stats tms
-JOIN 
-    team_team_match_stats ttms ON tms.team_match_stats_id = ttms.team_match_stats_id
-JOIN 
-    team t ON ttms.team_id = t.team_id
-JOIN 
-    match_result_type rt ON tms.result_type_id = rt.result_type_id;
-	
-SELECT * FROM v_full_match_stats
+
+SELECT * FROM player_match_stats
+SELECT * FROM player_player_match_stats
+SELECT * FROM player_stats

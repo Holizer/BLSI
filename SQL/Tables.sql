@@ -191,7 +191,7 @@ CREATE TABLE team_team_match_stats (
 CREATE TABLE player_match_stats (
     player_match_stats_id SERIAL PRIMARY KEY,F
     match_id INT NOT NULL,
-    scored_points INT NOT NULL
+    scored_points INT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE player_player_match_stats (

@@ -5,6 +5,7 @@ from src.schemas.match import (
     ScheduledMatch,
     CanceledMatch,
     ForfeitedMatch,
+    CompletedMatch,
     MatchStatusType
 )
 
@@ -43,7 +44,7 @@ class MatchService:
                 status_code=400,
                 detail=f"Ошибка базы данных при получении данных: {error_msg}"
             )
-        
+    
     def get_canceled_matches(self) -> list[CanceledMatch]:
         try:
             return self.repository.get_canceled_matches()
@@ -53,4 +54,15 @@ class MatchService:
                 status_code=400,
                 detail=f"Ошибка базы данных при получении данных: {error_msg}"
             )
+        
+    def get_completed_matches(self) -> list[CompletedMatch]:
+        try:
+            return self.repository.get_completed_matches()
+        except SQLAlchemyError as e:
+            error_msg = str(e.orig).split("CONTEXT:")[0].strip()
+            raise HTTPException(
+                status_code=400,
+                detail=f"Ошибка базы данных при получении данных: {error_msg}"
+            )
+        
         

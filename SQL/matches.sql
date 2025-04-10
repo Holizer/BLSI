@@ -293,6 +293,88 @@ WHERE
 SELECT * FROM completed_matches	
 
 
+CREATE OR REPLACE PROCEDURE create_match_player_stats(
+    p_week_id INT,
+    p_playground_id INT,
+    p_match_info_id INT,
+    p_season_id INT,
+    p_player_stats JSON
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_player JSON;
+    v_player_id INT;
+    v_points INT;
+    v_player_match_stats_id INT;
+    v_player_stats_id INT;
+BEGIN
+    FOR v_player IN SELECT * FROM json_array_elements(p_player_stats)
+    LOOP
+        v_player_id := (v_player ->> 'player_id')::INT;
+        v_points := (v_player ->> 'scored_points')::INT;
+
+        -- Создаем запись в player_match_stats
+        INSERT INTO player_match_stats (match_id, scored_points)
+        VALUES (p_match_info_id, v_points)
+        RETURNING player_match_stats_id INTO v_player_match_stats_id;
+
+        -- Связываем игрока с его статистикой в матче
+        INSERT INTO player_player_match_stats (player_match_stats_id, player_id)
+        VALUES (v_player_match_stats_id, v_player_id);
+
+        -- Ищем статистику за неделю и сезон
+        SELECT player_stats_id INTO v_player_stats_id
+        FROM player_player_stats
+        WHERE player_id = v_player_id AND week_id = p_week_id AND season_id = p_season_id;
+
+        -- Если нет статистики за неделю-сезон — создаем
+        IF NOT FOUND THEN
+            INSERT INTO player_stats (total_points, average_points, total_games, handicap)
+            VALUES (0, 0, 0, 0)
+            RETURNING player_stats_id INTO v_player_stats_id;
+
+            INSERT INTO player_player_stats (player_stats_id, player_id, week_id, season_id)
+            VALUES (v_player_stats_id, v_player_id, p_week_id, p_season_id);
+        END IF;
+
+        -- Обновляем общую статистику игрока
+        UPDATE player_stats
+        SET
+            total_points = total_points + v_points,
+            total_games = total_games + 1,
+            average_points = (total_points + v_points) / (total_games + 1)
+        WHERE player_stats_id = v_player_stats_id;
+
+    END LOOP;
+END;
+$$;
+
+SELECT * FROM get_player_team()
+-- Создаем матч
+CALL create_match(
+    p_match_id => 0,                 -- OUT параметр
+    p_match_info_id => 0,            -- OUT параметр
+    p_match_status_id => 0,          -- OUT параметр
+    p_status_type_id => 2,           -- Статус: завершен
+    p_week_id => 40,                  -- ID недели
+    p_playground_id => 6,            -- ID площадки
+    p_team1_id => 44,                 -- ID команды 1
+    p_team2_id => 42,                 -- ID команды 2
+    p_event_date => '2025-04-15',    -- Дата события
+    p_event_time => '15:00:00',      -- Время события
+    p_cancellation_reason_id => NULL, -- Причина отмены (не используется для завершенного матча)
+    p_forfeiting_team_id => NULL,    -- Неявка команды (не используется для завершенного матча)
+    p_team1_points => 120,            -- Очки команды 1
+    p_team2_points => 425,            -- Очки команды 2
+    p_views_count => 1500,            -- Количество просмотров
+    p_match_duration => '01:30',  -- Длительность матча
+    p_player_stats => '[{"player_id": 1, "scored_points": 50}, {"player_id": 8, "scored_points": 82}, {"player_id": 14, "scored_points": 90}, {"player_id": 13, "scored_points": 40}]'
+);
+
+
+
+
 CREATE OR REPLACE PROCEDURE create_match(
     OUT p_match_id INT,
     OUT p_match_info_id INT,
@@ -309,12 +391,16 @@ CREATE OR REPLACE PROCEDURE create_match(
     p_team1_points INT DEFAULT NULL,
     p_team2_points INT DEFAULT NULL,
     p_views_count INT DEFAULT NULL,
-    p_match_duration INTERVAL DEFAULT NULL
+    p_match_duration INTERVAL DEFAULT NULL,
+    p_player_stats JSON DEFAULT NULL -- ⬅ добавлен JSON параметр
 )
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    v_season_id INT;
 BEGIN
-    -- Проверка существования команд
+  	v_season_id := get_season_id_from_week(p_week_id);
+    -- Проверки сущностей и статуса
     IF NOT EXISTS (SELECT 1 FROM team WHERE team_id = p_team1_id) THEN
         RAISE EXCEPTION 'Команда с ID % не существует', p_team1_id;
     END IF;
@@ -322,54 +408,54 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM team WHERE team_id = p_team2_id) THEN
         RAISE EXCEPTION 'Команда с ID % не существует', p_team2_id;
     END IF;
-    
-    -- Проверка существования недели
+
     IF NOT EXISTS (SELECT 1 FROM week WHERE week_id = p_week_id) THEN
         RAISE EXCEPTION 'Неделя с ID % не существует', p_week_id;
     END IF;
-    
-    -- Проверка существования площадки
+
     IF NOT EXISTS (SELECT 1 FROM playground WHERE playground_id = p_playground_id) THEN
         RAISE EXCEPTION 'Площадка с ID % не существует', p_playground_id;
     END IF;
-    
-    -- Проверка типа статуса
+
     IF NOT EXISTS (SELECT 1 FROM match_status_type WHERE match_status_type_id = p_status_type_id) THEN
         RAISE EXCEPTION 'Тип статуса с ID % не существует', p_status_type_id;
     END IF;
-    
-    -- Специфические проверки для разных статусов
-    IF p_status_type_id = 3 THEN -- Отменен
+
+    -- Специфическая проверка по статусу
+    IF p_status_type_id = 3 THEN
         IF p_cancellation_reason_id IS NULL THEN
             RAISE EXCEPTION 'Для отмененного матча должна быть указана причина';
         END IF;
         IF NOT EXISTS (SELECT 1 FROM cancellation_reason WHERE cancellation_reason_id = p_cancellation_reason_id) THEN
             RAISE EXCEPTION 'Причина отмены с ID % не существует', p_cancellation_reason_id;
         END IF;
-    
-    ELSIF p_status_type_id = 5 THEN -- Неявка команды
+
+    ELSIF p_status_type_id = 5 THEN
         IF p_forfeiting_team_id IS NULL THEN
             RAISE EXCEPTION 'Для статуса "Неявка команды" должна быть указана команда';
         END IF;
         IF p_forfeiting_team_id NOT IN (p_team1_id, p_team2_id) THEN
             RAISE EXCEPTION 'Указанная команда не участвует в этом матче';
         END IF;
-    
+
     ELSIF p_status_type_id = 2 THEN -- Завершен
         IF p_team1_points IS NULL OR p_team2_points IS NULL THEN
             RAISE EXCEPTION 'Для завершенного матча должны быть указаны очки обеих команд';
         END IF;
+        IF p_player_stats IS NULL THEN
+            RAISE EXCEPTION 'Для завершенного матча должна быть передана статистика игроков';
+        END IF;
     END IF;
-    
-    -- Создаем статус матча через отдельную процедуру
+
+    -- Статус матча
     CALL create_match_status(
-        p_match_status_id,  -- OUT параметр
+        p_match_status_id,
         p_status_type_id,
         p_cancellation_reason_id,
         p_forfeiting_team_id
     );
-    
-    -- Создаем информацию о матче
+
+    -- Информация о матче
     INSERT INTO match_info (
         match_status_id, 
         team1_id, 
@@ -391,8 +477,8 @@ BEGIN
         p_event_date,
         p_event_time
     ) RETURNING match_info_id INTO p_match_info_id;
-    
-    -- Создаем сам матч
+
+    -- Сам матч
     INSERT INTO match (
         week_id, 
         playground_id, 
@@ -402,13 +488,27 @@ BEGIN
         p_playground_id,
         p_match_info_id
     ) RETURNING match_id INTO p_match_id;
-    
+
+    -- Если матч завершён — создаем статистику игроков
+	IF p_status_type_id = 2 THEN
+        -- Передаем уже существующий match_info_id и match_id для статистики
+        CALL create_match_player_stats(
+            p_week_id,
+            p_playground_id,
+            p_match_info_id,
+            v_season_id,
+            p_player_stats
+        );
+    END IF;
+
     RAISE NOTICE 'Успешно создан матч: ID=%, info_id=%, status_id=%', p_match_id, p_match_info_id, p_match_status_id;
+
 EXCEPTION
     WHEN OTHERS THEN
         RAISE EXCEPTION 'Ошибка при создании матча: %', SQLERRM;
 END;
 $$;
+
 
 
 SELECT * FROM match

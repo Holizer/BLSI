@@ -2,6 +2,7 @@ import $api from "../http";
 import { toast } from "sonner";
 import { IPlayerTeamView } from "../models/views/IPlayerTeamView";
 import { IPlayerCreator } from "@/models/creators/IPlayerCreator";
+import { IPlayerStatistic } from "@/models/views/IPlayerStatistic";
 
 export default class PlayerService {
      static async fetchPlayerTeamView(): Promise<IPlayerTeamView[]> {
@@ -13,7 +14,18 @@ export default class PlayerService {
                throw error;
           }
      }
-
+     
+     static async fetchPlayerStatistics(seasonId: number, weekIds: number[]): Promise<IPlayerStatistic[]> {
+          try {
+              const response = await $api.get<IPlayerStatistic[]>('/players/get-player-statistics', {
+                  params: { season_id: seasonId, week_ids: weekIds }
+              });
+              return response.data;
+          } catch (error) {
+              console.error("Неудалось получить статистику игроков:", error);
+              throw error;
+          }
+     }
 
      static async createPlayer(playerData: IPlayerCreator) {
           try {

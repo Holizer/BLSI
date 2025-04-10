@@ -66,3 +66,25 @@ class ForfeitedMatch(BaseModel):
     status: str = "Отменен"
     forfeiting_team_id: int
     forfeiting_team_name: str
+
+class CompletedMatch(BaseModel):
+    match_id: int
+    season_id: int
+    season_name: str
+    week_id: int
+    week_start: date
+    week_end: date
+    team1_id: int 
+    team1_name: str
+    team1_points: int
+    team2_id: int 
+    team2_name: str
+    team2_points: int
+    event_date: date
+    event_time: time
+    playground_id: int
+    playground_name: str
+    winner: str
+    match_status_id: int
+    match_status_type_id: int
+    status: str = "Завершен"
