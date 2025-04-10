@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from src.services.match_service import MatchService
@@ -7,6 +7,7 @@ from src.schemas.match import (
     CanceledMatch,
     ForfeitedMatch,
     CompletedMatch,
+    MatchCreateSchema,
     MatchStatusType
 )
 matches_route = APIRouter(prefix="/matches")
@@ -30,3 +31,15 @@ async def get_forfeited_matches(db: Session = Depends(get_db)):
 @matches_route.get("/completed/", response_model=list[CompletedMatch])
 async def get_completed_matches(db: Session = Depends(get_db)):
     return MatchService(db).get_completed_matches()
+
+@matches_route.post("/")
+async def create_match(match_data: MatchCreateSchema, db: Session = Depends(get_db)):
+    try:
+        MatchService(db).create_match(match_data)
+        return {"message": f"Матч успешно создана!"}
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+

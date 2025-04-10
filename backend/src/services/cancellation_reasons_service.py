@@ -22,9 +22,9 @@ class СancellationReasonsService:
                 detail=f"Ошибка базы данных при получении типов площадок: {error_msg}"
             )
 
-    def create_cancellation_reason(self, cancellation_reason_data: CreateCancellationReasons) -> None:
+    def create_cancellation_reason(self, reason: str) -> None:
         try:
-            self.repository.create_playground(cancellation_reason_data)
+            self.repository.create_cancellation_reason(reason)
         except SQLAlchemyError as e:
             error_msg = str(e.orig).split("CONTEXT:")[0].strip()
             raise HTTPException(

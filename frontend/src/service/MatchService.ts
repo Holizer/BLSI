@@ -4,8 +4,9 @@ import { IMatchStatusType } from "../models/IMatchStatusType";
 import { ICanceledMatch } from "../models/views/ICanceledMatch";
 import { IForfeitedMatch } from "../models/views/IForfeitedMatch";
 import { ICompletedMatch } from "@/models/views/ICompletedMatch";
+import { IMatchCreator } from "@/models/creators/IMatchCreator";
 
-export default class MatchesService {
+export default class MatchService {
      static async fetchMatchStatusTypes(): Promise<IMatchStatusType[]> {
           try {
      
@@ -57,6 +58,16 @@ export default class MatchesService {
           } catch (error) {
                console.error("Неудалось получить матчи с неявками:", error);
                throw error;
+          }
+     }
+
+     static async createMatch(matchData: IMatchCreator) {
+          try {
+              const response = await $api.post('/matches/', matchData);
+              return response.data;
+          } catch (error) {
+              console.error("Не удалось создать матч:", error);
+              throw error;
           }
      }
 }

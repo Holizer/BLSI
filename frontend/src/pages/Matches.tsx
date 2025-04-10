@@ -10,6 +10,9 @@ import { useScheduledMatchesTable } from '../configs/useScheduledMatchesTable';
 import { useCanceledMatchesTable } from '../configs/useCanceledMatchesTable';
 import { useForfeitedMatchesTable } from '../configs/useForfeitedMatchesTable';
 import { useCompletedMatchesTable } from '../configs/useCompletedMatchesTable';
+import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
+import CreateCancellationReasonForm from '../components/CreateForm/CreateCancellationReasonForm';
+import CreateMatchForm from '../components/CreateForm/CreateMatchForm';
 
 const Matches = () => {
       const { cancellationReasonStore, matchStore } = useAppContext();
@@ -57,10 +60,13 @@ const Matches = () => {
                   await matchStore.fetchCompletedMatches();
             }
             load();
-      }, [cancellationReasonStore]);
+      }, [cancellationReasonStore, matchStore]);
 
       return (
             <main className={classes.layout__container}>
+                  <ModalOpenButton modalItem={ <CreateMatchForm/> } >
+                        Въеби мне
+                  </ModalOpenButton>
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Запланированные матчи</h2>
@@ -111,7 +117,7 @@ const Matches = () => {
 
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
-                              <h2>Причины отмены матчей</h2>
+                              <h2>Причины отмен матчей</h2>
                               <Search />
                               <EditButton
                                     isEditing={isCancellationReasonEditing[cancellationReasonTableId]} 
@@ -120,6 +126,9 @@ const Matches = () => {
                                     onCancel={() => toggleCancellationReasonEdit(cancellationReasonTableId, false)}
                                     onSave={() => handleCancellationReasonSave(cancellationReasonTableId)}
                               />
+                              <ModalOpenButton modalItem={ <CreateCancellationReasonForm/> } >
+                                    +
+                              </ModalOpenButton>
                         </div>
                         <Table
                               config={cancellationReasonConfig} 

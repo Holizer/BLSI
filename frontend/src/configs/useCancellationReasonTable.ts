@@ -13,7 +13,7 @@ export const useCancellationReasonTable = () => {
             columns: [
                 { 
                     key: 'reason', 
-                    title: 'Причина отказа', 
+                    title: 'Причина отмены матча', 
                     editable: true, 
                     type: 'text', 
                     maxLength: 200 

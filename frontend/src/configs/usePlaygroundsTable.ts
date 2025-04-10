@@ -61,6 +61,7 @@ export const usePlaygroundsTable = () => {
             ]);
                         
             await playgroundStore.fetchPlaygroundTypes();
+            await playgroundStore.fetchPlaygrounds();
             resetTableState(tableId);
         } catch (error) {
             console.error("Ошибка при сохранении:", error);

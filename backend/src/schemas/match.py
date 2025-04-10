@@ -1,6 +1,6 @@
-from datetime import date, time
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, conint
+from typing import Optional, List
+from datetime import date, time, timedelta
 
 class MatchStatusType(BaseModel):
     match_status_type_id: int
@@ -88,3 +88,23 @@ class CompletedMatch(BaseModel):
     match_status_id: int
     match_status_type_id: int
     status: str = "Завершен"
+
+class PlayerStat(BaseModel):
+    player_id: int
+    scored_points: conint(ge=0)
+
+class MatchCreateSchema(BaseModel):
+    status_type_id: int
+    week_id: int
+    playground_id: int
+    team1_id: int
+    team2_id: int
+    event_date: date
+    event_time: time
+    cancellation_reason_id: Optional[int] = None
+    forfeiting_team_id: Optional[int] = None
+    team1_points: Optional[int] = None
+    team2_points: Optional[int] = None
+    views_count: Optional[int] = None
+    match_duration: Optional[timedelta] = None
+    player_stats: List[PlayerStat] = []

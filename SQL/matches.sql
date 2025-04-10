@@ -185,24 +185,33 @@ $$;
 
 SELECT * FROM get_forfeited_matches()
 
+DROP VIEW completed_matches
 CREATE OR REPLACE VIEW completed_matches AS
 SELECT 
     m.match_id,
+    s.season_id, 
     s.season_name,
+    w.week_id,
     w.start_date AS week_start,
     w.end_date AS week_end,
-    t1.team_name AS team1,
-    t2.team_name AS team2,
+    t1.team_id AS team1_id,
+    t1.team_name AS team1_name,
+    t2.team_id AS team2_id,
+    t2.team_name AS team2_name,
     mi.team1_points,
     mi.team2_points,
     mi.event_date,
+    mi.event_time,
+    pg.playground_id,
     pg.playground_name,
     CASE 
         WHEN mi.team1_points > mi.team2_points THEN t1.team_name
         WHEN mi.team1_points < mi.team2_points THEN t2.team_name
         ELSE 'Ничья'
     END AS winner,
-    mst.match_status_type AS status
+    mst.match_status_type AS status,
+    mst.match_status_type_id,
+    ms.match_status_id
 FROM match m
 JOIN match_info mi ON m.match_info_id = mi.match_info_id
 JOIN match_status ms ON mi.match_status_id = ms.match_status_id
@@ -215,8 +224,24 @@ JOIN playground pg ON m.playground_id = pg.playground_id
 WHERE mst.match_status_type = 'Завершен'
 ORDER BY mi.event_date DESC;
 
+DROP FUNCTION get_completed_matches
+SELECT * FROM get_completed_matches()
 
-SELECT * FROM completed_matches
+CREATE OR REPLACE FUNCTION get_completed_matches()
+RETURNS SETOF completed_matches
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT * FROM completed_matches
+    ORDER BY event_date DESC, event_time DESC;
+    
+    RAISE NOTICE 'Получены все завершенные матчи';
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Ошибка при получении отмененных матчей: %', SQLERRM;
+END;
+$$;
 
 
 CREATE TABLE match_result_type (
@@ -372,7 +397,25 @@ CALL create_match(
     p_player_stats => '[{"player_id": 1, "scored_points": 50}, {"player_id": 8, "scored_points": 82}, {"player_id": 14, "scored_points": 90}, {"player_id": 13, "scored_points": 40}]'
 );
 
-
+CALL create_match(
+    p_match_id => 0,                 -- OUT параметр
+    p_match_info_id => 0,            -- OUT параметр
+    p_match_status_id => 0,          -- OUT параметр
+    p_status_type_id => 1,           -- Статус: завершен
+    p_week_id => 40,                  -- ID недели
+    p_playground_id => 6,            -- ID площадки
+    p_team1_id => 44,                 -- ID команды 1
+    p_team2_id => 42,                 -- ID команды 2
+    p_event_date => '2025-04-15',    -- Дата события
+    p_event_time => '15:00:00',      -- Время события
+    p_cancellation_reason_id => NULL, -- Причина отмены (не используется для завершенного матча)
+    p_forfeiting_team_id => NULL,    -- Неявка команды (не используется для завершенного матча)
+    p_team1_points => 120,            -- Очки команды 1
+    p_team2_points => 425,            -- Очки команды 2
+    p_views_count => 1500,            -- Количество просмотров
+    p_match_duration => '01:30',  -- Длительность матча
+    p_player_stats => NULL
+);
 
 
 CREATE OR REPLACE PROCEDURE create_match(

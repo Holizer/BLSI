@@ -1,6 +1,5 @@
 import { ITeamSeasonStats } from "@/models/views/ITeamSeasonStats";
 import $api from "../http";
-// import { toast } from "sonner";
 import { ISeasonWithWeeks } from "@/models/ISeasonWithWeeks";
 
 export default class SeasonService {

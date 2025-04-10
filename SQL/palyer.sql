@@ -293,4 +293,93 @@ FROM
 JOIN 
     player p ON c.player_id = p.player_id;
 
+
+CREATE VIEW player_statistics AS
+SELECT 
+    p.player_id,
+    p.first_name || ' ' || p.last_name AS player_name,
+    ps.total_points,
+    ps.average_points,
+    ps.total_games,
+    ps.handicap,
+    w.week_id,
+    s.season_id,
+    s.season_name,
+    w.start_date AS week_start_date,
+    w.end_date AS week_end_date
+FROM 
+    player p
+JOIN 
+    player_player_stats pps ON p.player_id = pps.player_id
+JOIN 
+    player_stats ps ON pps.player_stats_id = ps.player_stats_id
+JOIN 
+    week w ON pps.week_id = w.week_id
+JOIN 
+    season s ON w.season_id = s.season_id;
+
+DROP FUNCTION get_player_statistics
+DROP FUNCTION IF EXISTS get_player_statistics;
+
+CREATE OR REPLACE FUNCTION get_player_statistics(
+    p_season_id INT DEFAULT NULL,
+    p_week_ids INT[] DEFAULT NULL
+)
+RETURNS TABLE (
+    player_id INT,
+    player_name TEXT,
+    total_points INT,
+    average_points INT,
+    total_games INT,
+    handicap FLOAT,
+    week_id INT,
+    season_id INT,
+    season_name VARCHAR,
+    week_start_date DATE,
+    week_end_date DATE
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        p.player_id,
+        (p.first_name || ' ' || p.last_name)::TEXT AS player_name,
+        ps.total_points,
+        ps.average_points,
+        ps.total_games,
+        ps.handicap,
+        w.week_id,
+        s.season_id,
+        s.season_name,
+        w.start_date AS week_start_date,
+        w.end_date AS week_end_date
+    FROM 
+        player p
+    JOIN 
+        player_player_stats pps ON p.player_id = pps.player_id
+    JOIN 
+        player_stats ps ON pps.player_stats_id = ps.player_stats_id
+    JOIN 
+        week w ON pps.week_id = w.week_id
+    JOIN 
+        season s ON w.season_id = s.season_id
+    WHERE
+        (p_season_id IS NULL OR s.season_id = p_season_id)
+	AND (
+	    p_week_ids IS NULL OR 
+	    COALESCE(array_length(p_week_ids, 1), 0) = 0 OR 
+	    w.week_id = ANY(p_week_ids) 
+	)
+    ORDER BY total_points DESC;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+SELECT * 
+FROM get_player_statistics(4);
+
+
+SELECT * 
+FROM get_player_statistics(4, ARRAY[40]);
+
 	

@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-from typing import Optional
 
 class CancellationReasons(BaseModel):
     cancellation_reason_id: int

@@ -6,6 +6,7 @@ from src.schemas.match import (
     CanceledMatch,
     ForfeitedMatch,
     CompletedMatch,
+    MatchCreateSchema,
     MatchStatusType
 )
 
@@ -64,5 +65,11 @@ class MatchService:
                 status_code=400,
                 detail=f"Ошибка базы данных при получении данных: {error_msg}"
             )
-        
-        
+    
+
+    def create_match(self, match_data: MatchCreateSchema):
+        try:
+            return self.repository.create_match(match_data)
+        except SQLAlchemyError as e:
+            error_msg = str(e.orig).split("CONTEXT:")[0].strip()
+            raise ValueError(error_msg)

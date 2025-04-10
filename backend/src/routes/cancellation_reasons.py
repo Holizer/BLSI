@@ -19,7 +19,7 @@ async def create_cancellation_reason(
     cancellation_reason_data: CreateCancellationReasons,
     db: Session = Depends(get_db)
 ):
-    СancellationReasonsService(db).create_cancellation_reason(cancellation_reason_data)
+    СancellationReasonsService(db).create_cancellation_reason(cancellation_reason_data.reason)
     return {"message": "Причина отмены матча создана!"}
 
 @cancellation_reasons_router.put("/{cancellation_reason_id}")

@@ -22,6 +22,7 @@ const CreatePlaygroundForm = () => {
             [name]: value
         }));
     };
+    
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 

@@ -9,7 +9,7 @@ export const usePlayerAddressTable = () => {
     const { addressStore } = useAppContext();
     
     const tableConfig = useTableConfig<IPlayerAddressView>(() => ({
-        applyDelete: true,
+        applyDelete: false,
         columns: [
             { key: 'first_name', title: 'Имя', editable: true, type: 'text', maxLength: 50 },
             { key: 'last_name', title: 'Фамилия', editable: true, type: 'text', maxLength: 50 },

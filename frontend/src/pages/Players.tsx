@@ -36,7 +36,7 @@ const PlayersManager: React.FC = () => {
             await playerStore.fetchPlayerStatistics(seasonStore.activeSeason.season_id, seasonStore.getAllWeeksIdsInLastSeason());
         };
         load();
-    }, []);
+    }, [seasonStore.activeSeason]);
     
     return (
         <main className={classes.layout__container}>

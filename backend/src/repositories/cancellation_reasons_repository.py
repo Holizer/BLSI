@@ -3,7 +3,6 @@ from sqlalchemy import select
 from sqlalchemy.sql import text
 from src.schemas.cancellation_reasons import (
     CreateCancellationReasons,
-    UpdateCancellationReasons,
     CancellationReasons,
 )
 
@@ -17,10 +16,9 @@ class CancellationReasonsRepository:
         result = self.db.execute(query)
         return [CancellationReasons(**row) for row in result.mappings()]
 
-    def create_playground(self, cancellation_reason_data: CreateCancellationReasons):
+    def create_cancellation_reason(self, reason: str):
         query = text("CALL add_cancellation_reason(:reason)")
-        params = cancellation_reason_data.model_dump()
-        self.db.execute(query, params)
+        self.db.execute(query, {"reason": reason})
         self.db.commit()
 
     def delete_cancellation_reason(self, cancellation_reason_id: int):

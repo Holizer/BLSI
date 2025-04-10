@@ -10,6 +10,7 @@ import { useTeamCapitanCoachTable } from '../configs/useTeamCapitanCoachTable';
 import { useTeamCoachTable } from '../configs/useTeamCoachTable';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
 import { useTeamSeasonStatsTable } from '../configs/useTeamSeasonStatsTable';
+import CreateCoachForm from '../components/CreateForm/CreateCoachForm';
 
 const Teams = () => {
     const { teamStore, seasonStore, coachStore } = useAppContext();
@@ -108,6 +109,9 @@ const Teams = () => {
                         onCancel={() => toggleCoachesEditMode(coachTableId, false)}
                         onSave={() => handleSaveCoachTeamsTable(coachTableId)}
                     />
+                    <ModalOpenButton modalItem={ <CreateCoachForm/> } >
+                        +
+                    </ModalOpenButton>
                 </div>
                 <Table 
                     config={teamCoachTableConfig} 
