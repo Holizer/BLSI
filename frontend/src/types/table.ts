@@ -4,16 +4,18 @@ export interface TableColumn<T> {
       editable?: boolean;
       type?: 'text' | 'select' | 'number';
       validator?: (value: any) => boolean;
-      options?: Array<{
-            value: any;
-            label: string;
-      }>;
+      options?: ColumnOption[] | ((rowData: T) => ColumnOption[]);
       displayValue?: (rowData: T) => React.ReactNode;
       emptyValueText?: string;
       maxLength?: number;
       max?: number,
       min?: number
 }
+
+export type ColumnOption<ValueType = any> = {
+      value: ValueType;
+      label: string;
+};
 
 export interface TableConfig<T> {
       columns: TableColumn<T>[];

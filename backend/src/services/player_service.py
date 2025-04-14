@@ -15,7 +15,7 @@ class PlayerService:
     def get_player_team(self) -> list[PlayerTeamSchema]:
         return self.repository.get_player_team()
     
-    def get_player_statistics(self, season_id: int, week_ids: list[int]) -> list[PlayerStatistics]:
+    def get_player_statistics(self, season_id: int = None, week_ids: list[int] = None) -> list[PlayerStatistics]:
         return self.repository.get_player_statistics(season_id, week_ids)
     
 

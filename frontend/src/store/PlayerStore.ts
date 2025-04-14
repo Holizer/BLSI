@@ -33,7 +33,7 @@ export default class PlayerStore{
             if (result) this.playerTeams = result;
       }
 
-      async fetchPlayerStatistics(seasonId: number, weekIds: number[]) {
+      async fetchPlayerStatistics(seasonId?: number, weekIds?: number[]) {
             const result = await runWithLoader(() => PlayerService.fetchPlayerStatistics(seasonId, weekIds), this.setLoading );
             if (result) this.playerStatistics = result;
       }

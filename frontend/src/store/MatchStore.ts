@@ -26,6 +26,16 @@ export default class MatchStore {
             this.loading = value;
       }            
 
+      async loadAllMatches() {
+            await Promise.all([
+                this.fetchSheduledMactches(),
+                this.fetchCanceledMactches(),
+                this.fetchCompletedMatches(),
+                this.fetchForfeitedMactches(),
+            ]);
+      }
+
+
       async fetchMatchStatusTypes() {
             const result = await runWithLoader(() => MatchService.fetchMatchStatusTypes(), this.setLoading);
             if (result) {

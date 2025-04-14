@@ -7,6 +7,7 @@ from src.schemas.match import (
     ForfeitedMatch,
     CompletedMatch,
     MatchCreateSchema,
+    PlayerStat,
     MatchStatusType
 )
 import json
@@ -62,7 +63,10 @@ class MatchRepository:
                 :p_player_stats
             )
         """)
+        
         player_stats = getattr(match_data, 'player_stats', [])
+        serialized_stats = [PlayerStat.from_orm(stat).dict() for stat in player_stats]
+    
         self.db.execute(query, {
             "p_match_id": 0,
             "p_match_info_id": 0,
@@ -80,6 +84,6 @@ class MatchRepository:
             "p_team2_points": match_data.team2_points,
             "p_views_count": match_data.views_count,
             "p_match_duration": str(match_data.match_duration) if match_data.match_duration else None,
-            "p_player_stats": json.dumps(player_stats) if player_stats is not None else '[]'
+            "p_player_stats": json.dumps(serialized_stats)
         })
         self.db.commit()

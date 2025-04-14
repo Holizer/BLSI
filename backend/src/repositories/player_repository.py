@@ -16,7 +16,7 @@ class PlayerRepository:
         result = self.db.execute(query)
         return [PlayerTeamSchema(**row) for row in result.mappings()]
     
-    def get_player_statistics(self, season_id: int, week_ids: list[int]):
+    def get_player_statistics(self, season_id: int = None, week_ids: list[int] = None):
         query = text("""
             SELECT * 
             FROM get_player_statistics(:p_season_id, :p_week_ids);

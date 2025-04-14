@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import classes from './Table.module.scss';
-import { TableProps } from '@/types/table';
+import { ColumnOption, TableColumn, TableProps } from '@/types/table';
 import deleteIcon from '../../assets/icons/delete.png'
 import Input from '../Input/Input';
 import Select from '../Select/Select';
@@ -79,6 +79,13 @@ const Table = <T extends Record<string, any>>({
 		}
 	}, [isEditing]);
 
+	const getOptions = (column: TableColumn<T>, row: T): ColumnOption<T[keyof T]>[] => {
+		if (typeof column.options === 'function') {
+		  return column.options(row);
+		}
+		return column.options || [];
+	};
+
 	return (
 		<div className={classes.tableWrapper}>
 			<div className={classes.scrollbar}>
@@ -129,12 +136,12 @@ const Table = <T extends Record<string, any>>({
 														handleChange(rowIndex, column.key, value);
 													}}
 													options={[
-														{ value: "", label: column.emptyValueText || 'Не выбрано' },
-														...column.options.map(option => ({
-															value: option.value,
-															label: option.label
-														}))
-													]}
+                                                        { value: "", label: column.emptyValueText || 'Не выбрано' },
+                                                        ...getOptions(column, row).map((option: any) => ({
+                                                            value: option.value,
+                                                            label: option.label
+                                                        }))
+                                                    ]}
 												/>
 											) : column.type === 'number' ? (
 												<Input

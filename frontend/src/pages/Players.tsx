@@ -31,16 +31,8 @@ const PlayersManager: React.FC = () => {
     } = usePlayerStatiscticsTable();
     
     useEffect(() => {
-        const load = async () => {
-            if (seasonStore.activeSeason) {
-                await playerStore.fetchPlayerStatistics(
-                    seasonStore.activeSeason.season_id, 
-                    seasonStore.getAllWeeksIdsInLastSeason()
-                );
-            }
-        };
-        load();
-    }, [seasonStore.activeSeason?.season_id]);
+        playerStore.fetchPlayerStatistics()
+    }, []);
     
     return (
         <main className={classes.layout__container}>

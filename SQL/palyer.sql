@@ -24,7 +24,7 @@ AS $$
 BEGIN
     RETURN QUERY
     SELECT * FROM player_team_view
-    ORDER BY player_id ASC;
+    ORDER BY team_id ASC;
     
     RAISE NOTICE 'Данные игроков и команд успешно получены';
 EXCEPTION
@@ -376,7 +376,7 @@ $$ LANGUAGE plpgsql;
 
 
 SELECT * 
-FROM get_player_statistics(4);
+FROM get_player_statistics();
 
 
 SELECT * 

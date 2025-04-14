@@ -16,7 +16,7 @@ export default class TeamService {
 
      static async createTeam(teamData: Partial<ITeam>): Promise<ITeam> {
           try {
-               const response = await $api.post<ITeam>('/teams/create', teamData);
+               const response = await $api.post<ITeam>('/teams/', teamData);
                toast.success(`Команда "${teamData.team_name}" успешно создана!`)
                return response.data; 
           } catch (error: any) {
@@ -32,7 +32,7 @@ export default class TeamService {
 
      static async deleteTeam(team_id: number): Promise<void> {
           try {
-               await $api.delete(`/teams/delete/${team_id}`);
+               await $api.delete(`/teams/${team_id}`);
           } catch (error: any) {
                if (error.response?.data?.detail) {
                     toast.error(error.response.data.detail);
@@ -44,18 +44,19 @@ export default class TeamService {
           }
      }
 
-     static async updateTeamName(teamData: ITeam): Promise<ITeam> {
+     static async updateTeam(teamData: ITeamCoachCaptainView): Promise<ITeamCoachCaptainView> {
           try {
-               const response = await $api.put<ITeam>(`/teams/update-team-name/${teamData.team_id}`, teamData);
-               return response.data; 
+              const response = await $api.put<ITeamCoachCaptainView>(`/teams/${teamData.team_id}`, teamData);
+              return response.data;
           } catch (error: any) {
-               if (error.response?.data?.detail) {
-                    toast.error(error.response.data.detail);
-               } else {
-                    console.error('Произошла ошибка при обновлении названия команды:', error.message);
-                    toast.error('Произошла ошибка при обновлении названия команды');
-               }
-               throw error;
+              if (error.response?.data?.detail) {
+                  toast.error(error.response.data.detail);
+              } else {
+                  console.error('Произошла ошибка при обновлении названия команды:', error.message);
+                  toast.error('Произошла ошибка при обновлении названия команды');
+              }
+              throw error;
           }
-     }
+      }
+      
 }

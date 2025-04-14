@@ -381,10 +381,10 @@ CALL create_match(
     p_match_id => 0,                 -- OUT параметр
     p_match_info_id => 0,            -- OUT параметр
     p_match_status_id => 0,          -- OUT параметр
-    p_status_type_id => 2,           -- Статус: завершен
-    p_week_id => 40,                  -- ID недели
+    p_status_type_id => 1,           -- Статус: завершен
+    p_week_id => 41,                  -- ID недели
     p_playground_id => 6,            -- ID площадки
-    p_team1_id => 44,                 -- ID команды 1
+    p_team1_id => 41,                 -- ID команды 1
     p_team2_id => 42,                 -- ID команды 2
     p_event_date => '2025-04-15',    -- Дата события
     p_event_time => '15:00:00',      -- Время события
@@ -396,6 +396,7 @@ CALL create_match(
     p_match_duration => '01:30',  -- Длительность матча
     p_player_stats => '[{"player_id": 1, "scored_points": 50}, {"player_id": 8, "scored_points": 82}, {"player_id": 14, "scored_points": 90}, {"player_id": 13, "scored_points": 40}]'
 );
+
 
 CALL create_match(
     p_match_id => 0,                 -- OUT параметр
@@ -473,7 +474,7 @@ BEGIN
             RAISE EXCEPTION 'Причина отмены с ID % не существует', p_cancellation_reason_id;
         END IF;
 
-    ELSIF p_status_type_id = 5 THEN
+    ELSIF p_status_type_id = 4 THEN
         IF p_forfeiting_team_id IS NULL THEN
             RAISE EXCEPTION 'Для статуса "Неявка команды" должна быть указана команда';
         END IF;
@@ -553,7 +554,6 @@ END;
 $$;
 
 
-
 SELECT * FROM match
 SELECT * FROM match_info
 SELECT * FROM match_status
@@ -587,7 +587,7 @@ CALL create_match(
 
 CALL create_match(
     NULL, NULL, NULL,  -- OUT параметры (не указываем значения)
-    5,                 -- p_status_type_id = 5 (Неявка команды)
+    4,                 -- p_status_type_id = 4 (Неявка команды)
     41,                -- p_week_id
     1,                 -- p_playground_id
     1,                 -- p_team1_id
@@ -598,3 +598,36 @@ CALL create_match(
     1                  -- p_forfeiting_team_id (either 1 or 43)
 );
 
+SELECT * FROM season
+SELECT * FROM week
+
+SELECT * FROM player_player_match_stats
+SELECT * FROM player_match_stats
+SELECT * FROM player_stats
+
+DELETE FROM player_player_stats;
+DELETE FROM player_stats;
+DELETE FROM player_match_stats;
+DELETE FROM player_player_match_stats;
+
+DELETE FROM team_stats;
+DELETE FROM team_team_stats;
+DELETE FROM team_team_match_stats;
+DELETE FROM team_match_stats;
+
+DELETE FROM match_info; -- Если есть таблица событий матча
+DELETE FROM match;      -- Основная таблица матчей
+DELETE FROM match_status
+
+TRUNCATE player_player_stats RESTART IDENTITY CASCADE;
+TRUNCATE player_stats RESTART IDENTITY CASCADE;
+TRUNCATE player_match_stats RESTART IDENTITY CASCADE;
+
+TRUNCATE player_player_match_stats RESTART IDENTITY CASCADE;
+TRUNCATE team_stats RESTART IDENTITY CASCADE;
+TRUNCATE team RESTART IDENTITY CASCADE;
+TRUNCATE team_team_stats RESTART IDENTITY CASCADE;
+TRUNCATE team_team_match_stats RESTART IDENTITY CASCADE;
+TRUNCATE team_match_stats RESTART IDENTITY CASCADE;
+TRUNCATE match_info RESTART IDENTITY CASCADE;
+TRUNCATE match_status RESTART IDENTITY CASCADE;

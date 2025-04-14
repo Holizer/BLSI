@@ -15,7 +15,7 @@ export default class PlayerService {
           }
      }
      
-     static async fetchPlayerStatistics(seasonId: number, weekIds: number[]): Promise<IPlayerStatistic[]> {
+     static async fetchPlayerStatistics(seasonId?: number, weekIds?: number[]): Promise<IPlayerStatistic[]> {
           try {
               const response = await $api.get<IPlayerStatistic[]>('/players/get-player-statistics', {
                   params: { season_id: seasonId, week_ids: weekIds }

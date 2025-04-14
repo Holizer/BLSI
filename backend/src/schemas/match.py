@@ -93,6 +93,9 @@ class PlayerStat(BaseModel):
     player_id: int
     scored_points: conint(ge=0)
 
+    class Config:
+        from_attributes = True 
+
 class MatchCreateSchema(BaseModel):
     status_type_id: int
     week_id: int

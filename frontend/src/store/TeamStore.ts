@@ -7,79 +7,46 @@ import { runWithLoader } from "../utilits/runWithLoader";
 export default class TeamStore {
       teams: ITeam[] = [];
       teamsDetailed: ITeamCoachCaptainView[] = [];
-
       loading = false;
   
       constructor() {
             makeAutoObservable(this)
-            this.loadTeams()
+            this.fetchTeamsList()
       }
       
       setLoading = (value: boolean) => {
             this.loading = value;
       }            
 
-      async loadTeams() {
+      async fetchTeamsList() {
             const result = await runWithLoader(() => TeamService.fetchTeamsList(), this.setLoading);
             if (result) {
                 this.teams = result;
             }
       }
 
-      async loadTeamsDetailed() {
+      async fetchTeamsWithCaptainAndCoach() {
             const result = await runWithLoader(() => TeamService.fetchTeamsWithCaptainAndCoach(), this.setLoading);
             if (result) this.teamsDetailed = result;
       }
     
       async loadAllTeamsData() {
             await Promise.all([
-                this.loadTeams(),
-                this.loadTeamsDetailed()
+                this.fetchTeamsList(),
+                this.fetchTeamsWithCaptainAndCoach()
             ]);
       }
 
-      async fetchTeamsList() {
-            this.setLoading(true)
-            try {
-                  this.teams = await TeamService.fetchTeamsList();
-            } catch (error) {
-                  console.error("Ошибка загрузки игроков:", error);
-            } finally {
-                  this.setLoading(false)
-            }
-      }
-
       async createTeam(teamData: Partial<ITeam>) {
-            this.setLoading(true)
-            try {
-                  await TeamService.createTeam(teamData);
-            } catch (error) {
-                  console.error("Ошибка загрузки игроков:", error);
-            } finally {
-                  this.setLoading(false)
-            }
+            await runWithLoader(() => TeamService.createTeam(teamData), this.setLoading);
       }
 
-      async updateTeamName(teamData: ITeam) {
-            this.setLoading(true)
-            try {
-                  await TeamService.updateTeamName(teamData);
-            } catch (error) {
-                  console.error("Неудалось обновить название команды:", error);
-            } finally {
-                  this.setLoading(false)
-            }
+      async updateTeam(teamData: ITeamCoachCaptainView) {
+            await runWithLoader(() => TeamService.updateTeam(teamData), this.setLoading);
       }
 
       async deleteTeam(team_id: number) {
-            this.setLoading(true)
-            try {
-                  await TeamService.deleteTeam(team_id);
-            } catch (error) {
-                  console.error("Неудалось удалить команду:", error);
-            } finally {
-                  this.setLoading(false)
-            }
+            await runWithLoader(() => TeamService.deleteTeam(team_id), this.setLoading);
       }
 
       getTeamName(team_id: number) {

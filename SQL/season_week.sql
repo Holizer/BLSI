@@ -41,7 +41,10 @@ VALUES
     (5, '2024-09-02', '2024-09-08'),
     (5, '2024-09-09', '2024-09-15');
 
+SELECT * FROM season
+SELECT * FROM week
 
+	
 CREATE OR REPLACE VIEW seasons_with_weeks AS
 SELECT 
     s.season_id,

@@ -84,8 +84,7 @@ const CreatePlayerForm = () => {
                 value={playerData.age.toString()}
                 onChange={handleChange}
                 className={classes.createTeamForm__input}
-                min="18"
-                max="99"
+                maxLength={3}
                 required
             />
 
@@ -147,9 +146,8 @@ const CreatePlayerForm = () => {
                         value={playerData.house_number.toString()}
                         onChange={handleChange}
                         className={classes.createTeamForm__input}
-                        min="0"
-                        max="1000"
                         required
+                        maxLength={3}
                     />
                 </div>
 
@@ -164,8 +162,7 @@ const CreatePlayerForm = () => {
                         value={playerData.postal_code.toString()}
                         onChange={handleChange}
                         className={classes.createTeamForm__input}
-                        min="0"
-                        max="999999"
+                        maxLength={6}
                         required
                     />
                 </div>

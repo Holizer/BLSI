@@ -5,7 +5,6 @@ import Select from '../../UI/Select/Select';
 import { useAppContext } from '../../hooks/useAppContext';
 import { IMatchCreator } from '@/models/creators/IMatchCreator';
 import { toast } from 'sonner';
-import { IPlayerTeamView } from '@/models/player/IPlayerTeamView';
 import { IPlayerStat } from '@/models/player/IPlayerStat';
 
 const CreateMatchForm = () => {
@@ -34,6 +33,8 @@ const CreateMatchForm = () => {
         player_stats: []
     });
 
+    const [minDate, setMinDate] = useState<string>('');
+    const [maxDate, setMaxDate] = useState<string>('');
     const [availableWeeks, setAvailableWeeks] = useState<{value: number, label: string}[]>([]);
     const [selectedSeasonId, setSelectedSeasonId] = useState<number>(0);
     
@@ -61,15 +62,20 @@ const CreateMatchForm = () => {
                 setAvailableWeeks(weeksOptions);
                 
                 if (weeksOptions.length > 0) {
+                    const firstWeek = selectedSeason.weeks[0];
                     setMatchData(prev => ({
                         ...prev,
                         week_id: weeksOptions[0].value
                     }));
+                    setMinDate(firstWeek.week_start);
+                    setMaxDate(firstWeek.week_end);
                 }
             }
         } else {
             setAvailableWeeks([]);
             setMatchData(prev => ({ ...prev, week_id: 0 }));
+            setMinDate('');
+            setMaxDate('');
         }
     }, [selectedSeasonId, seasonStore.seasonWithWeeks]);
 
@@ -170,6 +176,26 @@ const CreateMatchForm = () => {
         }));
     };
 
+    const handleWeekChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const weekId = Number(e.target.value);
+        const selectedWeek = seasonWithWeeks
+            .flatMap(s => s.weeks)
+            .find(w => w.week_id === weekId);
+
+        if (selectedWeek) {
+            setMinDate(selectedWeek.week_start);
+            setMaxDate(selectedWeek.week_end);
+            if (matchData.event_date && (
+                matchData.event_date < selectedWeek.week_start || 
+                matchData.event_date > selectedWeek.week_end
+            )) {
+                setMatchData(prev => ({ ...prev, event_date: '' }));
+            }
+        }
+
+        handleChange(e);
+    };
+
     const validate = () => {
         if (!matchData.playground_id) {
             toast.warning('Выберите площадку');
@@ -186,7 +212,7 @@ const CreateMatchForm = () => {
             return false;
         }
     
-        if (matchData.status_type_id === 5 && !matchData.forfeiting_team_id) {
+        if (matchData.status_type_id === 4 && !matchData.forfeiting_team_id) {
             toast.warning('Для матча с неявкой укажите команду');
             return false;
         }
@@ -201,6 +227,7 @@ const CreateMatchForm = () => {
         return true;
     };
 
+    
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
@@ -219,7 +246,7 @@ const CreateMatchForm = () => {
         if (!validate()) return;
 
         try {
-            const dataToSend = [1, 3, 5].includes(matchData.status_type_id)
+            const dataToSend = [1, 3, 4].includes(matchData.status_type_id)
             ? {
                 ...matchData,
                 team1_points: null,
@@ -235,12 +262,14 @@ const CreateMatchForm = () => {
         } catch (error) {
             toast.error('Ошибка при создании матча');
             console.error(error);
+        } finally {
+            await matchStore.loadAllMatches();
         }
     };
     //#endregion
     
     const showCancellationReason = matchData.status_type_id === 3;
-    const showForfeitingTeam = matchData.status_type_id === 5;
+    const showForfeitingTeam = matchData.status_type_id === 4;
     const showCompletedFields = matchData.status_type_id === 2;
 
     return (
@@ -276,7 +305,7 @@ const CreateMatchForm = () => {
                     id="week_id"
                     name="week_id"
                     value={matchData.week_id}
-                    onChange={handleChange}
+                    onChange={handleWeekChange} 
                     className={classes.form__input}
                     disabled={availableWeeks.length === 0}
                     options={[
@@ -380,6 +409,30 @@ const CreateMatchForm = () => {
                     />
                 </div>
             </div>
+            {/* НЕЯВКА */}
+            {showForfeitingTeam && (
+                <div className={classes.form__group}>
+                    <label htmlFor="forfeiting_team_id" className={classes.form__label}>
+                        Команда, не явившаяся на матч
+                    </label>
+                    <Select
+                        id="forfeiting_team_id"
+                        name="forfeiting_team_id"
+                        value={matchData.forfeiting_team_id || 0}
+                        onChange={handleChange}
+                        disabled={
+                            !matchData.team1_id || !matchData.team2_id
+                        }
+                        className={classes.form__input}
+                        options={[
+                            { value: 0, label: 'Выберите команду' },
+                            { value: matchData.team1_id, label: teams.find(t => t.team_id === matchData.team1_id)?.team_name || 'Команда 1' },
+                            { value: matchData.team2_id, label: teams.find(t => t.team_id === matchData.team2_id)?.team_name || 'Команда 2' }
+                        ]}
+                        required
+                    />
+                </div>
+            )}
             {/* ДАТА ПРОВЕДЕНИЯ */}
             <div className={classes.form__group}>
                 <label htmlFor="event_time" className={classes.form__label}>
@@ -391,6 +444,8 @@ const CreateMatchForm = () => {
                     value={matchData.event_date}
                     onChange={handleChange}
                     className={classes.form__input}
+                    min={minDate}
+                    max={maxDate}
                     required
                 />
             </div>
@@ -405,59 +460,33 @@ const CreateMatchForm = () => {
                         type="time"
                         value={matchData.event_time}
                         onChange={handleChange}
+                        min={minDate}
+                        max={maxDate}
                         className={classes.form__input}
                         required
                     />
                 </div>
             )}
-            {/* НЕЯВКА */}
-            {showForfeitingTeam && (
-                <div className={classes.form__group}>
-                    <label htmlFor="forfeiting_team_id" className={classes.form__label}>
-                        Команда, не явившаяся на матч
-                    </label>
-                    <Select
-                        id="forfeiting_team_id"
-                        name="forfeiting_team_id"
-                        value={matchData.forfeiting_team_id || 0}
-                        onChange={handleChange}
-                        className={classes.form__input}
-                        options={[
-                            { value: 0, label: 'Выберите команду' },
-                            { value: matchData.team1_id, label: teams.find(t => t.team_id === matchData.team1_id)?.team_name || 'Команда 1' },
-                            { value: matchData.team2_id, label: teams.find(t => t.team_id === matchData.team2_id)?.team_name || 'Команда 2' }
-                        ]}
-                        required
-                    />
-                </div>
-            )}
-            {/* НЕЯВКА */}
+            {/* ОЧКИ КОМАНД */}
             {showCompletedFields && (
                 <>
                     {matchData.team1_id > 0 && (
                         <div className={classes.firstTeamScore__wrapper}>
                             <div className={classes.teamStats}>
                                 <h3 className={classes.teamTitle}>
-                                    {teams.find(t => t.team_id === matchData.team1_id)?.team_name || 'Команда 1'} - 
-                                    Статистика игроков (Всего: {matchData.team1_points || 0} очков)
+                                    {teams.find(t => t.team_id === matchData.team1_id)?.team_name || 'Команда 1'} 
                                 </h3>
-                                <Input
-                                    label="Очки команды"
-                                    name="team1_points"
-                                    type="number"
-                                    value={matchData.team1_points || ''}
-                                    onChange={handleChange}
-                                    className={classes.form__input}
-                                    required
-                                    readOnly
-                                />
+                                <span className={classes.scored_points}>
+                                    {matchData.team1_points || 0} очков
+                                </span>
                                 {playerStore.getPlayersTeam(matchData.team1_id).map(player => (
                                     <div key={`player1_${player.player_id}`} className={classes.playerStat}>
                                         <label>{player.first_name} {player.last_name}</label>
                                         <Input
                                             name={`player_stat_${player.player_id}`}
                                             type="number"
-                                            value={matchData.player_stats.find(stat => stat.player_id === player.player_id)?.scored_points || 0}
+                                            maxLength={4}
+                                            value={matchData.player_stats.find(stat => stat.player_id === player.player_id)?.scored_points.toString()}
                                             onChange={handlePlayerStatChange}
                                             className={classes.form__input}
                                         />
@@ -471,26 +500,19 @@ const CreateMatchForm = () => {
                         <div className={classes.SecondTeamScore__wrapper}>
                             <div className={classes.teamStats}>
                                 <h3 className={classes.teamTitle}>
-                                    {teams.find(t => t.team_id === matchData.team2_id)?.team_name || 'Команда 2'} - 
-                                    Статистика игроков (Всего: {matchData.team2_points || 0} очков)
+                                    {teams.find(t => t.team_id === matchData.team2_id)?.team_name || 'Команда 2'}
                                 </h3>
-                                <Input
-                                    label="Очки команды"
-                                    name="team2_points"
-                                    type="number"
-                                    value={matchData.team2_points || ''}
-                                    onChange={handleChange}
-                                    className={classes.form__input}
-                                    required
-                                    readOnly
-                                />
+                                <span className={classes.scored_points}>
+                                    {matchData.team2_points || 0} очков
+                                </span>
                                 {playerStore.getPlayersTeam(matchData.team2_id).map(player => (
                                     <div key={`player2_${player.player_id}`} className={classes.playerStat}>
                                         <label>{player.first_name} {player.last_name}</label>
                                         <Input
                                             name={`player_stat_${player.player_id}`}
                                             type="number"
-                                            value={matchData.player_stats.find(stat => stat.player_id === player.player_id)?.scored_points || 0}
+                                            maxLength={4}
+                                            value={matchData.player_stats.find(stat => stat.player_id === player.player_id)?.scored_points.toString()}
                                             onChange={handlePlayerStatChange}
                                             className={classes.form__input}
                                         />
@@ -527,6 +549,7 @@ const CreateMatchForm = () => {
                         label="Количество просмотров"
                         name="views_count"
                         type="number"
+                        maxLength={7}
                         value={matchData.views_count || ''}
                         onChange={handleChange}
                         className={classes.form__input}
