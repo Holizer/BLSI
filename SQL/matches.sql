@@ -555,9 +555,17 @@ $$;
 
 
 SELECT * FROM match
+SELECT * FROM match
 SELECT * FROM match_info
 SELECT * FROM match_status
 SELECT * FROM match_status_type
+
+SELECT * FROM team_match_stats
+SELECT * FROM team_team_match_stats
+
+SELECT * FROM team_team_stats
+SELECT * FROM team_stats
+
 SELECT * FROM team
 
 CALL create_match(
@@ -631,3 +639,36 @@ TRUNCATE team_team_match_stats RESTART IDENTITY CASCADE;
 TRUNCATE team_match_stats RESTART IDENTITY CASCADE;
 TRUNCATE match_info RESTART IDENTITY CASCADE;
 TRUNCATE match_status RESTART IDENTITY CASCADE;
+
+
+INSERT INTO season (season_name, start_date, end_date)
+VALUES 
+    ('Зимний кубок 2025', '2025-01-10', '2025-02-28'),
+    ('Весенний чемпионат 2025', '2025-03-01', '2025-05-15'),
+    ('Летняя лига 2025', '2025-05-20', '2025-08-15'),
+    ('Осенний турнир 2025', '2025-08-20', '2025-10-31'),
+    ('Финальный сезон 2025', '2025-11-05', '2025-12-20');
+
+-- 2. Создаем 10 игровых недель (по 2 на каждый сезон)
+INSERT INTO week (season_id, start_date, end_date)
+VALUES 
+    -- Зимний кубок 2025
+    (6, '2025-01-13', '2025-01-19'),
+    (6, '2025-02-10', '2025-02-16'),
+    
+    -- Весенний чемпионат 2025
+    (7, '2025-03-03', '2025-03-09'),
+    (7, '2025-04-07', '2025-04-13'),
+    
+    -- Летняя лига 2025
+    (8, '2025-05-26', '2025-06-01'),
+    (8, '2025-07-14', '2025-07-20'),
+    
+    -- Осенний турнир 2025
+    (9, '2025-08-25', '2025-08-31'),
+    (9, '2025-10-06', '2025-10-12'),
+    
+    -- Финальный сезон 2025
+    (10, '2025-11-10', '2025-11-16'),
+    (10, '2025-12-15', '2025-12-21');
+

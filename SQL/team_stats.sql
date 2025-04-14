@@ -47,17 +47,25 @@ DECLARE
     v_team2_players INT;
     v_match_status_id INT;
     v_forfeit_team_id INT := NULL;
+    v_is_explicit_forfeit BOOLEAN := FALSE;
 BEGIN
-    SELECT mst.match_status_type
-    INTO v_match_status_type
+    -- Получаем текущий статус матча
+    SELECT mst.match_status_type, ms.forfeiting_team_id
+    INTO v_match_status_type, v_forfeit_team_id
     FROM match_info mi
     JOIN match_status ms ON mi.match_status_id = ms.match_status_id
     JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
     WHERE mi.match_info_id = NEW.match_info_id;
     
-    -- Пропускаем если матч запланирован
-    IF v_match_status_type = 'Запланирован' OR v_match_status_type = 'Отменен' THEN
+    -- Пропускаем если матч запланирован или отменен
+    IF (v_match_status_type = 'Запланирован' OR v_match_status_type = 'Отменен') 
+       AND NOT v_is_explicit_forfeit THEN
         RETURN NEW;
+    END IF;
+	
+    -- Если матч уже помечен как неявка
+    IF v_match_status_type = 'Неявка команды' AND v_forfeit_team_id IS NOT NULL THEN
+        v_is_explicit_forfeit := TRUE;
     END IF;
     
     -- Получаем ID команд
@@ -65,11 +73,17 @@ BEGIN
     FROM match_info 
     WHERE match_info_id = NEW.match_info_id;
     
-    -- Считаем игроков в командах
+    -- Если неявка указана явно (ручное создание матча с неявкой)
+    IF v_is_explicit_forfeit THEN
+        -- Добавляем технические результаты без проверки игроков
+        PERFORM add_technical_results(NEW.match_id, v_team1_id, v_team2_id, v_forfeit_team_id);
+        RETURN NEW;
+    END IF;
+    
+    -- Автоматическая проверка неявки (если не было явного указания)
     v_team1_players := get_team_player_count(v_team1_id);
     v_team2_players := get_team_player_count(v_team2_id);
 
-    -- Проверяем неявку (менее 2 игроков)
     IF v_team1_players < 2 OR v_team2_players < 2 THEN
         -- Определяем какая команда не явилась
         IF v_team1_players < 2 THEN
@@ -99,64 +113,6 @@ BEGIN
     END IF;
     
     RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Функция для обновления статистики команды
-CREATE OR REPLACE FUNCTION update_team_stats(
-    p_team_id INT,
-    p_week_id INT,
-    p_season_id INT,
-    p_result_type VARCHAR,
-    p_points INT
-) RETURNS VOID AS $$
-DECLARE
-    v_stats_id INT;
-    v_exists BOOLEAN;
-BEGIN
-    -- Проверяем, есть ли уже статистика для этой команды в этой неделе
-    SELECT EXISTS (
-        SELECT 1 FROM team_team_stats 
-        WHERE team_id = p_team_id 
-        AND week_id = p_week_id 
-        AND season_id = p_season_id
-    ) INTO v_exists;
-
-    IF NOT v_exists THEN
-        -- Создаем новую запись статистики
-        INSERT INTO team_stats (wins, losses, draws, total_points)
-        VALUES (0, 0, 0, 0)
-        RETURNING team_stats_id INTO v_stats_id;
-        
-        -- Связываем команду со статистикой
-        INSERT INTO team_team_stats (team_id, week_id, season_id, team_stats_id)
-        VALUES (p_team_id, p_week_id, p_season_id, v_stats_id);
-    ELSE
-        -- Получаем существующий ID статистики
-        SELECT team_stats_id INTO v_stats_id
-        FROM team_team_stats
-        WHERE team_id = p_team_id 
-        AND week_id = p_week_id 
-        AND season_id = p_season_id;
-    END IF;
-
-    -- Обновляем статистику в зависимости от результата
-    IF p_result_type = 'Победа' OR p_result_type = 'Победа (неявка соперника)' THEN
-        UPDATE team_stats 
-        SET wins = wins + 1,
-            total_points = total_points + p_points
-        WHERE team_stats_id = v_stats_id;
-    ELSIF p_result_type = 'Поражение' OR p_result_type = 'Поражение (неявка)' THEN
-        UPDATE team_stats 
-        SET losses = losses + 1,
-            total_points = total_points + p_points
-        WHERE team_stats_id = v_stats_id;
-    ELSIF p_result_type = 'Ничья' THEN
-        UPDATE team_stats 
-        SET draws = draws + 1,
-            total_points = total_points + p_points
-        WHERE team_stats_id = v_stats_id;
-    END IF;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -227,6 +183,65 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Функция для обновления статистики команды
+CREATE OR REPLACE FUNCTION update_team_stats(
+    p_team_id INT,
+    p_week_id INT,
+    p_season_id INT,
+    p_result_type VARCHAR,
+    p_points INT
+) RETURNS VOID AS $$
+DECLARE
+    v_stats_id INT;
+    v_exists BOOLEAN;
+BEGIN
+    -- Проверяем, есть ли уже статистика для этой команды в этой неделе
+    SELECT EXISTS (
+        SELECT 1 FROM team_team_stats 
+        WHERE team_id = p_team_id 
+        AND week_id = p_week_id 
+        AND season_id = p_season_id
+    ) INTO v_exists;
+
+    IF NOT v_exists THEN
+        -- Создаем новую запись статистики
+        INSERT INTO team_stats (wins, losses, draws, total_points)
+        VALUES (0, 0, 0, 0)
+        RETURNING team_stats_id INTO v_stats_id;
+        
+        -- Связываем команду со статистикой
+        INSERT INTO team_team_stats (team_id, week_id, season_id, team_stats_id)
+        VALUES (p_team_id, p_week_id, p_season_id, v_stats_id);
+    ELSE
+        -- Получаем существующий ID статистики
+        SELECT team_stats_id INTO v_stats_id
+        FROM team_team_stats
+        WHERE team_id = p_team_id 
+        AND week_id = p_week_id 
+        AND season_id = p_season_id;
+    END IF;
+
+    -- Обновляем статистику в зависимости от результата
+    IF p_result_type = 'Победа' OR p_result_type = 'Победа (неявка соперника)' THEN
+        UPDATE team_stats 
+        SET wins = wins + 1,
+            total_points = total_points + p_points
+        WHERE team_stats_id = v_stats_id;
+    ELSIF p_result_type = 'Поражение' OR p_result_type = 'Поражение (неявка)' THEN
+        UPDATE team_stats 
+        SET losses = losses + 1,
+            total_points = total_points + p_points
+        WHERE team_stats_id = v_stats_id;
+    ELSIF p_result_type = 'Ничья' THEN
+        UPDATE team_stats 
+        SET draws = draws + 1,
+            total_points = total_points + p_points
+        WHERE team_stats_id = v_stats_id;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
 -- Обновленная функция для добавления результатов обычного матча
 CREATE OR REPLACE FUNCTION add_match_results()
 RETURNS TRIGGER AS $$
@@ -260,8 +275,9 @@ BEGIN
     JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
     WHERE mi.match_info_id = NEW.match_info_id;
     
-    -- Пропускаем если матч запланирован или отменен
-    IF v_match_status_type = 'Запланирован' OR v_match_status_type = 'Отменен' THEN
+    IF v_match_status_type = 'Запланирован' OR 
+       v_match_status_type = 'Отменен' OR
+		v_match_status_type = 'Неявка команды' THEN
         RETURN NEW;
     END IF;
     
