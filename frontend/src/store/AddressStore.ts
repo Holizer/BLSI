@@ -1,6 +1,6 @@
-import { IPlayerAddressView } from "@/models/views/IPlayerAddressView";
+import { IPlayerAddressView } from "@/models/player/IPlayerAddressView";
 import AddressService from "../service/AddressService";
-import { ICity } from "@/models/ICity";
+import { ICity } from "@/models/address/ICity";
 import { makeAutoObservable } from "mobx";
 import { runWithLoader } from "../utilits/runWithLoader";
 

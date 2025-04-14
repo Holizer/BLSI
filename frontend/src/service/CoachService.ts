@@ -1,4 +1,4 @@
-import { ICoachTeam } from "@/models/ICoach";
+import { ICoachTeam } from "@/models/teamCoachCapitan/ICoach";
 import $api from "../http";
 import { toast } from "sonner";
 

@@ -1,6 +1,6 @@
 import $api from "../http";
 import { toast } from "sonner";
-import { ICancellationReason } from "../models/ICancellationReason";
+import { ICancellationReason } from "../models/matchStatus/ICancellationReason";
 
 export default class CancellationReasonService {
      static async fetchCancellationReason(): Promise<ICancellationReason[]> {

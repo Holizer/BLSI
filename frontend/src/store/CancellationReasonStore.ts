@@ -1,7 +1,7 @@
 import { makeAutoObservable } from "mobx";
 import { runWithLoader } from "../utilits/runWithLoader";
 import PlaygroundService from "../service/PlaygroundService";
-import { ICancellationReason } from "../models/ICancellationReason";
+import { ICancellationReason } from "../models/matchStatus/ICancellationReason";
 import CancellationReasonService from "../service/CancellationReasonService";
 
 export default class CancellationReasonStore {

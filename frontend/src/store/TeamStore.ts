@@ -1,6 +1,6 @@
-import { ITeam } from "@/models/ITeam";
+import { ITeam } from "@/models/team/ITeam";
 import TeamService from "../service/TeamService";
-import { ITeamCoachCaptainView } from "@/models/views/ITeamCoachCaptainView";
+import { ITeamCoachCaptainView } from "@/models/teamCoachCapitan/ITeamCoachCaptainView";
 import { makeAutoObservable } from "mobx";
 import { runWithLoader } from "../utilits/runWithLoader";
 
@@ -24,7 +24,6 @@ export default class TeamStore {
             if (result) {
                 this.teams = result;
             }
-
       }
 
       async loadTeamsDetailed() {
@@ -81,5 +80,9 @@ export default class TeamStore {
             } finally {
                   this.setLoading(false)
             }
+      }
+
+      getTeamName(team_id: number) {
+            return this.teams.find(team => team.team_id === team_id)?.team_name;
       }
 }

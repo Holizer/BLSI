@@ -2,7 +2,7 @@ import { useTableConfig } from "../hooks/useTableConfig";
 import useTableManager from "../hooks/useTableManager";
 import { useCallback } from "react";
 import { useAppContext } from "../hooks/useAppContext";
-import { IPlayerTeamView } from "@/models/views/IPlayerTeamView";
+import { IPlayerTeamView } from "@/models/player/IPlayerTeamView";
 
 export const usePlayerTeamTable = () => {
     const tableId = 'player-team-table';

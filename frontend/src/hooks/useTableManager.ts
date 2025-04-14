@@ -15,7 +15,7 @@ const useTableManager = <T,>() => {
           tableId: string,
           rowIndex: number,
           updatedData: T
-          ) => {
+     ) => {
           setEditedRows(prev => ({
                ...prev,
                [tableId]: {
@@ -26,13 +26,22 @@ const useTableManager = <T,>() => {
                     }
                }
           }));
+          setRowsToDelete(prev => ({
+               ...prev,
+          }))
      };
 
      const toggleEditMode = (tableId: string, state?: boolean) => {
+          const newState = state !== undefined ? state : !isEditing[tableId];
+          
           setIsEditing(prev => ({
                ...prev,
-               [tableId]: state !== undefined ? state : !prev[tableId]
+               [tableId]: newState
           }));
+
+          if (newState === false) {
+               resetTableState(tableId);
+          }
      };
 
      const toggleDeleteRow = (tableId: string, rowIndex: number, rowData: Partial<T>) => {

@@ -1,6 +1,6 @@
-import { ITeamSeasonStats } from "@/models/views/ITeamSeasonStats";
+import { ITeamSeasonStats } from "@/models/team/ITeamSeasonStats";
 import $api from "../http";
-import { ISeasonWithWeeks } from "@/models/ISeasonWithWeeks";
+import { ISeasonWithWeeks } from "@/models/season/ISeasonWithWeeks";
 
 export default class SeasonService {
      static async fetchSeasonWithWeeks(): Promise<ISeasonWithWeeks[]> {

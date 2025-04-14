@@ -39,8 +39,7 @@ const Playgrounds = () => {
 
     useEffect(() => {
         playgroundStore.fetchPlaygroundTypes();        
-        playgroundStore.fetchPlaygrounds();        
-    }, []);
+    }, [playgroundStore]);
 
     return (
         <main className={classes.layout__container}>

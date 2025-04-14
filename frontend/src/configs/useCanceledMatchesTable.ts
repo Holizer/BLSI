@@ -1,4 +1,4 @@
-import { ICanceledMatch } from "@/models/views/ICanceledMatch";
+import { ICanceledMatch } from "@/models/match/ICanceledMatch";
 import { useTableConfig } from "../hooks/useTableConfig";
 
 export const useCanceledMatchesTable = () => {

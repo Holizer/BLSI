@@ -7,9 +7,9 @@ import CreateCityForm from '../components/CreateForm/CreateCityForm';
 import { useEffect } from 'react';
 import { useCityTable } from '../configs/useCityTable';
 import { useAppContext } from '../hooks/useAppContext';
-import { ICity } from '@/models/ICity';
+import { ICity } from '@/models/address/ICity';
 import { usePlayerAddressTable } from '../configs/usePlayerAddressTable';
-import { IPlayerAddressView } from '../models/views/IPlayerAddressView';
+import { IPlayerAddressView } from '../models/player/IPlayerAddressView';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
 
 const Addresses = () => {
@@ -95,7 +95,7 @@ const Addresses = () => {
 					onEditChange={(rowIndex: number, updatedData: ICity) => 
 						handleCityChange(cityTableId, rowIndex, updatedData)
 					}
-                    onDeleteToggle={toggleAddressDelete}
+                    onDeleteToggle={toggleCityDelete}
                     rowsToDelete={getCityRowsToDelete(cityTableId)}
                 />
             </div>

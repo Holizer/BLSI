@@ -2,13 +2,12 @@ import { useTableConfig } from "../hooks/useTableConfig";
 import useTableManager from "../hooks/useTableManager";
 import { useCallback } from "react";
 import { useAppContext } from "../hooks/useAppContext";
-import { ICoachTeam } from "@/models/ICoach";
-import { ITeamCoachCaptainView } from "@/models/views/ITeamCoachCaptainView";
-import { ITeam } from "@/models/ITeam";
+import { ITeamCoachCaptainView } from "@/models/teamCoachCapitan/ITeamCoachCaptainView";
+import { ITeam } from "@/models/team/ITeam";
 
 export const useTeamCapitanCoachTable = () => {
     const tableId = 'team-coach-table';
-    const { coachStore, teamStore } = useAppContext();
+    const { teamStore } = useAppContext();
     
     const tableConfig = useTableConfig<ITeamCoachCaptainView>(() => ({
         applyDelete: true,

@@ -1,7 +1,7 @@
 import $api from "../http";
 import { toast } from "sonner";
-import { IPlayerAddressView } from "@/models/views/IPlayerAddressView";
-import { ICity } from "@/models/ICity";
+import { IPlayerAddressView } from "@/models/player/IPlayerAddressView";
+import { ICity } from "@/models/address/ICity";
 
 export default class AddressService {
      static async fetchCities(): Promise<ICity[]> {

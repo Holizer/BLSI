@@ -1,7 +1,7 @@
-import { ITeam } from "@/models/ITeam";
+import { ITeam } from "@/models/team/ITeam";
 import $api from "../http";
 import { toast } from "sonner";
-import { ITeamCoachCaptainView } from "../models/views/ITeamCoachCaptainView";
+import { ITeamCoachCaptainView } from "../models/teamCoachCapitan/ITeamCoachCaptainView";
 
 export default class TeamService {
      static async fetchTeamsList(): Promise<ITeam[]> {

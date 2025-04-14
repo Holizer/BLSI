@@ -1,8 +1,8 @@
 import { makeAutoObservable } from "mobx";
 import { runWithLoader } from "../utilits/runWithLoader";
-import { IPlaygroundType } from "@/models/IPlaygroundType";
+import { IPlaygroundType } from "@/models/playground/IPlaygroundType";
 import PlaygroundService from "../service/PlaygroundService";
-import { IPlayground } from "@/models/IPlayground";
+import { IPlayground } from "@/models/playground/IPlayground";
 import { IPlaygroundCreator } from "@/models/creators/IPlaygroundCreator";
 
 export default class PlaygroundStore {
@@ -12,6 +12,7 @@ export default class PlaygroundStore {
   
       constructor() {
             makeAutoObservable(this)
+            this.fetchPlaygrounds()
       }
       
       setLoading = (value: boolean) => {
@@ -25,7 +26,6 @@ export default class PlaygroundStore {
                 this.playgrounds = result;
             }
       }
-      
       
       async createPlayground(new_playground: IPlaygroundCreator) {
             await runWithLoader(() => PlaygroundService.createPlayground(new_playground), this.setLoading);

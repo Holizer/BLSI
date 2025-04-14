@@ -52,12 +52,12 @@ const Matches = () => {
       
       useEffect(() => {
             const load = async () => {
-                  await cancellationReasonStore.fetchCancellationReason();
                   await matchStore.fetchMatchStatusTypes();
                   await matchStore.fetchSheduledMactches();
                   await matchStore.fetchCanceledMactches();
                   await matchStore.fetchForfeitedMactches();
                   await matchStore.fetchCompletedMatches();
+                  await cancellationReasonStore.fetchCancellationReason()
             }
             load();
       }, [cancellationReasonStore, matchStore]);

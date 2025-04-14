@@ -1,9 +1,9 @@
 import PlayerService from "../service/PlayerService";
-import { IPlayerTeamView } from "@/models/views/IPlayerTeamView";
+import { IPlayerTeamView } from "@/models/player/IPlayerTeamView";
 import { makeAutoObservable, toJS } from "mobx";
 import { runWithLoader } from "../utilits/runWithLoader";
 import { IPlayerCreator } from "../models/creators/IPlayerCreator";
-import { IPlayerStatistic } from "@/models/views/IPlayerStatistic";
+import { IPlayerStatistic } from "@/models/player/IPlayerStatistic";
 
 export default class PlayerStore{
       playerTeams: IPlayerTeamView[] = [];
@@ -12,6 +12,7 @@ export default class PlayerStore{
 
       constructor() {
             makeAutoObservable(this)
+            this.fetchPlayerTeamView();
       }
 
       setLoading = (value: boolean) => {
@@ -20,6 +21,11 @@ export default class PlayerStore{
 
       async createPlayer(playerData: IPlayerCreator) {
             await runWithLoader(() => PlayerService.createPlayer(playerData), this.setLoading );
+      }
+
+      getPlayersTeam(team_id: number) {
+            const teamPlayersList = this.playerTeams.filter(player => player.team_id == team_id);
+            return teamPlayersList;
       }
 
       async fetchPlayerTeamView() {

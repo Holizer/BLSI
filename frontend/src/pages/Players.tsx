@@ -32,11 +32,15 @@ const PlayersManager: React.FC = () => {
     
     useEffect(() => {
         const load = async () => {
-            await playerStore.fetchPlayerTeamView();
-            await playerStore.fetchPlayerStatistics(seasonStore.activeSeason.season_id, seasonStore.getAllWeeksIdsInLastSeason());
+            if (seasonStore.activeSeason) {
+                await playerStore.fetchPlayerStatistics(
+                    seasonStore.activeSeason.season_id, 
+                    seasonStore.getAllWeeksIdsInLastSeason()
+                );
+            }
         };
         load();
-    }, [seasonStore.activeSeason]);
+    }, [seasonStore.activeSeason?.season_id]);
     
     return (
         <main className={classes.layout__container}>

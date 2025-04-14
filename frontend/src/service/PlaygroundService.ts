@@ -1,7 +1,7 @@
 import $api from "../http";
 import { toast } from "sonner";
-import { IPlaygroundType } from "@/models/IPlaygroundType";
-import { IPlayground } from "@/models/IPlayground";
+import { IPlaygroundType } from "@/models/playground/IPlaygroundType";
+import { IPlayground } from "@/models/playground/IPlayground";
 import { IPlaygroundCreator } from "@/models/creators/IPlaygroundCreator";
 
 export default class PlaygroundService {

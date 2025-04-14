@@ -1,8 +1,8 @@
 import { makeAutoObservable } from "mobx";
 import { runWithLoader } from "../utilits/runWithLoader";
-import { ISeasonWithWeeks } from "@/models/ISeasonWithWeeks";
+import { ISeasonWithWeeks } from "@/models/season/ISeasonWithWeeks";
 import SeasonService from "../service/SeasonService";
-import { ITeamSeasonStats } from "@/models/views/ITeamSeasonStats";
+import { ITeamSeasonStats } from "@/models/team/ITeamSeasonStats";
 
 export default class SeasonStore {
       loading = false;

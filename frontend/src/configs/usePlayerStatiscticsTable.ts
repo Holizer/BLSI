@@ -1,4 +1,4 @@
-import { IPlayerStatistic } from "@/models/views/IPlayerStatistic";
+import { IPlayerStatistic } from "@/models/player/IPlayerStatistic";
 import { useTableConfig } from "../hooks/useTableConfig";
 
 export const usePlayerStatiscticsTable = () => {

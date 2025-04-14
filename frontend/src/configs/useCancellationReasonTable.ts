@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { ICancellationReason } from '@/models/ICancellationReason';
+import { ICancellationReason } from '@/models/matchStatus/ICancellationReason';
 import { useAppContext } from '../hooks/useAppContext';
 import { useTableConfig } from '../hooks/useTableConfig';
 import useTableManager from '../hooks/useTableManager';

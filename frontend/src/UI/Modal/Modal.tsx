@@ -30,16 +30,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
     if (!isOpen) return null;
 
-    const handleOverlayClick = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget) {
-            onClose();
-        }
-    };
+    // const handleOverlayClick = (e: React.MouseEvent) => {
+    //     if (e.target === e.currentTarget) {
+    //         onClose();
+    //     }
+    // };
 
     return createPortal(
         <div 
             className={`${classes.modal__overlay} ${isOpen ? classes.open : ''}`} 
-            onClick={handleOverlayClick}
+            // onClick={handleOverlayClick}
         >
             <div 
                 className={`${classes.modal__content} ${isOpen ? classes.open : ''}`} 

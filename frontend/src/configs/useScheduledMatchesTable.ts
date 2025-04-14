@@ -1,5 +1,5 @@
 import { useTableConfig } from "../hooks/useTableConfig";
-import { IScheduledMatch } from "../models/views/IScheduledMatch";
+import { IScheduledMatch } from "../models/match/IScheduledMatch";
 
 export const useScheduledMatchesTable = () => {
     const tableId = 'scheduled-matches-table';

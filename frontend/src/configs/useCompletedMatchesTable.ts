@@ -1,4 +1,4 @@
-import { ICompletedMatch } from "@/models/views/ICompletedMatch";
+import { ICompletedMatch } from "@/models/match/ICompletedMatch";
 import { useTableConfig } from "../hooks/useTableConfig";
 
 export const useCompletedMatchesTable = () => {

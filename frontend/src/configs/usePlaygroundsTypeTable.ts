@@ -2,7 +2,7 @@ import { useTableConfig } from "../hooks/useTableConfig";
 import useTableManager from "../hooks/useTableManager";
 import { useCallback } from "react";
 import { useAppContext } from "../hooks/useAppContext";
-import { IPlaygroundType } from "@/models/IPlaygroundType";
+import { IPlaygroundType } from "@/models/playground/IPlaygroundType";
 
 export const usePlaygroundsTypeTable = () => {
     const tableId = 'playgrounds-type-table';

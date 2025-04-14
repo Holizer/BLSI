@@ -1,11 +1,11 @@
 import { makeAutoObservable } from "mobx";
 import { runWithLoader } from "../utilits/runWithLoader";
 import MatchService from "../service/MatchService";
-import { IScheduledMatch } from "../models/views/IScheduledMatch";
-import { IMatchStatusType } from "@/models/IMatchStatusType";
-import { ICanceledMatch } from "@/models/views/ICanceledMatch";
-import { IForfeitedMatch } from "@/models/views/IForfeitedMatch";
-import { ICompletedMatch } from "@/models/views/ICompletedMatch";
+import { IScheduledMatch } from "../models/match/IScheduledMatch";
+import { IMatchStatusType } from "@/models/matchStatus/IMatchStatusType";
+import { ICanceledMatch } from "@/models/match/ICanceledMatch";
+import { IForfeitedMatch } from "@/models/match/IForfeitedMatch";
+import { ICompletedMatch } from "@/models/match/ICompletedMatch";
 import { IMatchCreator } from "@/models/creators/IMatchCreator";
 
 export default class MatchStore {
@@ -19,6 +19,7 @@ export default class MatchStore {
 
       constructor() {
             makeAutoObservable(this)
+            this.fetchMatchStatusTypes();
       }
       
       setLoading = (value: boolean) => {

@@ -1,8 +1,5 @@
-export interface IPlayerStat {
-      player_id: number;
-      scored_points: number;
-}
-    
+import { IPlayerStat } from "../player/IPlayerStat";
+
 export interface IMatchCreator {
       status_type_id: number;
       week_id: number;

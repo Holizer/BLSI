@@ -1,4 +1,4 @@
-import { ICity } from "../models/ICity";
+import { ICity } from "../models/address/ICity";
 import { useTableConfig } from "../hooks/useTableConfig";
 import useTableManager from "../hooks/useTableManager";
 import { useCallback } from "react";

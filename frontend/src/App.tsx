@@ -1,7 +1,6 @@
 import { Toaster } from "sonner";
 import classes from './styles/App.module.scss';
 import LeftSideBar from '../../frontend/src/components/LeftSideBar/LeftSideBar';
-import RightSidebarBar from '../../frontend/src/components/RightSideBar/RightSideBar';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { publicRoutes } from './routes';
 import { observer } from 'mobx-react-lite';
@@ -20,7 +19,6 @@ const App = () => {
                         <Route key={path} path={path} element={<Component /> } />
                     ))}
                 </Routes>
-                {/* <RightSidebarBar /> */}
             </div>
             <Toaster position="top-center" />
         </div>

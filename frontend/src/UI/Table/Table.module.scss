@@ -31,6 +31,11 @@
                   position: sticky;
                   top: 0;
                   z-index: 1;
+                  transition: all $transition-duration ease;
+
+                  &:hover {
+                        background-color: $blue-color;
+                  }
             }
 
             tr {
@@ -45,14 +50,14 @@
                   text-decoration: line-through;
             }
             
-            .clickableRow {
-                  cursor: pointer;
-                  transition: background-color $transition-duration;
+            // .clickableRow {
+            //       cursor: pointer;
+            //       transition: background-color $transition-duration;
                   
-                  &:hover {
-                        background-color: #f8fafc;
-                  }
-            }
+            //       &:hover {
+            //             background-color: #f8fafc;
+            //       }
+            // }
 
             td {
                   input {

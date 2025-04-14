@@ -1,6 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { runWithLoader } from "../utilits/runWithLoader";
-import { ICoachTeam } from "@/models/ICoach";
+import { ICoachTeam } from "@/models/teamCoachCapitan/ICoach";
 import CoachService from "../service/CoachService";
 
 export default class CoachStore {
