@@ -30,18 +30,18 @@ header {
             }
       }
   
-      .infoContainer {
+      .selectionGroup {
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             gap: 0.4rem;
             font-size: 1rem;
             color: $primary-color;
             margin-left: auto;
-
-            .season, .week {
-                  background-color: $light-gray-color;
-                  padding: 0.2rem 0.4rem;
-                  border-radius: 4px;
+            max-width: 500px;
+            width: 100%;
+            
+            select {
+                  min-width: 100%;
             }
       }
   }

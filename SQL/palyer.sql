@@ -321,7 +321,7 @@ JOIN
 DROP FUNCTION get_player_statistics
 DROP FUNCTION IF EXISTS get_player_statistics;
 
-CREATE OR REPLACE FUNCTION get_player_statistics(
+CREATE OR REPLACE FUNCTION get_players_statistic(
     p_season_id INT DEFAULT NULL,
     p_week_ids INT[] DEFAULT NULL
 )

@@ -1,13 +1,11 @@
 import PlayerService from "../service/PlayerService";
 import { IPlayerTeamView } from "@/models/player/IPlayerTeamView";
-import { makeAutoObservable, toJS } from "mobx";
+import { makeAutoObservable } from "mobx";
 import { runWithLoader } from "../utilits/runWithLoader";
 import { IPlayerCreator } from "../models/creators/IPlayerCreator";
-import { IPlayerStatistic } from "@/models/player/IPlayerStatistic";
 
 export default class PlayerStore{
       playerTeams: IPlayerTeamView[] = [];
-      playerStatistics: IPlayerStatistic[] = [];
       loading = false;
 
       constructor() {
@@ -31,11 +29,6 @@ export default class PlayerStore{
       async fetchPlayerTeamView() {
             const result = await runWithLoader(() => PlayerService.fetchPlayerTeamView(), this.setLoading );
             if (result) this.playerTeams = result;
-      }
-
-      async fetchPlayerStatistics(seasonId?: number, weekIds?: number[]) {
-            const result = await runWithLoader(() => PlayerService.fetchPlayerStatistics(seasonId, weekIds), this.setLoading );
-            if (result) this.playerStatistics = result;
       }
         
       async updatePlayerTeam(playerTeamData: IPlayerTeamView) {

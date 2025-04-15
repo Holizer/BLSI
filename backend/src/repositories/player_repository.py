@@ -3,7 +3,6 @@ from sqlalchemy.sql import text
 from src.schemas.views import PlayerTeamSchema
 from src.schemas.player import (
     CreatePlayerSchema,
-    PlayerStatistics
 )
 
 class PlayerRepository:
@@ -16,15 +15,6 @@ class PlayerRepository:
         result = self.db.execute(query)
         return [PlayerTeamSchema(**row) for row in result.mappings()]
     
-    def get_player_statistics(self, season_id: int = None, week_ids: list[int] = None):
-        query = text("""
-            SELECT * 
-            FROM get_player_statistics(:p_season_id, :p_week_ids);
-        """)
-        result = self.db.execute(query, {"p_season_id": season_id, "p_week_ids": week_ids})
-        return [PlayerStatistics(**row) for row in result.mappings()]
-
-
     def update_player_team(self, player_data: dict) -> None:
         query = text("CALL update_player_team(:player_id, :first_name, :last_name, :age, :phone, :team_id)")
         self.db.execute(query, player_data)

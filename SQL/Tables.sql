@@ -14,12 +14,6 @@ CREATE TABLE address (
     FOREIGN KEY (city_id) REFERENCES city(city_id)
 );
 
--- Капитан команды
-CREATE TABLE captain (
-    captain_id SERIAL PRIMARY KEY,
-    player_id INT NOT NULL
-);
-
 -- Тренер команды
 CREATE TABLE coach (
     coach_id SERIAL PRIMARY KEY,
@@ -33,7 +27,6 @@ CREATE TABLE team (
     team_name VARCHAR(100) UNIQUE NOT NULL,
 	captain_id INT,
 	coach_id INT, 
-	FOREIGN KEY (captain_id) REFERENCES captain(captain_id),
 	FOREIGN KEY (coach_id) REFERENCES coach(coach_id)
 );
 

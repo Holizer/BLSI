@@ -3,7 +3,10 @@ from sqlalchemy.sql import text
 from collections import defaultdict
 from src.schemas.season import (
     SeasonWithWeeks,
-    TeamSeasonStats
+    TeamStatistic,
+    PlayerStatistic,
+    SeasonPlaygroundViews,
+    SeasonPlayerBestGame
 )
 
 class SeasonRepository:
@@ -24,7 +27,6 @@ class SeasonRepository:
                 'week_start': row['week_start'],
                 'week_end': row['week_end']
             }
-            # Add the week to the corresponding season
             seasons_data[season_id]['season_id'] = row['season_id']
             seasons_data[season_id]['season_name'] = row['season_name']
             seasons_data[season_id]['season_start'] = row['season_start']
@@ -36,41 +38,35 @@ class SeasonRepository:
             for season in seasons_data.values()
         ]
     
-    def get_team_season_stats(self, team_id: int) -> list[TeamSeasonStats]:
+    def get_players_statistic(self, season_id: int = None, week_ids: list[int] = None):
         query = text("""
-            SELECT * FROM team_season_stats
-            WHERE team_id = :team_id
-            ORDER BY season_id
+            SELECT * 
+            FROM get_players_statistic(:p_season_id, :p_week_ids);
         """)
-        result = self.db.execute(query, {"team_id": team_id})
-        
-        return [
-            TeamSeasonStats(**row._asdict())
-            for row in result
-        ]
-    
-    def get_all_teams_season_stats(self, season_id: int = None, week_id: int = None) -> list[TeamSeasonStats]:
-        base_query = "SELECT * FROM team_season_stats"
-        conditions = []
-        params = {}
-        
-        if season_id:
-            conditions.append("season_id = :season_id")
-            params["season_id"] = season_id
-        
-        if week_id:
-            conditions.append("week_id = :week_id")
-            params["week_id"] = week_id
-        
-        if conditions:
-            base_query += " WHERE " + " AND ".join(conditions)
-        
-        base_query += " ORDER BY season_id, season_rank"
-        
-        query = text(base_query)
-        result = self.db.execute(query, params)
-        
-        return [
-            TeamSeasonStats(**row._asdict())
-            for row in result
-        ]
+        result = self.db.execute(query, {"p_season_id": season_id, "p_week_ids": week_ids})
+        return [PlayerStatistic(**row) for row in result.mappings()]
+
+
+    def get_season_playground_views(self, season_id: int = None, week_ids: list[int] = None):
+        query = text("""
+            SELECT * 
+            FROM get_playground_views(:p_season_id, :p_week_ids);
+        """)
+        result = self.db.execute(query, {"p_season_id": season_id, "p_week_ids": week_ids})
+        return [SeasonPlaygroundViews(**row) for row in result.mappings()]
+
+    def get_teams_statistic(self, season_id: int = None, week_ids: list[int] = None):
+        query = text("""
+            SELECT * 
+            FROM get_teams_statistic(:p_season_id, :p_week_ids);
+        """)
+        result = self.db.execute(query, {"p_season_id": season_id, "p_week_ids": week_ids})
+        return [TeamStatistic(**row) for row in result.mappings()]
+
+    def get_season_players_best_game(self, season_id: int = None):
+        query = text("""
+            SELECT * 
+            FROM get_season_players_best_game(:p_season_id);
+        """)
+        result = self.db.execute(query, {"p_season_id": season_id})
+        return [SeasonPlayerBestGame(**row) for row in result.mappings()]

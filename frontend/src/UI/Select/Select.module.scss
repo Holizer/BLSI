@@ -48,7 +48,7 @@
                transition: all 0.2s ease;
                
                &:hover {
-               background-color: lighten($border-hover-color, 40%);
+                    background-color: lighten($border-hover-color, 40%);
                }
           }
      }

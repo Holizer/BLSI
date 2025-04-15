@@ -3,17 +3,19 @@ import classes from './../styles/layout.module.scss';
 import { observer } from 'mobx-react-lite';
 import EditButton from '../UI/Edit/EditButton';
 import Table from '../UI/Table/Table';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import CreatePlaygroundType from '../components/CreateForm/CreatePlaygroundTypeForm';
 import CreatePlaygroundForm from '../components/CreateForm/CreatePlaygroundForm';
 import { useAppContext } from '../hooks/useAppContext';
 import { usePlaygroundsTable } from '../configs/usePlaygroundsTable';
 import { usePlaygroundsTypeTable } from '../configs/usePlaygroundsTypeTable';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
+import { useSeasonPlaygroundViews } from '../configs/useSeasonPlaygroundViews';
 
 const Playgrounds = () => {
-    const { playgroundStore } = useAppContext();
+    const { playgroundStore, seasonStore } = useAppContext();
     const { playground_types, playgrounds } = playgroundStore;
+    const { playgroundViews } = seasonStore;
 
     const {
         tableId: playgroundsTableId,
@@ -37,9 +39,30 @@ const Playgrounds = () => {
         handleSave: handleTypesSave,
     } = usePlaygroundsTypeTable();
 
+    const {
+        tableId: seasonPlaygroundViewsTableId,
+        config: seasonPlaygroundViewstypesConfig, 
+    } = useSeasonPlaygroundViews();
+
+    const memoizedSeasonPlaygroundViewsTable = useMemo(() => (
+        <Table
+            config={seasonPlaygroundViewstypesConfig} 
+            data={playgroundViews || []}
+            tableId={seasonPlaygroundViewsTableId}
+        />
+    ), [playgroundViews, seasonPlaygroundViewstypesConfig, seasonPlaygroundViewsTableId]);
+
     useEffect(() => {
         playgroundStore.fetchPlaygroundTypes();        
     }, [playgroundStore]);
+
+    useEffect(() => {
+        const { selectedSeasonId, selectedWeekId } = seasonStore;
+        
+        if (selectedSeasonId) {
+            seasonStore.fetchPlaygroundViews(selectedSeasonId, selectedWeekId)
+        }
+    }, [seasonStore.selectedSeasonId, seasonStore.selectedWeekId]);
 
     return (
         <main className={classes.layout__container}>
@@ -103,6 +126,14 @@ const Playgrounds = () => {
                     }
                     rowsToDelete={getTypesRowsToDelete(typesTableId)}
                 />
+            </div>
+
+            <div className={classes.content__block}>
+                <div className={classes.block__header}>
+                    <h2>Количество просмотров</h2>
+                    <Search />
+                </div>
+                {memoizedSeasonPlaygroundViewsTable}
             </div>
         </main>
     );

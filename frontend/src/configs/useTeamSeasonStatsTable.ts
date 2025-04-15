@@ -1,13 +1,13 @@
+import { ITeamStatistic } from "@/models/team/ITeamStatistic";
 import { useTableConfig } from "../hooks/useTableConfig";
-import { ITeamSeasonStats } from "@/models/team/ITeamSeasonStats";
 
 export const useTeamSeasonStatsTable = () => {
     const tableId = 'team-season-stats-table';
     
-    const tableConfig = useTableConfig<ITeamSeasonStats>(() => ({
+    const tableConfig = useTableConfig<ITeamStatistic>(() => ({
         applyDelete: false,
         columns: [
-            { key: 'season_rank', title: 'Ранг', type: 'text' },
+            { key: 'rank', title: 'Ранг', type: 'text' },
             { key: 'team_name', title: 'Команда', type: 'text' },
             { key: 'wins', title: 'Количество побед', type: 'text' },
             { key: 'losses', title: 'Количество поражений', type: 'text' },

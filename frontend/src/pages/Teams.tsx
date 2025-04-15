@@ -4,7 +4,7 @@ import EditButton from '../UI/Edit/EditButton';
 import Table from '../UI/Table/Table';
 import CreateTeamForm from '../components/CreateForm/CreateTeamForm';
 import { observer } from 'mobx-react-lite';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
 import { useTeamCapitanCoachTable } from '../configs/useTeamCapitanCoachTable';
 import { useTeamCoachTable } from '../configs/useTeamCoachTable';
@@ -15,7 +15,7 @@ import CreateCoachForm from '../components/CreateForm/CreateCoachForm';
 const Teams = () => {
     const { teamStore, seasonStore, coachStore } = useAppContext();
     const { teamsDetailed } = teamStore;
-    const { teamSeasonStats } = seasonStore;
+    const { teamsStatistics } = seasonStore;
     const { coaches } = coachStore;
 
     const {
@@ -49,8 +49,24 @@ const Teams = () => {
     useEffect(() => {
         teamStore.loadAllTeamsData();
         coachStore.fetchCoaches();
-        seasonStore.fetchAllTeamsSeasonStats();
     }, [teamStore, coachStore, seasonStore]);
+
+    useEffect(() => {
+        const { selectedSeasonId, selectedWeekId } = seasonStore;
+        
+        if (selectedSeasonId) {
+            seasonStore.fetchTeamsStatistic(selectedSeasonId, selectedWeekId)
+        }
+    }, [seasonStore.selectedSeasonId, seasonStore.selectedWeekId]);
+
+
+    const memoizedTeamStatsTable = useMemo(() => (
+        <Table 
+            config={teamSeasonStatsTableConfig} 
+            data={teamsStatistics || []}
+            tableId={teamSeasonStatsTableId}
+        />
+    ), [teamsStatistics, teamSeasonStatsTableConfig, teamSeasonStatsTableId]);
 
     return (
         <main className={classes.layout__container}>
@@ -61,11 +77,7 @@ const Teams = () => {
                     <h2>Статистика команд</h2>
                     <Search />
                 </div>
-                <Table 
-                    config={teamSeasonStatsTableConfig} 
-                    data={teamSeasonStats || []}
-                    tableId={teamSeasonStatsTableId}
-                />
+                {memoizedTeamStatsTable}
             </div>
 
                 <div className={classes.block__header}>
