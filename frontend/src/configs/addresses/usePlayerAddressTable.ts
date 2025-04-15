@@ -18,17 +18,17 @@ export const usePlayerAddressTable = () => {
                 title: 'Город',
                 editable: true,
                 type: 'select',
-                emptyValueText: 'Сайлент Хилл',
+                emptyValueText: 'Не выбран',
                 options: addressStore.cities.map((city) => ({
                     value: city.city_id,
                     label: city.city_name,
                 })),
                 displayValue: (rowData) => {
                     if (rowData.city_id == null) {
-                        return 'Сайлент Хилл';
+                        return 'Не выбран';
                     }
                     const city = addressStore.cities.find(t => t.city_id === rowData.city_id);
-                    return city?.city_name || 'Сайлент Хилл';
+                    return city?.city_name || 'Не выбран';
                 }
             },
             { key: 'street', title: 'Улица', editable: true, type: 'text', maxLength: 150 },

@@ -33,4 +33,5 @@ export type TableProps<T extends Record<string, Partial<T>>> = {
       onSave?: () => void;
       onDeleteToggle?: (tableId: string, rowIndex: number, rowData: Partial<T>) => void;
       rowsToDelete?: Record<number, Partial<T>>;
+      emptyMessage?: React.ReactNode;
 };
