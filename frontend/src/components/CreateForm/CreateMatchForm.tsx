@@ -7,7 +7,11 @@ import { IMatchCreator } from '@/models/creators/IMatchCreator';
 import { toast } from 'sonner';
 import { IPlayerStat } from '@/models/player/IPlayerStat';
 
-const CreateMatchForm = () => {
+interface CreateMatchFormProps {
+    initialStatusTypeId?: number;
+}
+
+const CreateMatchForm = ({ initialStatusTypeId = 0 }: CreateMatchFormProps) => {
     const { playerStore, teamStore, playgroundStore, cancellationReasonStore, matchStore, seasonStore } = useAppContext();
 
     const { statusTypes } = matchStore;
@@ -17,7 +21,7 @@ const CreateMatchForm = () => {
     const { seasonWithWeeks } = seasonStore;
     
     const [matchData, setMatchData] = useState<IMatchCreator>({
-        status_type_id: 0,
+        status_type_id: initialStatusTypeId,
         week_id: 0,
         playground_id: 0,
         team1_id: 0,
@@ -262,15 +266,13 @@ const CreateMatchForm = () => {
         } catch (error) {
             toast.error('Ошибка при создании матча');
             console.error(error);
-        } finally {
-            await matchStore.loadAllMatches();
-        }
+        } 
     };
     //#endregion
     
+    const showCompletedFields = matchData.status_type_id === 2;
     const showCancellationReason = matchData.status_type_id === 3;
     const showForfeitingTeam = matchData.status_type_id === 4;
-    const showCompletedFields = matchData.status_type_id === 2;
 
     return (
         <form onSubmit={handleSubmit} className={classes.createMatchForm}>

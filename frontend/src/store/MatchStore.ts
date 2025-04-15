@@ -26,16 +26,6 @@ export default class MatchStore {
             this.loading = value;
       }            
 
-      async loadAllMatches() {
-            await Promise.all([
-                this.fetchSheduledMactches(),
-                this.fetchCanceledMactches(),
-                this.fetchCompletedMatches(),
-                this.fetchForfeitedMactches(),
-            ]);
-      }
-
-
       async fetchMatchStatusTypes() {
             const result = await runWithLoader(() => MatchService.fetchMatchStatusTypes(), this.setLoading);
             if (result) {
@@ -43,29 +33,29 @@ export default class MatchStore {
             }
       }
       
-      async fetchSheduledMactches() {
-            const result = await runWithLoader(() => MatchService.fetchSheduledMactches(), this.setLoading);
+      async fetchSheduledMactches(seasonId?: number, weekIds?: number) {
+            const result = await runWithLoader(() => MatchService.fetchSheduledMactches(seasonId, weekIds), this.setLoading);
             if (result) {
                 this.scheduledMatches = result;
             }
       }
       
-      async fetchCanceledMactches() {
-            const result = await runWithLoader(() => MatchService.fetchCanceledMactches(), this.setLoading);
+      async fetchCanceledMactches(seasonId?: number, weekIds?: number) {
+            const result = await runWithLoader(() => MatchService.fetchCanceledMactches(seasonId, weekIds), this.setLoading);
             if (result) {
                 this.canceledMatches = result;
             }
       }
 
-      async fetchCompletedMatches() {
-            const result = await runWithLoader(() => MatchService.fetchCompletedMatches(), this.setLoading);
+      async fetchCompletedMatches(seasonId?: number, weekIds?: number) {
+            const result = await runWithLoader(() => MatchService.fetchCompletedMatches(seasonId, weekIds), this.setLoading);
             if (result) {
                 this.complitedMathces = result;
             }
       }
 
-      async fetchForfeitedMactches() {
-            const result = await runWithLoader(() => MatchService.fetchForfeitedMactches(), this.setLoading);
+      async fetchForfeitedMactches(seasonId?: number, weekIds?: number) {
+            const result = await runWithLoader(() => MatchService.fetchForfeitedMactches(seasonId, weekIds), this.setLoading);
             if (result) {
                 this.forfeitedMatches = result;
             }

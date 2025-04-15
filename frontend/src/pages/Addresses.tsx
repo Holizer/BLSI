@@ -5,10 +5,10 @@ import EditButton from '../UI/Edit/EditButton';
 import Table from '../UI/Table/Table';
 import CreateCityForm from '../components/CreateForm/CreateCityForm';
 import { useEffect } from 'react';
-import { useCityTable } from '../configs/useCityTable';
+import { useCityTable } from '../configs/addresses/useCityTable';
 import { useAppContext } from '../hooks/useAppContext';
 import { ICity } from '@/models/address/ICity';
-import { usePlayerAddressTable } from '../configs/usePlayerAddressTable';
+import { usePlayerAddressTable } from '../configs/addresses/usePlayerAddressTable';
 import { IPlayerAddressView } from '../models/player/IPlayerAddressView';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
 

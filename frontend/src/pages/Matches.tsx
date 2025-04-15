@@ -4,18 +4,18 @@ import Search from '../UI/Search/Search';
 import EditButton from '../UI/Edit/EditButton';
 import Table from '../UI/Table/Table';
 import { useAppContext } from '../hooks/useAppContext';
-import { useEffect } from 'react';
-import { useCancellationReasonTable } from '../configs/useCancellationReasonTable';
-import { useScheduledMatchesTable } from '../configs/useScheduledMatchesTable';
-import { useCanceledMatchesTable } from '../configs/useCanceledMatchesTable';
-import { useForfeitedMatchesTable } from '../configs/useForfeitedMatchesTable';
-import { useCompletedMatchesTable } from '../configs/useCompletedMatchesTable';
+import { useEffect, useMemo } from 'react';
+import { useCancellationReasonTable } from '../configs/matches/useCancellationReasonTable';
+import { useScheduledMatchesTable } from '../configs/matches/useScheduledMatchesTable';
+import { useCanceledMatchesTable } from '../configs/matches/useCanceledMatchesTable';
+import { useForfeitedMatchesTable } from '../configs/matches/useForfeitedMatchesTable';
+import { useCompletedMatchesTable } from '../configs/matches/useCompletedMatchesTable';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
 import CreateCancellationReasonForm from '../components/CreateForm/CreateCancellationReasonForm';
 import CreateMatchForm from '../components/CreateForm/CreateMatchForm';
 
 const Matches = () => {
-      const { cancellationReasonStore, matchStore } = useAppContext();
+      const { cancellationReasonStore, matchStore, seasonStore } = useAppContext();
       const { cancellation_reasons } = cancellationReasonStore;
       const { scheduledMatches, canceledMatches, forfeitedMatches, complitedMathces } = matchStore;
       
@@ -51,68 +51,99 @@ const Matches = () => {
       } = useCancellationReasonTable();
       
       useEffect(() => {
-            const load = async () => {
-                  await matchStore.fetchMatchStatusTypes();
-                  await matchStore.fetchSheduledMactches();
-                  await matchStore.fetchCanceledMactches();
-                  await matchStore.fetchForfeitedMactches();
-                  await matchStore.fetchCompletedMatches();
-                  await cancellationReasonStore.fetchCancellationReason()
+            const { selectedSeasonId, selectedWeekId } = seasonStore;
+            
+            if (selectedSeasonId) {
+                matchStore.fetchCanceledMactches(selectedSeasonId, selectedWeekId)
+                matchStore.fetchForfeitedMactches(selectedSeasonId, selectedWeekId)
+                matchStore.fetchCompletedMatches(selectedSeasonId, selectedWeekId)
+                matchStore.fetchSheduledMactches(selectedSeasonId, selectedWeekId)
             }
-            load();
-      }, [cancellationReasonStore, matchStore]);
+        }, [seasonStore.selectedSeasonId, seasonStore.selectedWeekId]);
+
+      useEffect(() => {
+            cancellationReasonStore.fetchCancellationReason()
+      }, [cancellationReasonStore]);
+
+      const memoizedScheduledMatchesTable = useMemo(() => (
+            <Table
+                  config={scheduledMatchesConfig} 
+                  data={scheduledMatches || []}
+                  tableId={scheduledMatchesTableId}
+            />
+      ), [scheduledMatches, scheduledMatchesConfig, scheduledMatchesTableId]);
+
+      
+      const memoizedCompletedMatchesTable = useMemo(() => (
+            <Table
+                  config={completedMatchesConfig} 
+                  data={complitedMathces || []}
+                  tableId={completedMatchesTableId}
+            />
+      ), [complitedMathces, completedMatchesConfig, completedMatchesTableId]);
+
+
+      const memoizedCanceledMatchesTable = useMemo(() => (
+            <Table
+                  config={canceledMatchesConfig} 
+                  data={canceledMatches || []}
+                  tableId={canceledMatchesTableId}
+            />
+      ), [canceledMatches, canceledMatchesConfig, canceledMatchesTableId]);
+
+
+      const memoizedForfeitedMatchesTable = useMemo(() => (
+            <Table
+                  config={forfeitedMatchesConfig} 
+                  data={forfeitedMatches || []}
+                  tableId={forfeitedMatchesTableId}
+            />
+      ), [forfeitedMatches, forfeitedMatchesConfig, forfeitedMatchesTableId]);
 
       return (
             <main className={classes.layout__container}>
-                  <ModalOpenButton modalItem={ <CreateMatchForm/> } >
-                        Въеби мне
-                  </ModalOpenButton>
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Запланированные матчи</h2>
                               <Search />
+                              <ModalOpenButton modalItem={ <CreateMatchForm initialStatusTypeId={1}/> } >
+                                    +
+                              </ModalOpenButton>
                         </div>
-                        <Table
-                              config={scheduledMatchesConfig} 
-                              data={scheduledMatches || []}
-                              tableId={scheduledMatchesTableId}
-                        />
+                        {memoizedScheduledMatchesTable}
                   </div>   
 
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Завершенные матчи</h2>
                               <Search />
+                              <ModalOpenButton modalItem={ <CreateMatchForm initialStatusTypeId={2}/> } >
+                                    +
+                              </ModalOpenButton>
                         </div>
-                        <Table
-                              config={completedMatchesConfig} 
-                              data={complitedMathces || []}
-                              tableId={completedMatchesTableId}
-                        />
+                        {memoizedCompletedMatchesTable}
                   </div>
 
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Отмененные матчи</h2>
                               <Search />
+                              <ModalOpenButton modalItem={ <CreateMatchForm initialStatusTypeId={3}/> } >
+                                    +
+                              </ModalOpenButton>
                         </div>
-                        <Table
-                              config={canceledMatchesConfig} 
-                              data={canceledMatches || []}
-                              tableId={canceledMatchesTableId}
-                        />
+                        {memoizedCanceledMatchesTable}
                   </div>
 
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Матчи с неявками</h2>
                               <Search />
+                              <ModalOpenButton modalItem={ <CreateMatchForm initialStatusTypeId={4}/> } >
+                                    +
+                              </ModalOpenButton>
                         </div>
-                        <Table
-                              config={forfeitedMatchesConfig} 
-                              data={forfeitedMatches || []}
-                              tableId={forfeitedMatchesTableId}
-                        />
+                        {memoizedForfeitedMatchesTable}
                   </div>
 
                   <div className={classes.content__block}>

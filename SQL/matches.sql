@@ -1,248 +1,311 @@
-CREATE OR REPLACE VIEW match_status_view AS
-SELECT 
-    ms.match_status_id,
-    mst.match_status_type_id,
-    mst.match_status_type,
-    cr.cancellation_reason_id,
-    cr.reason AS cancellation_reason,
-    ms.forfeiting_team_id
-FROM 
-    match_status ms
-JOIN 
-    match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
-LEFT JOIN 
-    cancellation_reason cr ON ms.cancellation_reason_id = cr.cancellation_reason_id;
-
-SELECT * FROM match_status_view
-
-
--- Сначала удаляем старое представление, если оно существует
-DROP VIEW IF EXISTS scheduled_matches;
-
--- Создаем новое представление с нужной структурой
-CREATE OR REPLACE VIEW scheduled_matches AS
-SELECT 
-    m.match_id,
-    s.season_id,
-    s.season_name,
-    w.week_id,
-    w.start_date AS week_start,
-    w.end_date AS week_end,
-    t1.team_id AS team1_id,
-    t1.team_name AS team1_name,
-    t2.team_id AS team2_id,
-    t2.team_name AS team2_name,
-    mi.event_date,
-    mi.event_time,
-    pg.playground_id,
-    pg.playground_name,
-	ms.match_status_id,
-    mst.match_status_type_id,
-    mst.match_status_type AS status
-FROM match m
-JOIN match_info mi ON m.match_info_id = mi.match_info_id
-JOIN match_status ms ON mi.match_status_id = ms.match_status_id
-JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
-JOIN team t1 ON mi.team1_id = t1.team_id
-JOIN team t2 ON mi.team2_id = t2.team_id
-JOIN week w ON m.week_id = w.week_id
-JOIN season s ON w.season_id = s.season_id
-JOIN playground pg ON m.playground_id = pg.playground_id
-WHERE mst.match_status_type = 'Запланирован'
-ORDER BY mi.event_date, mi.event_time;
-
 SELECT * FROM get_scheduled_matches()
 
 DROP FUNCTION get_scheduled_matches
 
-CREATE OR REPLACE FUNCTION get_scheduled_matches()
-RETURNS SETOF scheduled_matches
-LANGUAGE plpgsql
-AS $$
+CREATE OR REPLACE FUNCTION get_scheduled_matches(
+    p_season_id INT DEFAULT NULL,
+    p_week_ids INT[] DEFAULT NULL
+)
+RETURNS TABLE (
+    match_id INT,
+    season_id INT,
+    season_name VARCHAR,
+    week_id INT,
+    week_start DATE,
+    week_end DATE,
+    team1_id INT,
+    team1_name VARCHAR,
+    team2_id INT,
+    team2_name VARCHAR,
+    event_date DATE,
+    event_time TIME,
+    playground_id INT,
+    playground_name VARCHAR,
+    match_status_id INT,
+    match_status_type_id INT,
+    status VARCHAR
+) AS $$
 BEGIN
     RETURN QUERY
-    SELECT * FROM scheduled_matches
-    ORDER BY event_date DESC, event_time DESC;
-    
-    RAISE NOTICE 'Получены все запланированные матчи';
-EXCEPTION
-    WHEN OTHERS THEN
-        RAISE EXCEPTION 'Ошибка при получении отмененных матчей: %', SQLERRM;
+    SELECT 
+        m.match_id,
+        s.season_id,
+        s.season_name,
+        w.week_id,
+        w.start_date AS week_start,
+        w.end_date AS week_end,
+        t1.team_id AS team1_id,
+        t1.team_name AS team1_name,
+        t2.team_id AS team2_id,
+        t2.team_name AS team2_name,
+        mi.event_date,
+        mi.event_time,
+        pg.playground_id,
+        pg.playground_name,
+        ms.match_status_id,
+        mst.match_status_type_id,
+        mst.match_status_type AS status
+    FROM match m
+    JOIN match_info mi ON m.match_info_id = mi.match_info_id
+    JOIN match_status ms ON mi.match_status_id = ms.match_status_id
+    JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
+    JOIN team t1 ON mi.team1_id = t1.team_id
+    JOIN team t2 ON mi.team2_id = t2.team_id
+    JOIN week w ON m.week_id = w.week_id
+    JOIN season s ON w.season_id = s.season_id
+    JOIN playground pg ON m.playground_id = pg.playground_id
+    WHERE mst.match_status_type = 'Запланирован'
+    AND (p_season_id IS NULL OR s.season_id = p_season_id)
+    AND (
+        p_week_ids IS NULL OR 
+        COALESCE(array_length(p_week_ids, 1), 0) = 0 OR 
+        w.week_id = ANY(p_week_ids) 
+    )
+    ORDER BY mi.event_date, mi.event_time;
 END;
-$$;
+$$ LANGUAGE plpgsql;
+
 
 SELECT * FROM get_scheduled_matches()
 
-DROP VIEW canceled_matches
+DROP FUNCTION IF EXISTS get_canceled_matches;
 
-CREATE OR REPLACE VIEW canceled_matches AS
-SELECT 
-    m.match_id,
-    s.season_id, 
-    s.season_name,
-    w.week_id,
-    w.start_date AS week_start,
-    w.end_date AS week_end,
-    t1.team_id AS team1_id, 
-    t1.team_name AS team1_name,
-    t2.team_id AS team2_id, 
-    t2.team_name AS team2_name,
-    mi.event_date,
-    mi.event_time,
-    pg.playground_id,
-    pg.playground_name,
-    ms.match_status_id,
-    mst.match_status_type_id,
-    mst.match_status_type AS status,
-    cr.cancellation_reason_id,
-    cr.reason AS cancellation_reason
-FROM match m
-JOIN match_info mi ON m.match_info_id = mi.match_info_id
-JOIN match_status ms ON mi.match_status_id = ms.match_status_id
-JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
-JOIN cancellation_reason cr ON ms.cancellation_reason_id = cr.cancellation_reason_id
-JOIN team t1 ON mi.team1_id = t1.team_id
-JOIN team t2 ON mi.team2_id = t2.team_id
-JOIN week w ON m.week_id = w.week_id
-JOIN season s ON w.season_id = s.season_id
-JOIN playground pg ON m.playground_id = pg.playground_id
-WHERE mst.match_status_type = 'Отменен'
-ORDER BY mi.event_date DESC;
-
-SELECT * FROM canceled_matches
-
-CREATE OR REPLACE FUNCTION get_canceled_matches()
-RETURNS SETOF canceled_matches
-LANGUAGE plpgsql
-AS $$
+CREATE OR REPLACE FUNCTION get_canceled_matches(
+    p_season_id INT DEFAULT NULL,
+    p_week_ids INT[] DEFAULT NULL
+)
+RETURNS TABLE (
+    match_id INT,
+    season_id INT,
+    season_name VARCHAR,
+    week_id INT,
+    week_start DATE,
+    week_end DATE,
+    team1_id INT,
+    team1_name VARCHAR,
+    team2_id INT,
+    team2_name VARCHAR,
+    event_date DATE,
+    event_time TIME,
+    playground_id INT,
+    playground_name VARCHAR,
+    match_status_id INT,
+    match_status_type_id INT,
+    status VARCHAR,
+    cancellation_reason_id INT,
+    cancellation_reason VARCHAR
+) AS $$
 BEGIN
     RETURN QUERY
-    SELECT * FROM canceled_matches
-    ORDER BY event_date DESC, event_time DESC;
+    SELECT 
+        m.match_id,
+        s.season_id, 
+        s.season_name,
+        w.week_id,
+        w.start_date AS week_start,
+        w.end_date AS week_end,
+        t1.team_id AS team1_id, 
+        t1.team_name AS team1_name,
+        t2.team_id AS team2_id, 
+        t2.team_name AS team2_name,
+        mi.event_date,
+        mi.event_time,
+        pg.playground_id,
+        pg.playground_name,
+        ms.match_status_id,
+        mst.match_status_type_id,
+        mst.match_status_type AS status,
+        cr.cancellation_reason_id,
+        cr.reason AS cancellation_reason
+    FROM match m
+    JOIN match_info mi ON m.match_info_id = mi.match_info_id
+    JOIN match_status ms ON mi.match_status_id = ms.match_status_id
+    JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
+    JOIN cancellation_reason cr ON ms.cancellation_reason_id = cr.cancellation_reason_id
+    JOIN team t1 ON mi.team1_id = t1.team_id
+    JOIN team t2 ON mi.team2_id = t2.team_id
+    JOIN week w ON m.week_id = w.week_id
+    JOIN season s ON w.season_id = s.season_id
+    JOIN playground pg ON m.playground_id = pg.playground_id
+    WHERE mst.match_status_type = 'Отменен'
+    AND (p_season_id IS NULL OR s.season_id = p_season_id)
+    AND (
+        p_week_ids IS NULL OR 
+        COALESCE(array_length(p_week_ids, 1), 0) = 0 OR 
+        w.week_id = ANY(p_week_ids) 
+    )
+    ORDER BY mi.event_date DESC, mi.event_time DESC;
     
     RAISE NOTICE 'Получены все отмененные матчи';
 EXCEPTION
     WHEN OTHERS THEN
         RAISE EXCEPTION 'Ошибка при получении отмененных матчей: %', SQLERRM;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
-SELECT * FROM get_canceled_matches()
-
-DROP VIEW forfeited_matches
-
-CREATE OR REPLACE VIEW forfeited_matches AS
-SELECT 
-    m.match_id,
-    s.season_id,
-    s.season_name,
-    w.week_id,
-    w.start_date AS week_start,
-    w.end_date AS week_end,
-    t1.team_id AS team1_id,
-    t1.team_name AS team1_name,
-    t2.team_id AS team2_id,
-    t2.team_name AS team2_name,
-    mi.event_date,
-    mi.event_time,
-    pg.playground_id,
-    pg.playground_name,
-    ms.match_status_id,
-    mst.match_status_type_id,
-    mst.match_status_type AS status,
-    ft.team_id AS forfeiting_team_id,
-    ft.team_name AS forfeiting_team_name
-FROM match m
-JOIN match_info mi ON m.match_info_id = mi.match_info_id
-JOIN match_status ms ON mi.match_status_id = ms.match_status_id
-JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
-JOIN team t1 ON mi.team1_id = t1.team_id
-JOIN team t2 ON mi.team2_id = t2.team_id
-JOIN team ft ON ms.forfeiting_team_id = ft.team_id
-JOIN week w ON m.week_id = w.week_id
-JOIN season s ON w.season_id = s.season_id
-JOIN playground pg ON m.playground_id = pg.playground_id
-WHERE mst.match_status_type = 'Неявка команды'
-ORDER BY mi.event_date DESC;
+SELECT * FROM get_canceled_matches(6, ARRAY[1])
 
 SELECT * FROM forfeited_matches
 
-CREATE OR REPLACE FUNCTION get_forfeited_matches()
-RETURNS SETOF forfeited_matches
-LANGUAGE plpgsql
-AS $$
+DROP FUNCTION IF EXISTS get_forfeited_matches;
+
+CREATE OR REPLACE FUNCTION get_forfeited_matches(
+    p_season_id INT DEFAULT NULL,
+    p_week_ids INT[] DEFAULT NULL
+)
+RETURNS TABLE (
+    match_id INT,
+    season_id INT,
+    season_name VARCHAR,
+    week_id INT,
+    week_start DATE,
+    week_end DATE,
+    team1_id INT,
+    team1_name VARCHAR,
+    team2_id INT,
+    team2_name VARCHAR,
+    event_date DATE,
+    event_time TIME,
+    playground_id INT,
+    playground_name VARCHAR,
+    match_status_id INT,
+    match_status_type_id INT,
+    status VARCHAR,
+    forfeiting_team_id INT,
+    forfeiting_team_name VARCHAR
+) AS $$
 BEGIN
     RETURN QUERY
-    SELECT * FROM forfeited_matches
-    ORDER BY event_date DESC, event_time DESC;
+    SELECT 
+        m.match_id,
+        s.season_id,
+        s.season_name,
+        w.week_id,
+        w.start_date AS week_start,
+        w.end_date AS week_end,
+        t1.team_id AS team1_id,
+        t1.team_name AS team1_name,
+        t2.team_id AS team2_id,
+        t2.team_name AS team2_name,
+        mi.event_date,
+        mi.event_time,
+        pg.playground_id,
+        pg.playground_name,
+        ms.match_status_id,
+        mst.match_status_type_id,
+        mst.match_status_type AS status,
+        ft.team_id AS forfeiting_team_id,
+        ft.team_name AS forfeiting_team_name
+    FROM match m
+    JOIN match_info mi ON m.match_info_id = mi.match_info_id
+    JOIN match_status ms ON mi.match_status_id = ms.match_status_id
+    JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
+    JOIN team t1 ON mi.team1_id = t1.team_id
+    JOIN team t2 ON mi.team2_id = t2.team_id
+    JOIN team ft ON ms.forfeiting_team_id = ft.team_id
+    JOIN week w ON m.week_id = w.week_id
+    JOIN season s ON w.season_id = s.season_id
+    JOIN playground pg ON m.playground_id = pg.playground_id
+    WHERE mst.match_status_type = 'Неявка команды'
+    AND (p_season_id IS NULL OR s.season_id = p_season_id)
+    AND (
+        p_week_ids IS NULL OR 
+        COALESCE(array_length(p_week_ids, 1), 0) = 0 OR 
+        w.week_id = ANY(p_week_ids) 
+    )
+    ORDER BY mi.event_date DESC, mi.event_time DESC;
     
     RAISE NOTICE 'Получены все матчи с неявками';
 EXCEPTION
     WHEN OTHERS THEN
-        RAISE EXCEPTION 'Ошибка при получении отмененных матчей: %', SQLERRM;
+        RAISE EXCEPTION 'Ошибка при получении матчей с неявками: %', SQLERRM;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
 SELECT * FROM get_forfeited_matches()
 
-DROP VIEW completed_matches
-CREATE OR REPLACE VIEW completed_matches AS
-SELECT 
-    m.match_id,
-    s.season_id, 
-    s.season_name,
-    w.week_id,
-    w.start_date AS week_start,
-    w.end_date AS week_end,
-    t1.team_id AS team1_id,
-    t1.team_name AS team1_name,
-    t2.team_id AS team2_id,
-    t2.team_name AS team2_name,
-    mi.team1_points,
-    mi.team2_points,
-    mi.event_date,
-    mi.event_time,
-    pg.playground_id,
-    pg.playground_name,
-    CASE 
-        WHEN mi.team1_points > mi.team2_points THEN t1.team_name
-        WHEN mi.team1_points < mi.team2_points THEN t2.team_name
-        ELSE 'Ничья'
-    END AS winner,
-    mst.match_status_type AS status,
-    mst.match_status_type_id,
-    ms.match_status_id
-FROM match m
-JOIN match_info mi ON m.match_info_id = mi.match_info_id
-JOIN match_status ms ON mi.match_status_id = ms.match_status_id
-JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
-JOIN team t1 ON mi.team1_id = t1.team_id
-JOIN team t2 ON mi.team2_id = t2.team_id
-JOIN week w ON m.week_id = w.week_id
-JOIN season s ON w.season_id = s.season_id
-JOIN playground pg ON m.playground_id = pg.playground_id
-WHERE mst.match_status_type = 'Завершен'
-ORDER BY mi.event_date DESC;
 
-DROP FUNCTION get_completed_matches
 SELECT * FROM get_completed_matches()
 
-CREATE OR REPLACE FUNCTION get_completed_matches()
-RETURNS SETOF completed_matches
-LANGUAGE plpgsql
-AS $$
+DROP FUNCTION IF EXISTS get_completed_matches;
+
+CREATE OR REPLACE FUNCTION get_completed_matches(
+    p_season_id INT DEFAULT NULL,
+    p_week_ids INT[] DEFAULT NULL
+)
+RETURNS TABLE (
+    match_id INT,
+    season_id INT,
+    season_name VARCHAR,
+    week_id INT,
+    week_start DATE,
+    week_end DATE,
+    team1_id INT,
+    team1_name VARCHAR,
+    team2_id INT,
+    team2_name VARCHAR,
+    team1_points INT,
+    team2_points INT,
+    event_date DATE,
+    event_time TIME,
+    playground_id INT,
+    playground_name VARCHAR,
+    winner VARCHAR,
+    status VARCHAR,
+    match_status_type_id INT,
+    match_status_id INT
+) AS $$
 BEGIN
     RETURN QUERY
-    SELECT * FROM completed_matches
-    ORDER BY event_date DESC, event_time DESC;
+    SELECT 
+        m.match_id,
+        s.season_id, 
+        s.season_name,
+        w.week_id,
+        w.start_date AS week_start,
+        w.end_date AS week_end,
+        t1.team_id AS team1_id,
+        t1.team_name AS team1_name,
+        t2.team_id AS team2_id,
+        t2.team_name AS team2_name,
+        mi.team1_points,
+        mi.team2_points,
+        mi.event_date,
+        mi.event_time,
+        pg.playground_id,
+        pg.playground_name,
+        CASE 
+            WHEN mi.team1_points > mi.team2_points THEN t1.team_name
+            WHEN mi.team1_points < mi.team2_points THEN t2.team_name
+            ELSE 'Ничья'
+        END AS winner,
+        mst.match_status_type AS status,
+        mst.match_status_type_id,
+        ms.match_status_id
+    FROM match m
+    JOIN match_info mi ON m.match_info_id = mi.match_info_id
+    JOIN match_status ms ON mi.match_status_id = ms.match_status_id
+    JOIN match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
+    JOIN team t1 ON mi.team1_id = t1.team_id
+    JOIN team t2 ON mi.team2_id = t2.team_id
+    JOIN week w ON m.week_id = w.week_id
+    JOIN season s ON w.season_id = s.season_id
+    JOIN playground pg ON m.playground_id = pg.playground_id
+    WHERE mst.match_status_type = 'Завершен'
+    AND (p_season_id IS NULL OR s.season_id = p_season_id)
+    AND (
+        p_week_ids IS NULL OR 
+        COALESCE(array_length(p_week_ids, 1), 0) = 0 OR 
+        w.week_id = ANY(p_week_ids) 
+    )
+    ORDER BY mi.event_date DESC, mi.event_time DESC;
     
     RAISE NOTICE 'Получены все завершенные матчи';
 EXCEPTION
     WHEN OTHERS THEN
-        RAISE EXCEPTION 'Ошибка при получении отмененных матчей: %', SQLERRM;
+        RAISE EXCEPTION 'Ошибка при получении завершенных матчей: %', SQLERRM;
 END;
-$$;
-
+$$ LANGUAGE plpgsql;
 
 CREATE TABLE match_result_type (
     result_type_id SERIAL PRIMARY KEY,
@@ -265,57 +328,6 @@ ADD CONSTRAINT fk_match_result_type FOREIGN KEY (match_result) REFERENCES match_
 
 -- Переименуем колонку для ясности
 ALTER TABLE team_match_stats RENAME COLUMN match_result TO result_type_id;
-
-
-DROP VIEW completed_matches
-
-CREATE OR REPLACE VIEW completed_matches AS
-SELECT 
-    m.match_id,
-    w.week_id,
-    w.start_date AS week_start_date,
-    w.end_date AS week_end_date,
-    s.season_id,
-    s.season_name,
-    t1.team_name AS team1_name,
-    t2.team_name AS team2_name,
-    mi.team1_points,
-    mi.team2_points,
-    mi.event_date,
-    mi.event_time,
-    pg.playground_name,
-    mst.match_status_type,
-    cr.reason AS cancellation_reason,
-    CASE 
-        WHEN mi.team1_points > mi.team2_points THEN t1.team_name
-        WHEN mi.team1_points < mi.team2_points THEN t2.team_name
-        ELSE 'Ничья'
-    END AS winner,
-    mi.match_duration
-FROM 
-    match m
-JOIN 
-    match_info mi ON m.match_info_id = mi.match_info_id
-JOIN 
-    team t1 ON mi.team1_id = t1.team_id
-JOIN 
-    team t2 ON mi.team2_id = t2.team_id
-JOIN 
-    playground pg ON m.playground_id = pg.playground_id
-JOIN 
-    week w ON m.week_id = w.week_id
-JOIN 
-    season s ON w.season_id = s.season_id
-JOIN 
-    match_status ms ON mi.match_status_id = ms.match_status_id
-JOIN 
-    match_status_type mst ON ms.match_status_type_id = mst.match_status_type_id
-LEFT JOIN 
-    cancellation_reason cr ON ms.cancellation_reason_id = cr.cancellation_reason_id
-WHERE 
-    mst.match_status_type = 'Завершен' 
-
-SELECT * FROM completed_matches	
 
 
 CREATE OR REPLACE PROCEDURE create_match_player_stats(

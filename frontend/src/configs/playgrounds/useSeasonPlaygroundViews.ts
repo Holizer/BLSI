@@ -1,5 +1,5 @@
 import { ISeasonPlaygroundViews } from "@/models/playground/ISeasonPlaygroundViews";
-import { useTableConfig } from "../hooks/useTableConfig";
+import { useTableConfig } from "../../hooks/useTableConfig";
 
 export const useSeasonPlaygroundViews = () => {
     const tableId = 'season-playground-views-table';

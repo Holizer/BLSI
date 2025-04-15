@@ -60,4 +60,4 @@ class SeasonPlaygroundViews(BaseModel):
     week_id: int
     week_start_date: date
     week_end_date: date
-    total_views: int
+    total_views: Optional[int]

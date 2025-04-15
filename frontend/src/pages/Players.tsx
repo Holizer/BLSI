@@ -6,10 +6,10 @@ import Table from '../UI/Table/Table';
 import { observer } from 'mobx-react-lite';
 import CreatePlayerForm from '../components/CreateForm/CreatePlayerForm';
 import { useAppContext } from '../hooks/useAppContext';
-import { usePlayerTeamTable } from '../configs/usePlayerTeamTable';
+import { usePlayerTeamTable } from '../configs/players/usePlayerTeamTable';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
-import { usePlayerStatiscticsTable } from '../configs/usePlayerStatiscticsTable';
-import { useSeasonPlayerBestGameTable } from '../configs/useSeasonPlayerBestGameTable';
+import { usePlayerStatiscticsTable } from '../configs/players/usePlayerStatiscticsTable';
+import { useSeasonPlayerBestGameTable } from '../configs/players/useSeasonPlayerBestGameTable';
 
 const PlayersManager: React.FC = () => {
     const { playerStore, seasonStore } = useAppContext();

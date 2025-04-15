@@ -1,4 +1,4 @@
-import { useTableConfig } from "../hooks/useTableConfig";
+import { useTableConfig } from "../../hooks/useTableConfig";
 import { ISeasonPlayerBestGame } from "@/models/player/ISeasonPlayerBestGame";
 
 export const useSeasonPlayerBestGameTable = () => {

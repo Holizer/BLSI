@@ -1,7 +1,7 @@
-import { useTableConfig } from "../hooks/useTableConfig";
-import useTableManager from "../hooks/useTableManager";
+import { useTableConfig } from "../../hooks/useTableConfig";
+import useTableManager from "../../hooks/useTableManager";
 import { useCallback } from "react";
-import { useAppContext } from "../hooks/useAppContext";
+import { useAppContext } from "../../hooks/useAppContext";
 import { IPlayerAddressView } from "@/models/player/IPlayerAddressView";
 
 export const usePlayerAddressTable = () => {

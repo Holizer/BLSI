@@ -26,9 +26,9 @@ class MatchService:
                 detail=f"Ошибка базы данных при получении данных: {error_msg}"
             )
         
-    def get_scheduled_matches(self) -> list[ScheduledMatch]:
+    def get_scheduled_matches(self, season_id: int = None, week_ids: list[int] = None) -> list[ScheduledMatch]:
         try:
-            return self.repository.get_scheduled_matches()
+            return self.repository.get_scheduled_matches(season_id, week_ids)
         except SQLAlchemyError as e:
             error_msg = str(e.orig).split("CONTEXT:")[0].strip()
             raise HTTPException(
@@ -36,9 +36,9 @@ class MatchService:
                 detail=f"Ошибка базы данных при получении данных: {error_msg}"
             )
         
-    def get_forfeited_matches(self) -> list[ForfeitedMatch]:
+    def get_forfeited_matches(self, season_id: int = None, week_ids: list[int] = None) -> list[ForfeitedMatch]:
         try:
-            return self.repository.get_forfeited_matches()
+            return self.repository.get_forfeited_matches(season_id, week_ids)
         except SQLAlchemyError as e:
             error_msg = str(e.orig).split("CONTEXT:")[0].strip()
             raise HTTPException(
@@ -46,9 +46,9 @@ class MatchService:
                 detail=f"Ошибка базы данных при получении данных: {error_msg}"
             )
     
-    def get_canceled_matches(self) -> list[CanceledMatch]:
+    def get_canceled_matches(self, season_id: int = None, week_ids: list[int] = None) -> list[CanceledMatch]:
         try:
-            return self.repository.get_canceled_matches()
+            return self.repository.get_canceled_matches(season_id, week_ids)
         except SQLAlchemyError as e:
             error_msg = str(e.orig).split("CONTEXT:")[0].strip()
             raise HTTPException(
@@ -56,9 +56,9 @@ class MatchService:
                 detail=f"Ошибка базы данных при получении данных: {error_msg}"
             )
         
-    def get_completed_matches(self) -> list[CompletedMatch]:
+    def get_completed_matches(self, season_id: int = None, week_ids: list[int] = None) -> list[CompletedMatch]:
         try:
-            return self.repository.get_completed_matches()
+            return self.repository.get_completed_matches(season_id, week_ids)
         except SQLAlchemyError as e:
             error_msg = str(e.orig).split("CONTEXT:")[0].strip()
             raise HTTPException(

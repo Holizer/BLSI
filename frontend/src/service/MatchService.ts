@@ -9,7 +9,6 @@ import { IMatchCreator } from "@/models/creators/IMatchCreator";
 export default class MatchService {
      static async fetchMatchStatusTypes(): Promise<IMatchStatusType[]> {
           try {
-     
                const response = await $api.get<IMatchStatusType[]>('/matches/status-types/');
                return response.data; 
           } catch (error) {
@@ -18,9 +17,11 @@ export default class MatchService {
           }
      }
 
-     static async fetchSheduledMactches(): Promise<IScheduledMatch[]> {
+     static async fetchSheduledMactches(seasonId?: number, weekIds?: number): Promise<IScheduledMatch[]> {
           try {
-               const response = await $api.get<IScheduledMatch[]>('/matches/scheduled/');
+               const response = await $api.get<IScheduledMatch[]>('/matches/scheduled/', {
+                    params: { season_id: seasonId, week_ids: weekIds }
+               });
                return response.data; 
           } catch (error) {
                console.error("Неудалось получить причин отмены матчей:", error);
@@ -28,10 +29,11 @@ export default class MatchService {
           }
      }
 
-     static async fetchCanceledMactches(): Promise<ICanceledMatch[]> {
+     static async fetchCanceledMactches(seasonId?: number, weekIds?: number): Promise<ICanceledMatch[]> {
           try {
-     
-               const response = await $api.get<ICanceledMatch[]>('/matches/canceled/');
+               const response = await $api.get<ICanceledMatch[]>('/matches/canceled/', {
+                    params: { season_id: seasonId, week_ids: weekIds }
+               });
                return response.data; 
           } catch (error) {
                console.error("Неудалось получить причин отмены матчей:", error);
@@ -39,10 +41,12 @@ export default class MatchService {
           }
      }
 
-     static async fetchCompletedMatches(): Promise<ICompletedMatch[]> {
+     static async fetchCompletedMatches(seasonId?: number, weekIds?: number): Promise<ICompletedMatch[]> {
           try {
      
-               const response = await $api.get<ICompletedMatch[]>('/matches/completed/');
+               const response = await $api.get<ICompletedMatch[]>('/matches/completed/', {
+                    params: { season_id: seasonId, week_ids: weekIds }
+               });
                return response.data; 
           } catch (error) {
                console.error("Неудалось получить матчи с неявками:", error);
@@ -50,10 +54,12 @@ export default class MatchService {
           }
      }
 
-     static async fetchForfeitedMactches(): Promise<IForfeitedMatch[]> {
+     static async fetchForfeitedMactches(seasonId?: number, weekIds?: number): Promise<IForfeitedMatch[]> {
           try {
      
-               const response = await $api.get<IForfeitedMatch[]>('/matches/forfeited/');
+               const response = await $api.get<IForfeitedMatch[]>('/matches/forfeited/', {
+                    params: { season_id: seasonId, week_ids: weekIds }
+               });
                return response.data; 
           } catch (error) {
                console.error("Неудалось получить матчи с неявками:", error);

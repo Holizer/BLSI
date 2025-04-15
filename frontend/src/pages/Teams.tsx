@@ -6,10 +6,10 @@ import CreateTeamForm from '../components/CreateForm/CreateTeamForm';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
-import { useTeamCapitanCoachTable } from '../configs/useTeamCapitanCoachTable';
-import { useTeamCoachTable } from '../configs/useTeamCoachTable';
+import { useTeamCapitanCoachTable } from '../configs/teams/useTeamCapitanCoachTable';
+import { useTeamCoachTable } from '../configs/teams/useTeamCoachTable';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
-import { useTeamSeasonStatsTable } from '../configs/useTeamSeasonStatsTable';
+import { useTeamSeasonStatsTable } from '../configs/teams/useTeamSeasonStatsTable';
 import CreateCoachForm from '../components/CreateForm/CreateCoachForm';
 
 const Teams = () => {

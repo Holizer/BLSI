@@ -1,5 +1,5 @@
 import { ITeamStatistic } from "@/models/team/ITeamStatistic";
-import { useTableConfig } from "../hooks/useTableConfig";
+import { useTableConfig } from "../../hooks/useTableConfig";
 
 export const useTeamSeasonStatsTable = () => {
     const tableId = 'team-season-stats-table';

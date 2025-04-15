@@ -1,5 +1,5 @@
 import { IPlayerStatistic } from "@/models/player/IPlayerStatistic";
-import { useTableConfig } from "../hooks/useTableConfig";
+import { useTableConfig } from "../../hooks/useTableConfig";
 
 export const usePlayerStatiscticsTable = () => {
     const tableId = 'team-season-stats-table';

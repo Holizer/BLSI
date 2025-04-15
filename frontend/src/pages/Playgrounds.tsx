@@ -7,10 +7,10 @@ import { useEffect, useMemo } from 'react';
 import CreatePlaygroundType from '../components/CreateForm/CreatePlaygroundTypeForm';
 import CreatePlaygroundForm from '../components/CreateForm/CreatePlaygroundForm';
 import { useAppContext } from '../hooks/useAppContext';
-import { usePlaygroundsTable } from '../configs/usePlaygroundsTable';
-import { usePlaygroundsTypeTable } from '../configs/usePlaygroundsTypeTable';
+import { usePlaygroundsTable } from '../configs/playgrounds/usePlaygroundsTable';
+import { usePlaygroundsTypeTable } from '../configs/playgrounds/usePlaygroundsTypeTable';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
-import { useSeasonPlaygroundViews } from '../configs/useSeasonPlaygroundViews';
+import { useSeasonPlaygroundViews } from '../configs/playgrounds/useSeasonPlaygroundViews';
 
 const Playgrounds = () => {
     const { playgroundStore, seasonStore } = useAppContext();

@@ -1,4 +1,4 @@
-import { useTableConfig } from "../hooks/useTableConfig";
+import { useTableConfig } from "../../hooks/useTableConfig";
 import { IForfeitedMatch } from "@/models/match/IForfeitedMatch";
 
 export const useForfeitedMatchesTable = () => {

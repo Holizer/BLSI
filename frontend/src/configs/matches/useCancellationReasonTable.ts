@@ -1,18 +1,24 @@
-import { ICity } from "../models/address/ICity";
-import { useTableConfig } from "../hooks/useTableConfig";
-import useTableManager from "../hooks/useTableManager";
-import { useCallback } from "react";
-import { useAppContext } from "../hooks/useAppContext";
+import { useCallback } from 'react';
+import { ICancellationReason } from '@/models/matchStatus/ICancellationReason';
+import { useAppContext } from '../../hooks/useAppContext';
+import { useTableConfig } from '../../hooks/useTableConfig';
+import useTableManager from '../../hooks/useTableManager';
 
-export const useCityTable = () => {
-    const tableId = 'city-table';
-    const { addressStore } = useAppContext();
+export const useCancellationReasonTable = () => {
+    const tableId = 'cancellation-reason-table';
+    const { cancellationReasonStore } = useAppContext();
     
-    const tableConfig = useTableConfig<ICity>(() => ({
-        applyDelete: true,
-        columns: [
-            { key: 'city_name', title: 'Город', editable: true, type: 'text' },
-        ]
+    const tableConfig = useTableConfig<ICancellationReason>(() => ({
+            applyDelete: true,
+            columns: [
+                { 
+                    key: 'reason', 
+                    title: 'Причина отмены матча', 
+                    editable: true, 
+                    type: 'text', 
+                    maxLength: 200 
+                },
+            ],
     }));
 
     const {
@@ -23,7 +29,7 @@ export const useCityTable = () => {
         resetTableState,
         getRowsToDelete,
         getRowsToEdit,
-    } = useTableManager<ICity>();
+    } = useTableManager<ICancellationReason>();
 
     const handleSave = useCallback(async (tableId: string) => {
         try {
@@ -37,22 +43,22 @@ export const useCityTable = () => {
 
             await Promise.all([
                 ...Object.values(rowsToEdit).map(changes => 
-                    addressStore.updateCityName(changes as ICity)
+                cancellationReasonStore.updateCancellationReason(changes as ICancellationReason)
                 ),
                 ...Object.values(rowsToDelete).map((deleted) =>
-                deleted.city_id 
-                    ? addressStore.deleteCity(deleted.city_id) 
+                deleted.cancellation_reason_id 
+                    ? cancellationReasonStore.deleteCancellationReason(deleted.cancellation_reason_id) 
                     : Promise.resolve()
                 )
             ]);
             
-            await addressStore.loadAllAddressesData();
+            await cancellationReasonStore.fetchCancellationReason();
             resetTableState(tableId);
         } catch (error) {
             console.error("Ошибка при сохранении:", error);
             throw error;
         }
-    }, [addressStore, getRowsToDelete, getRowsToEdit, resetTableState]);
+    }, [cancellationReasonStore, getRowsToDelete, getRowsToEdit, resetTableState]);
 
     return {
         tableId,
@@ -70,4 +76,4 @@ export const useCityTable = () => {
         handleSave,
         applyDelete: tableConfig.applyDelete,
     };
-}
+};

@@ -21,24 +21,24 @@ class MatchRepository:
         result = self.db.execute(query)
         return [MatchStatusType(**row) for row in result.mappings()]
 
-    def get_scheduled_matches(self):
-        query = text("SELECT * FROM get_scheduled_matches()")  
-        result = self.db.execute(query)
+    def get_scheduled_matches(self, season_id: int = None, week_ids: list[int] = None):
+        query = text("SELECT * FROM get_scheduled_matches(:p_season_id, :p_week_ids)")  
+        result = self.db.execute(query, {"p_season_id": season_id, "p_week_ids": week_ids})
         return [ScheduledMatch(**row) for row in result.mappings()]
 
-    def get_canceled_matches(self):
-        query = text("SELECT * FROM get_canceled_matches()")  
-        result = self.db.execute(query)
+    def get_canceled_matches(self, season_id: int = None, week_ids: list[int] = None):
+        query = text("SELECT * FROM get_canceled_matches(:p_season_id, :p_week_ids)")  
+        result = self.db.execute(query, {"p_season_id": season_id, "p_week_ids": week_ids})
         return [CanceledMatch(**row) for row in result.mappings()]
     
-    def get_forfeited_matches(self):
-        query = text("SELECT * FROM get_forfeited_matches()")  
-        result = self.db.execute(query)
+    def get_forfeited_matches(self, season_id: int = None, week_ids: list[int] = None):
+        query = text("SELECT * FROM get_forfeited_matches(:p_season_id, :p_week_ids)")  
+        result = self.db.execute(query, {"p_season_id": season_id, "p_week_ids": week_ids})
         return [ForfeitedMatch(**row) for row in result.mappings()]
 
-    def get_completed_matches(self):
-        query = text("SELECT * FROM get_completed_matches()")  
-        result = self.db.execute(query)
+    def get_completed_matches(self, season_id: int = None, week_ids: list[int] = None):
+        query = text("SELECT * FROM get_completed_matches(:p_season_id, :p_week_ids)")  
+        result = self.db.execute(query, {"p_season_id": season_id, "p_week_ids": week_ids})
         return [CompletedMatch(**row) for row in result.mappings()]
     
     def create_match(self, match_data: MatchCreateSchema):

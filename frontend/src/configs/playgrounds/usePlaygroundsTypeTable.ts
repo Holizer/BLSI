@@ -1,24 +1,18 @@
-import { useCallback } from 'react';
-import { ICancellationReason } from '@/models/matchStatus/ICancellationReason';
-import { useAppContext } from '../hooks/useAppContext';
-import { useTableConfig } from '../hooks/useTableConfig';
-import useTableManager from '../hooks/useTableManager';
+import { useTableConfig } from "../../hooks/useTableConfig";
+import useTableManager from "../../hooks/useTableManager";
+import { useCallback } from "react";
+import { useAppContext } from "../../hooks/useAppContext";
+import { IPlaygroundType } from "@/models/playground/IPlaygroundType";
 
-export const useCancellationReasonTable = () => {
-    const tableId = 'cancellation-reason-table';
-    const { cancellationReasonStore } = useAppContext();
+export const usePlaygroundsTypeTable = () => {
+    const tableId = 'playgrounds-type-table';
+    const { playgroundStore } = useAppContext();
     
-    const tableConfig = useTableConfig<ICancellationReason>(() => ({
-            applyDelete: true,
-            columns: [
-                { 
-                    key: 'reason', 
-                    title: 'Причина отмены матча', 
-                    editable: true, 
-                    type: 'text', 
-                    maxLength: 200 
-                },
-            ],
+    const tableConfig = useTableConfig<IPlaygroundType>(() => ({
+        applyDelete: true,
+        columns: [
+            { key: 'playground_type', title: 'Тип игровой площадки', editable: true, type: 'text' },
+        ],
     }));
 
     const {
@@ -29,7 +23,7 @@ export const useCancellationReasonTable = () => {
         resetTableState,
         getRowsToDelete,
         getRowsToEdit,
-    } = useTableManager<ICancellationReason>();
+    } = useTableManager<IPlaygroundType>();
 
     const handleSave = useCallback(async (tableId: string) => {
         try {
@@ -40,25 +34,23 @@ export const useCancellationReasonTable = () => {
                 resetTableState(tableId);
                 return;
             }
-
+            
             await Promise.all([
                 ...Object.values(rowsToEdit).map(changes => 
-                cancellationReasonStore.updateCancellationReason(changes as ICancellationReason)
+                    playgroundStore.updatePlaygroundType(changes as IPlaygroundType)
                 ),
                 ...Object.values(rowsToDelete).map((deleted) =>
-                deleted.cancellation_reason_id 
-                    ? cancellationReasonStore.deleteCancellationReason(deleted.cancellation_reason_id) 
-                    : Promise.resolve()
+                    deleted.playground_type_id ? playgroundStore.deletePlaygroundType(deleted.playground_type_id) : Promise.resolve()
                 )
             ]);
-            
-            await cancellationReasonStore.fetchCancellationReason();
+                        
+            await playgroundStore.fetchPlaygroundTypes();
             resetTableState(tableId);
         } catch (error) {
             console.error("Ошибка при сохранении:", error);
             throw error;
         }
-    }, [cancellationReasonStore, getRowsToDelete, getRowsToEdit, resetTableState]);
+    }, [playgroundStore, getRowsToDelete, getRowsToEdit, resetTableState]);
 
     return {
         tableId,
@@ -76,4 +68,4 @@ export const useCancellationReasonTable = () => {
         handleSave,
         applyDelete: tableConfig.applyDelete,
     };
-};
+}
