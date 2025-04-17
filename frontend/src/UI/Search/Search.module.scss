@@ -1,24 +1,102 @@
 @import './../../styles/vars.scss';
 
-.search {
+@keyframes expandInput {
+      0% {
+            transform: scaleX(0);
+            opacity: 0;
+            width: 0;
+      }
+      100% {
+            transform: scaleX(1);
+            opacity: 1;
+            width: 100%;
+      }
+}
+
+@keyframes collapseInput {
+      0% {
+            transform: scaleX(1);
+            opacity: 1;
+            width: 100%;
+      }
+      100% {
+            transform: scaleX(0);
+            opacity: 0;
+            width: 0;
+      }
+}
+
+.searchContainer {
       display: flex;
       align-items: center;
-      justify-content: center;
-      width: 2rem;
+      position: relative;
       height: 2rem;
-      padding: 0.2rem;
-      border: none;
-      outline: none;
-      border-radius: 50%;
-      background-color: transparent;
-      cursor: pointer;
-      transition: all $transition-duration ease;
-    
-      &:hover {
-            background-color: $tools-bg-color-hover;
+
+      .searchInput {
+            display: flex;
+            padding: 0.2rem 0.5rem;
+            outline: none;
+            border-radius: 1rem;
+            background-color: white;
+            border: 2px solid $border-color;
+            font-size: 0.8rem;
+
+            max-width: 350px;
+            min-width: 200px;
+            
+            transform-origin: right center;
+            transform: scaleX(0);
+            opacity: 0;
+            width: 0;
+
+            &:hover {
+                  border-color: $border-hover-color;
+            }
+
+            &:focus {
+                  border-color: $border-focus-color;
+            }
       }
-    
-      &:active {
-            transform: scale(0.95);
+
+      .searchButton {
+            display: flex;
+            position: absolute;
+            right: 0;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            padding: 0.2rem;
+            border: none;
+            outline: none;
+            border-radius: 50%;
+            background-color: transparent;
+            cursor: pointer;
+            transition: all $transition-duration ease;
+            z-index: 1;
+
+            &:hover {
+                  background-color: $tools-bg-color-hover;
+            }
+
+            &:active {
+                  transform: scale(0.95);
+            }
+      }
+
+      &.open {
+            .searchInput {
+                  animation: expandInput $transition-duration ease forwards;
+            }
+
+            .searchButton {
+                  scale: 0.75;
+            }
+      }
+
+      &.close {
+            .searchInput {
+                  animation: collapseInput $transition-duration ease forwards;
+            }
       }
 }

@@ -171,6 +171,13 @@ const Table = <T extends Record<string, any>>({
 														min={column.min}
 														max={column.max}
 													/>
+												) : column.type === 'date' ? (
+													<Input
+														type="date"
+														value={editedData[rowIndex]?.[column.key] ?? row[column.key]}
+														onChange={(e) => handleChange(rowIndex, column.key, e.target.value)}
+														maxLength={column.maxLength}
+													/>
 												) : (
 													<Input
 														type="text"

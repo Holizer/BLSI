@@ -6,6 +6,9 @@ import { ITeamStatistic } from "@/models/team/ITeamStatistic";
 import { IPlayerStatistic } from "@/models/player/IPlayerStatistic";
 import { ISeasonPlayerBestGame } from "@/models/player/ISeasonPlayerBestGame";
 import { ISeasonPlaygroundViews } from "@/models/playground/ISeasonPlaygroundViews";
+import { IPlayerSeasonProgress } from "@/models/player/IPlayerSeasonProgress";
+import { ITeamSeasonProgress } from "@/models/team/ITeamSeasonProgress";
+import { ISeasonCreator } from "@/models/creators/ISeasonCreator";
 
 export default class SeasonStore {
       loading = false;
@@ -17,6 +20,8 @@ export default class SeasonStore {
       playersStatistic: IPlayerStatistic[] = [];
       playersBestGame: ISeasonPlayerBestGame[] = [];
       playgroundViews: ISeasonPlaygroundViews[] = []; 
+      playersSeasonProgress: IPlayerSeasonProgress[] = []; 
+      teamsSeasonProgress: ITeamSeasonProgress[] = []; 
   
       constructor() {
           makeAutoObservable(this);
@@ -39,6 +44,19 @@ export default class SeasonStore {
             }
       }
 
+      async updateSeason(seasonData: ISeasonWithWeeks) {
+            await runWithLoader(() => SeasonService.updateSeason(seasonData), this.setLoading);
+      }
+
+      async deleteSeason(season_id: number) {
+            await runWithLoader(() => SeasonService.deleteSeason(season_id), this.setLoading);
+      }
+
+      async createSeason(season_data: ISeasonCreator) {
+            await runWithLoader(() => SeasonService.createSeason(season_data), this.setLoading);
+      }
+
+      //#region STATISTIC
       async fetchPlayersStatistic(seasonId?: number, weekIds?: number) {
             const result = await runWithLoader(() => SeasonService.fetchPlayersStatistic(seasonId, weekIds), this.setLoading );
             if (result) this.playersStatistic = result;
@@ -59,10 +77,16 @@ export default class SeasonStore {
             if (result) this.playgroundViews = result;
       }
 
-      get seasons() {
-            return this.seasonWithWeeks;
+      async fetchPlayersSeasonPrоgess(first_season_id: number, second_season_id: number) {
+            const result = await runWithLoader(() => SeasonService.fetchPlayersSeasonPrоgess(first_season_id, second_season_id), this.setLoading );
+            if (result) this.playersSeasonProgress = result;
       }
-    
+
+      async fetchTeamsSeasonPrоgess(first_season_id: number, second_season_id: number) {
+            const result = await runWithLoader(() => SeasonService.fetchTeamsSeasonPrоgess(first_season_id, second_season_id), this.setLoading );
+            if (result) this.teamsSeasonProgress = result;
+      }
+      //#endregion
       setSelectedSeason = (seasonId: number) => {
             this.selectedSeasonId = seasonId;
             const selectedSeason = this.seasonWithWeeks.find(season => season.season_id === seasonId);
@@ -72,29 +96,12 @@ export default class SeasonStore {
     
       setSelectedWeek = (weekId?: number) => {
             this.selectedWeekId = weekId;
-        };
+      };
     
       get activeSeason() {
             if (this.selectedSeasonId) {
                 return this.seasonWithWeeks.find(season => season.season_id === this.selectedSeasonId);
             }
             return this.seasonWithWeeks[0];
-      }
-    
-      get selectedWeek() {
-            if (!this.selectedWeekId || !this.activeSeason) return null;
-            return this.activeSeason.weeks.find(week => week.week_id === this.selectedWeekId);
-      }
-
-      getAllWeeksIdsInLastSeason() {
-            return this.activeSeason?.weeks.map(week => week.week_id); 
-      }
-
-      getAllWeeksInSeason(season: ISeasonWithWeeks) {
-            return season.weeks.map(week => week.week_id); 
-      }
-    
-      getLastWeekInSeason(season: ISeasonWithWeeks) {
-            return season.weeks[season.weeks.length - 1];
       }
 }

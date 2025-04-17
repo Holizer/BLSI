@@ -97,7 +97,7 @@
 .createSpecialForm {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.2rem;
 
     background-color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
@@ -131,9 +131,10 @@
 .create__item {
     display: flex;
     flex-direction: column;
+    gap: 0.2rem;
 
-    &__label {
-        font-size: 1;
+    label {
+        font-size: 1rem;
         font-weight: 700;
     }
 }

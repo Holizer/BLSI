@@ -62,6 +62,124 @@ LEFT JOIN
 
 SELECT * FROM get_seasons_with_weeks()
 
+CREATE OR REPLACE PROCEDURE update_season(
+    p_season_id INT,
+    p_season_name VARCHAR,
+    p_start_date DATE,
+    p_end_date DATE
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM season WHERE season_id = p_season_id) THEN
+        RAISE EXCEPTION 'Сезон с ID % не найден', p_season_id;
+    END IF;
+
+    UPDATE season
+    SET season_name = p_season_name,
+        start_date = p_start_date,
+        end_date = p_end_date
+    WHERE season_id = p_season_id;
+
+    RAISE NOTICE 'Сезон успешно обновлен';
+END;
+$$;
+
+ALTER TABLE week DROP CONSTRAINT IF EXISTS fk_season;
+ALTER TABLE week DROP CONSTRAINT IF EXISTS fk_week_season;
+ALTER TABLE week DROP CONSTRAINT IF EXISTS week_season_id_fkey;
+
+-- Добавить один внешний ключ с каскадом
+ALTER TABLE week
+ADD CONSTRAINT fk_week_season
+FOREIGN KEY (season_id) REFERENCES season(season_id) ON DELETE CASCADE;
+
+CREATE OR REPLACE PROCEDURE delete_season(p_season_id INT)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM match m
+        JOIN week w ON m.week_id = w.week_id
+        WHERE w.season_id = p_season_id
+    ) THEN
+        RAISE EXCEPTION 'Нельзя удалить сезон, так как он содержит матчи';
+    END IF;
+
+    DELETE FROM season WHERE season_id = p_season_id;
+
+    RAISE NOTICE 'Сезон успешно удален вместе с его неделями';
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE create_season(
+    p_season_name VARCHAR(100),
+    p_start_date DATE,
+    p_end_date DATE
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF p_start_date > p_end_date THEN
+        RAISE EXCEPTION 'Дата начала сезона (%) не может быть позже даты окончания (%)', p_start_date, p_end_date;
+    END IF;
+    
+    INSERT INTO season (season_name, start_date, end_date)
+    VALUES (p_season_name, p_start_date, p_end_date);
+    
+    RAISE NOTICE 'Сезон "%" успешно создан', p_season_name;
+END;
+$$;
+
+
+CREATE OR REPLACE FUNCTION create_season_weeks()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_weeks_count INT;
+    v_current_date DATE;
+    v_week_start DATE;
+    v_week_end DATE;
+BEGIN
+    -- Проверяем, что сезон длится хотя бы 1 день
+    IF NEW.end_date - NEW.start_date < 0 THEN
+        RAISE EXCEPTION 'Некорректные даты сезона';
+    END IF;
+    
+    v_weeks_count := 0;
+    v_current_date := NEW.start_date;
+    
+    WHILE v_current_date <= NEW.end_date LOOP
+        v_week_start := v_current_date;
+        
+        -- Определяем конец недели (либо через 6 дней, либо в конце сезона)
+        v_week_end := LEAST(v_week_start + INTERVAL '6 days', NEW.end_date)::DATE;
+        
+        -- Создаем неделю
+        INSERT INTO week (season_id, start_date, end_date)
+        VALUES (NEW.season_id, v_week_start, v_week_end);
+        
+        v_weeks_count := v_weeks_count + 1;
+        v_current_date := v_week_end + 1;
+    END LOOP;
+    
+    RAISE NOTICE 'Для сезона "%" (ID: %) создано % недель', NEW.season_name, NEW.season_id, v_weeks_count;
+    
+    RETURN NEW;
+END;
+$$;
+
+
+CREATE TRIGGER after_season_insert
+AFTER INSERT ON season
+FOR EACH ROW
+EXECUTE FUNCTION create_season_weeks();
+
+
+
 DROP FUNCTION get_seasons_with_weeks
 
 CREATE OR REPLACE FUNCTION get_seasons_with_weeks()

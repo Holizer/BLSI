@@ -13,12 +13,14 @@ import { useCompletedMatchesTable } from '../configs/matches/useCompletedMatches
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
 import CreateCancellationReasonForm from '../components/CreateForm/CreateCancellationReasonForm';
 import CreateMatchForm from '../components/CreateForm/CreateMatchForm';
+import { useTableSearch } from '../hooks/useTableSearch';
 
 const Matches = () => {
       const { cancellationReasonStore, matchStore, seasonStore } = useAppContext();
       const { cancellation_reasons } = cancellationReasonStore;
       const { scheduledMatches, canceledMatches, forfeitedMatches, complitedMathces } = matchStore;
       
+      //#region CONFIGS
       const {
             tableId: scheduledMatchesTableId,
             config: scheduledMatchesConfig, 
@@ -49,7 +51,8 @@ const Matches = () => {
             getRowsToDelete: getCancellationReasonRowsToDelete,
             handleSave: handleCancellationReasonSave,
       } = useCancellationReasonTable();
-      
+      //#endregion
+
       useEffect(() => {
             const { selectedSeasonId, selectedWeekId } = seasonStore;
             
@@ -65,47 +68,55 @@ const Matches = () => {
             cancellationReasonStore.fetchCancellationReason()
       }, [cancellationReasonStore]);
 
+      //#region FILTERS AND TABLES
+      const { handleSearch, getFilteredData } = useTableSearch(); 
+
+      const filteredCancellationReasons = getFilteredData(cancellationReasonTableId, cancellation_reasons, cancellationReasonConfig);    
+      
+      const filteredScheduledMatches = getFilteredData(scheduledMatchesTableId, scheduledMatches, scheduledMatchesConfig); 
       const memoizedScheduledMatchesTable = useMemo(() => (
             <Table
-                  config={scheduledMatchesConfig} 
-                  data={scheduledMatches || []}
-                  tableId={scheduledMatchesTableId}
+            config={scheduledMatchesConfig} 
+            data={filteredScheduledMatches || []}
+            tableId={scheduledMatchesTableId}
             />
       ), [scheduledMatches, scheduledMatchesConfig, scheduledMatchesTableId]);
-
       
+      
+      const filteredCompletedMatches = getFilteredData(completedMatchesTableId, complitedMathces, completedMatchesConfig);    
       const memoizedCompletedMatchesTable = useMemo(() => (
             <Table
                   config={completedMatchesConfig} 
-                  data={complitedMathces || []}
+                  data={filteredCompletedMatches || []}
                   tableId={completedMatchesTableId}
             />
       ), [complitedMathces, completedMatchesConfig, completedMatchesTableId]);
 
-
+      const filteredCanceledMatches= getFilteredData(canceledMatchesTableId, canceledMatches, canceledMatchesConfig);    
       const memoizedCanceledMatchesTable = useMemo(() => (
             <Table
                   config={canceledMatchesConfig} 
-                  data={canceledMatches || []}
+                  data={filteredCanceledMatches || []}
                   tableId={canceledMatchesTableId}
             />
       ), [canceledMatches, canceledMatchesConfig, canceledMatchesTableId]);
 
-
+      const filteredForfeitedMatches = getFilteredData(forfeitedMatchesTableId, forfeitedMatches, forfeitedMatchesConfig);    
       const memoizedForfeitedMatchesTable = useMemo(() => (
             <Table
                   config={forfeitedMatchesConfig} 
-                  data={forfeitedMatches || []}
+                  data={filteredForfeitedMatches || []}
                   tableId={forfeitedMatchesTableId}
             />
       ), [forfeitedMatches, forfeitedMatchesConfig, forfeitedMatchesTableId]);
+      //#endregion
 
       return (
             <main className={classes.layout__container}>
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Запланированные матчи</h2>
-                              <Search />
+                              <Search tableId={scheduledMatchesTableId} onSearch={handleSearch} />
                               <ModalOpenButton modalItem={ <CreateMatchForm initialStatusTypeId={1}/> } >
                                     +
                               </ModalOpenButton>
@@ -116,7 +127,7 @@ const Matches = () => {
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Завершенные матчи</h2>
-                              <Search />
+                              <Search tableId={completedMatchesTableId} onSearch={handleSearch} />
                               <ModalOpenButton modalItem={ <CreateMatchForm initialStatusTypeId={2}/> } >
                                     +
                               </ModalOpenButton>
@@ -127,7 +138,7 @@ const Matches = () => {
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Отмененные матчи</h2>
-                              <Search />
+                              <Search tableId={canceledMatchesTableId} onSearch={handleSearch} />
                               <ModalOpenButton modalItem={ <CreateMatchForm initialStatusTypeId={3}/> } >
                                     +
                               </ModalOpenButton>
@@ -138,7 +149,7 @@ const Matches = () => {
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Матчи с неявками</h2>
-                              <Search />
+                              <Search tableId={forfeitedMatchesTableId} onSearch={handleSearch} />
                               <ModalOpenButton modalItem={ <CreateMatchForm initialStatusTypeId={4}/> } >
                                     +
                               </ModalOpenButton>
@@ -149,7 +160,7 @@ const Matches = () => {
                   <div className={classes.content__block}>
                         <div className={classes.block__header}>
                               <h2>Причины отмен матчей</h2>
-                              <Search />
+                              <Search tableId={cancellationReasonTableId} onSearch={handleSearch} />
                               <EditButton
                                     isEditing={isCancellationReasonEditing[cancellationReasonTableId]} 
                                     tableId={cancellationReasonTableId}
@@ -163,7 +174,7 @@ const Matches = () => {
                         </div>
                         <Table
                               config={cancellationReasonConfig} 
-                              data={cancellation_reasons || []}
+                              data={filteredCancellationReasons || []}
                               tableId={cancellationReasonTableId}
                               isEditing={isCancellationReasonEditing[cancellationReasonTableId]}
                               onToggleEdit={() => toggleCancellationReasonEdit(cancellationReasonTableId)}

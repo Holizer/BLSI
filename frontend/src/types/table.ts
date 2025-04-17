@@ -2,10 +2,11 @@ export interface TableColumn<T> {
       key: keyof T;
       title: string;
       editable?: boolean;
-      type?: 'text' | 'select' | 'number';
+      type?: 'text' | 'select' | 'number' | 'date';
       validator?: (value: any) => boolean;
       options?: ColumnOption[] | ((rowData: T) => ColumnOption[]);
       displayValue?: (rowData: T) => React.ReactNode;
+      searchable?: boolean;
       emptyValueText?: string;
       maxLength?: number;
       max?: number,

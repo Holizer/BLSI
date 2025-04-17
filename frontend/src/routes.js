@@ -1,8 +1,9 @@
-import { ADDREESES_ROUTE, MATCHES_ROUTE, PLAYERS_ROUTE, PLAYGROUNDS_ROUTE, TEAMS_ROUTE } from "./const";
+import { ADDREESES_ROUTE, MATCHES_ROUTE, PLAYERS_ROUTE, PLAYGROUNDS_ROUTE, SEASONS_ROUTE, TEAMS_ROUTE } from "./const";
 import Addresses from "./pages/Addresses";
 import Matches from "./pages/Matches";
 import Players from "./pages/Players";
 import Playgrounds from "./pages/Playgrounds";
+import Seasons from "./pages/Seasons";
 import Teams from "./pages/Teams";
 
 export const publicRoutes = [
@@ -25,5 +26,9 @@ export const publicRoutes = [
       {
             path: PLAYGROUNDS_ROUTE,
             Component: Playgrounds,
+      },
+      {
+            path: SEASONS_ROUTE,
+            Component: Seasons,
       },
 ]

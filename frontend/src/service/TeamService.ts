@@ -57,6 +57,5 @@ export default class TeamService {
               }
               throw error;
           }
-      }
-      
+     }
 }

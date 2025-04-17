@@ -10,12 +10,14 @@ import { usePlayerTeamTable } from '../configs/players/usePlayerTeamTable';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
 import { usePlayerStatiscticsTable } from '../configs/players/usePlayerStatiscticsTable';
 import { useSeasonPlayerBestGameTable } from '../configs/players/useSeasonPlayerBestGameTable';
+import { useTableSearch } from '../hooks/useTableSearch';
 
-const PlayersManager: React.FC = () => {
+const Players = () => {
     const { playerStore, seasonStore } = useAppContext();
     const { playerTeams } = playerStore;
     const { playersStatistic, playersBestGame } = seasonStore;
-
+    
+    //#region CONFIGS
     const {
         tableId: playerTeamTableId,
         config: playerTeamViewConfig,
@@ -31,11 +33,50 @@ const PlayersManager: React.FC = () => {
         tableId: playerStatisticsTableId,
         config: playerStatisticsConfig,
     } = usePlayerStatiscticsTable();
-
+    
     const {
         tableId: seasonPlayerBestGameTableId,
         config: seasonPlayerBestGamesConfig,
     } = useSeasonPlayerBestGameTable();
+
+    const { handleSearch, getFilteredData } = useTableSearch();
+    //#endregion
+
+    //#region FILTERS AND TABLES
+    const filteredPlayerStats = getFilteredData(
+        playerStatisticsTableId,
+        playersStatistic,
+        playerStatisticsConfig
+    );
+
+    const filteredBestGames = getFilteredData(
+        seasonPlayerBestGameTableId,
+        playersBestGame,
+        seasonPlayerBestGamesConfig
+    );
+
+    const filteredPlayerTeams = getFilteredData(
+        playerTeamTableId,
+        playerTeams,
+        playerTeamViewConfig
+    );
+
+    const memoizedPlayerStatsTable = useMemo(() => (
+        <Table
+            config={playerStatisticsConfig} 
+            data={filteredPlayerStats || []}
+            tableId={playerStatisticsTableId}
+        />
+    ), [playersStatistic, playerStatisticsConfig, playerStatisticsTableId]);
+    
+    const memoizedSeasonPlayerBestGameTable = useMemo(() => (
+        <Table
+            config={seasonPlayerBestGamesConfig} 
+            data={filteredBestGames || []}
+            tableId={seasonPlayerBestGameTableId}
+        />
+    ), [playersBestGame, seasonPlayerBestGamesConfig, seasonPlayerBestGameTableId]);
+    //#endregion
 
     useEffect(() => {
         const { selectedSeasonId, selectedWeekId } = seasonStore;
@@ -46,28 +87,12 @@ const PlayersManager: React.FC = () => {
         }
     }, [seasonStore.selectedSeasonId, seasonStore.selectedWeekId]);
     
-    const memoizedPlayerStatsTable = useMemo(() => (
-        <Table
-            config={playerStatisticsConfig} 
-            data={playersStatistic || []}
-            tableId={playerStatisticsTableId}
-        />
-    ), [playersStatistic, playerStatisticsConfig, playerStatisticsTableId]);
-
-    const memoizedSeasonPlayerBestGameTable = useMemo(() => (
-        <Table
-            config={seasonPlayerBestGamesConfig} 
-            data={playersBestGame || []}
-            tableId={seasonPlayerBestGameTableId}
-        />
-    ), [playersBestGame, seasonPlayerBestGamesConfig, seasonPlayerBestGameTableId]);
-
     return (
         <main className={classes.layout__container}>
             <div className={classes.content__block}>
                 <div className={classes.block__header}>
                     <h2>Список игроков</h2>
-                    <Search />
+                    <Search  tableId={playerTeamTableId} onSearch={handleSearch}/>
                     <EditButton
                         isEditing={isEditing[playerTeamTableId]} 
                         tableId={playerTeamTableId}
@@ -81,7 +106,7 @@ const PlayersManager: React.FC = () => {
                 </div>
                 <Table
                     config={playerTeamViewConfig} 
-                    data={playerTeams || []}
+                    data={filteredPlayerTeams || []}
                     tableId={playerTeamTableId}
                     isEditing={isEditing[playerTeamTableId]}
                     onToggleEdit={() => toggleEditMode(playerTeamTableId)}
@@ -97,17 +122,17 @@ const PlayersManager: React.FC = () => {
             </div>
 
             <div className={classes.content__block}>
-                <div className={classes.block__header}>
-                    <h2>Статистика игроков</h2>
-                    <Search />
-                </div>
-                {memoizedPlayerStatsTable}
+                    <div className={classes.block__header}>
+                        <h2>Статистика игроков</h2>
+                        <Search tableId={playerStatisticsTableId} onSearch={handleSearch}/>
+                    </div>
+                    {memoizedPlayerStatsTable}
             </div>
 
             <div className={classes.content__block}>
                 <div className={classes.block__header}>
-                    <h2>Лучшие игры игроков в сезоне</h2>
-                    <Search />
+                    <h2>Максимальное кол-во очков за игру в сезоне</h2>
+                    <Search tableId={seasonPlayerBestGameTableId} onSearch={handleSearch}/>
                 </div>
                 {memoizedSeasonPlayerBestGameTable}
             </div>
@@ -115,4 +140,4 @@ const PlayersManager: React.FC = () => {
     );
 };
 
-export default observer(PlayersManager);
+export default observer(Players);

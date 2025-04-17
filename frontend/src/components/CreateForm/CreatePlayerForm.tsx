@@ -111,7 +111,7 @@ const CreatePlayerForm = () => {
                         onChange={handleChange}
                         className={classes.createTeamForm__input}
                         options={[
-                            { value: '', label: 'Сайлент Хилл' },
+                            { value: '', label: 'Не выбран' },
                             ...addressStore.cities.map(city => ({
                                 value: city.city_id,
                                 label: city.city_name

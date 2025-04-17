@@ -1,5 +1,6 @@
 export const PLAYERS_ROUTE = '/players'
 export const TEAMS_ROUTE = '/teams'
 export const MATCHES_ROUTE = '/matches'
+export const SEASONS_ROUTE = '/seasons'
 export const ADDREESES_ROUTE = '/addresses'
 export const PLAYGROUNDS_ROUTE = '/playgrounds'

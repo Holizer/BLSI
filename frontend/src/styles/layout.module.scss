@@ -38,6 +38,34 @@
                         color: $primary-color;
                         font-size: 1.2rem;
                         margin-right: auto;
+                        width: 100%;
+                  }
+
+                  .seasons_choise_bar {
+                        display: flex;
+                        align-items: center;
+                        width: 100%;
+                        max-width: 550px;
+                        gap: 0.2rem;
+
+                        button {
+                              background-color: $accent-color;
+                              color: #fff;
+                              padding: 0.2rem 0.4rem;
+                              font-weight: 700;
+                              border: none;
+                              border-radius: 0.4rem;
+                              cursor: pointer;
+                              transition: all 0.2s ease;
+                              
+                              &:hover {
+                                  background: darken($accent-color, 5%);
+                              }
+                              
+                              &:active {
+                                  transform: scale(0.95);
+                              }
+                        }
                   }
             }
       }

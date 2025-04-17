@@ -11,9 +11,15 @@ import { ICity } from '@/models/address/ICity';
 import { usePlayerAddressTable } from '../configs/addresses/usePlayerAddressTable';
 import { IPlayerAddressView } from '../models/player/IPlayerAddressView';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
+import { useTableSearch } from '../hooks/useTableSearch';
 
 const Addresses = () => {
     const { addressStore } = useAppContext();
+    
+    const {
+        handleSearch,
+        getFilteredData
+    } = useTableSearch();
 
     const {
 		tableId: cityTableId,
@@ -36,6 +42,10 @@ const Addresses = () => {
         getRowsToDelete: getAddressRowsToDelete,
         handleSave: handleAddressSave,
 	} = usePlayerAddressTable();
+
+
+    const filteredAddresses = getFilteredData(addressTableId, addressStore.playerAddresses, addressConfig);
+    const filteredCities = getFilteredData(cityTableId, addressStore.cities, cityConfig);
 	
 	useEffect(() => {
 		addressStore.loadAllAddressesData();
@@ -47,7 +57,7 @@ const Addresses = () => {
 			<div className={classes.content__block}>
 				<div className={classes.block__header}>
 					<h2>Адреса игроков</h2>
-					<Search />
+					<Search tableId={addressTableId} onSearch={handleSearch} />
 					<EditButton
 						tableId={addressTableId}
                         isEditing={isAddressEditing[addressTableId]} 
@@ -59,22 +69,21 @@ const Addresses = () => {
 				<Table
 					tableId={addressTableId}
 					config={addressConfig} 
-					data={addressStore.playerAddresses || []}
+					data={filteredAddresses || []} // 🔍 изменено
 					isEditing={isAddressEditing[addressTableId]}
                     onToggleEdit={() => toggleAddressEdit(addressTableId)}
 					onEditChange={(rowIndex: number, updatedData: IPlayerAddressView) => 
 						handleAddressChange(addressTableId, rowIndex, updatedData)
 					}
-                    onDeleteToggle={toggleCityDelete}
+                    onDeleteToggle={toggleAddressDelete}
                     rowsToDelete={getAddressRowsToDelete(addressTableId)}
 				/>
 			</div>
 
-
 			<div className={classes.content__block}>
                 <div className={classes.block__header}>
                     <h2>Города</h2>
-                    <Search />
+                    <Search tableId={cityTableId} onSearch={handleSearch} />
                     <EditButton
 						tableId={cityTableId}
                         isEditing={isCityEditing[cityTableId]} 
@@ -89,7 +98,7 @@ const Addresses = () => {
                 <Table
 					tableId={cityTableId}
                     config={cityConfig} 
-                    data={addressStore.cities || []}
+                    data={filteredCities || []}
                     isEditing={isCityEditing[cityTableId]}
                     onToggleEdit={() => toggleCityEdit(cityTableId)}
 					onEditChange={(rowIndex: number, updatedData: ICity) => 

@@ -20,6 +20,7 @@ class PlaygroundRepository:
         return [PlaygroundSchema(**row) for row in result.mappings()]
     
 
+
     def delete_playeground(self, playground_id: int):
         query = text("CALL delete_playeground(:playground_id)")
         self.db.execute(query, {"playground_id": playground_id})
@@ -29,6 +30,7 @@ class PlaygroundRepository:
         query = text("CALL delete_playeground_type(:playeground_type_id)")
         self.db.execute(query, {"playeground_type_id": playeground_type_id})
         self.db.commit()
+    
     
 
     def create_playground(self, playground_data: CreatePlaygroundSchema):

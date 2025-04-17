@@ -11,16 +11,47 @@ export const usePlayerTeamTable = () => {
     const tableConfig = useTableConfig<IPlayerTeamView>(() => ({
         applyDelete: true,
         columns: [
-            { key: 'first_name', title: 'Имя', editable: true, type: 'text', maxLength: 50 },
-            { key: 'last_name', title: 'Фамилия', editable: true, type: 'text', maxLength: 50 },
-            { key: 'age', title: 'Возраст', editable: true, type: 'number',  min: 18, max: 99, maxLength: 2 },
-            { key: 'phone', title: 'Номер телефона', editable: true, type: 'text', maxLength: 12  },
+            { 
+                key: 'first_name', 
+                title: 'Имя',  
+                editable: true, 
+                type: 'text', 
+                maxLength: 50,
+                searchable: true
+            },
+            { 
+                key: 'last_name', 
+                title: 'Фамилия', 
+                editable: true, 
+                type: 'text', 
+                maxLength: 50,
+                searchable: true 
+            },
+            { 
+                key: 'age', 
+                title: 'Возраст', 
+                editable: true, 
+                type: 'number',  
+                min: 18, 
+                max: 99, 
+                maxLength: 2,
+                searchable: false
+            },
+            { 
+                key: 'phone', 
+                title: 'Номер телефона', 
+                editable: true, 
+                type: 'text', 
+                maxLength: 12,
+                searchable: true 
+            },
             {
                 key: 'team_id',
                 title: 'Команда',
                 editable: true,
                 type: 'select',
                 emptyValueText: 'Без команды',
+                searchable: true,
                 options: teamStore.teams.map((team) => ({
                     value: team.team_id,
                     label: team.team_name,
@@ -58,13 +89,13 @@ export const usePlayerTeamTable = () => {
 
             await Promise.all([
                 ...Object.values(rowsToEdit).map(changes => 
-					playerStore.updatePlayerTeam(changes as IPlayerTeamView)
-				),
-				...Object.values(rowsToDelete).map((playerForDelete) =>
-					playerForDelete.player_id ? playerStore.deletePlayer(playerForDelete.player_id) : Promise.resolve()
-				)
+                    playerStore.updatePlayerTeam(changes as IPlayerTeamView)
+                ),
+                ...Object.values(rowsToDelete).map((playerForDelete) =>
+                    playerForDelete.player_id ? playerStore.deletePlayer(playerForDelete.player_id) : Promise.resolve()
+                )
             ]);
-		    await playerStore.fetchPlayerTeamView();
+            await playerStore.fetchPlayerTeamView();
             resetTableState(tableId);
         } catch (error) {
             console.error("Ошибка при сохранении:", error);
@@ -72,11 +103,16 @@ export const usePlayerTeamTable = () => {
         }
     }, [playerStore, getRowsToDelete, getRowsToEdit, resetTableState]);
 
+    const searchableColumns = tableConfig.columns
+        .filter(col => col.searchable)
+        .map(col => col.key);
+
     return {
         tableId,
         config: {
             columns: tableConfig.columns,
             applyDelete: tableConfig.applyDelete,
+            searchableColumns,
         },
         isEditing,
         handleTableChange,

@@ -11,12 +11,14 @@ import { usePlaygroundsTable } from '../configs/playgrounds/usePlaygroundsTable'
 import { usePlaygroundsTypeTable } from '../configs/playgrounds/usePlaygroundsTypeTable';
 import ModalOpenButton from '../UI/ModalOpenButton/ModalOpenButton';
 import { useSeasonPlaygroundViews } from '../configs/playgrounds/useSeasonPlaygroundViews';
+import { useTableSearch } from '../hooks/useTableSearch';
 
 const Playgrounds = () => {
     const { playgroundStore, seasonStore } = useAppContext();
     const { playground_types, playgrounds } = playgroundStore;
     const { playgroundViews } = seasonStore;
 
+    //#region CONFIGS
     const {
         tableId: playgroundsTableId,
         config: playgroundsConfig, 
@@ -38,11 +40,17 @@ const Playgrounds = () => {
         getRowsToDelete: getTypesRowsToDelete,
         handleSave: handleTypesSave,
     } = usePlaygroundsTypeTable();
-
+    
     const {
         tableId: seasonPlaygroundViewsTableId,
         config: seasonPlaygroundViewstypesConfig, 
     } = useSeasonPlaygroundViews();
+    //#endregion
+    
+    //#region FILTERS AND TABLES
+    const { handleSearch, getFilteredData } = useTableSearch(); 
+    const filteredPlaygrounds = getFilteredData(playgroundsTableId, playgrounds, playgroundsConfig); 
+    const filteredPlaygroundTypes = getFilteredData(typesTableId, playground_types, typesConfig);    
 
     const memoizedSeasonPlaygroundViewsTable = useMemo(() => (
         <Table
@@ -51,7 +59,8 @@ const Playgrounds = () => {
             tableId={seasonPlaygroundViewsTableId}
         />
     ), [playgroundViews, seasonPlaygroundViewstypesConfig, seasonPlaygroundViewsTableId]);
-
+    //#endregion
+    
     useEffect(() => {
         playgroundStore.fetchPlaygroundTypes();        
     }, [playgroundStore]);
@@ -68,8 +77,15 @@ const Playgrounds = () => {
         <main className={classes.layout__container}>
             <div className={classes.content__block}>
                 <div className={classes.block__header}>
+                    <h2>Текущее количество просмотров</h2>
+                </div>
+                {memoizedSeasonPlaygroundViewsTable}
+            </div>
+
+            <div className={classes.content__block}>
+                <div className={classes.block__header}>
                     <h2>Игровые площадки</h2>
-                    <Search />
+                    <Search tableId={playgroundsTableId} onSearch={handleSearch} />
                     <EditButton
                         isEditing={isPlaygroundsEditing[playgroundsTableId]} 
                         tableId={playgroundsTableId}
@@ -83,7 +99,7 @@ const Playgrounds = () => {
                 </div>
                 <Table
                     config={playgroundsConfig} 
-                    data={playgrounds || []}
+                    data={filteredPlaygrounds || []}
                     tableId={playgroundsTableId}
                     isEditing={isPlaygroundsEditing[playgroundsTableId]}
                     onToggleEdit={() => togglePlaygroundsEdit(playgroundsTableId)}
@@ -100,7 +116,7 @@ const Playgrounds = () => {
             <div className={classes.content__block}>
                 <div className={classes.block__header}>
                     <h2>Типы игровых площадок</h2>
-                    <Search />
+                    <Search tableId={typesTableId} onSearch={handleSearch} />
                     <EditButton
                         isEditing={isTypesEditing[typesTableId]} 
                         tableId={typesTableId}
@@ -114,7 +130,7 @@ const Playgrounds = () => {
                 </div>
                 <Table
                     config={typesConfig} 
-                    data={playground_types || []}
+                    data={filteredPlaygroundTypes || []}
                     tableId={typesTableId}
                     isEditing={isTypesEditing[typesTableId]}
                     onToggleEdit={() => toggleTypesEdit(typesTableId)}
@@ -126,14 +142,6 @@ const Playgrounds = () => {
                     }
                     rowsToDelete={getTypesRowsToDelete(typesTableId)}
                 />
-            </div>
-
-            <div className={classes.content__block}>
-                <div className={classes.block__header}>
-                    <h2>Количество просмотров</h2>
-                    <Search />
-                </div>
-                {memoizedSeasonPlaygroundViewsTable}
             </div>
         </main>
     );
